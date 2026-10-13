@@ -414,3 +414,23 @@ status
 ```text
 
 ```
+
+---
+
+## 十一、Web、Wokwi 與後端展示測試
+
+> 本區與 ESP32 實機紀錄分開。Web 通過不代表硬體通過。
+
+| 測試項目 | 預期結果 | 實際結果 | 通過 |
+|---|---|---|---|
+| `truck/simulator.html` 載入 | 頁面可開啟、LCD 與控制區尺寸固定 |  | ⏳ |
+| 虛擬搖桿 | 上／左／右累積情緒，下取消；A 確認；B 重設 |  | ⏳ |
+| 13-state 流程 | 可由 IDLE 完成至 COLLECTED／REST_DAILY_LIMIT |  | ⏳ |
+| 三次旋轉展示 | ARRIVED 按三次後進入 THROW_READY |  | ⏳ |
+| 硬體音效啟用 | 使用者按鈕後 Web Audio 可播放 |  | ⏳ |
+| 音效失敗隔離 | 無 AudioContext 時仍可操作狀態機 |  | ⏳ |
+| APPROACHING | Fur Elise 約 10 秒後進入 ARRIVED |  | ⏳ |
+| Chart.js 統計 | API 可用時讀取資料，失敗時顯示 demo fallback |  | ⏳ |
+| FastAPI 寫入 | `SIM-001` 模擬 state/emotion/collection 可查詢 |  | ⏳ |
+| Wokwi 外部連結 | 開啟指定 Wokwi 專案 |  | ⏳ |
+| 手機瀏覽器 | 版面與觸控按鈕可用 |  | ⏳ |

@@ -177,3 +177,15 @@ ARRIVED → THROW_READY → THROWING → RESPONDING_* → COLLECTED
 ```
 
 測試指令：`status`、`throw reset`、`reset day`、`state daily limit`。
+
+## 11. Web 模擬器與後端邊界
+
+`truck/simulator.html` 是與 ESP32 共用狀態命名、bags 結算、每日上限與音效規格的獨立展示頁。其主要輸入是虛擬搖桿、A/B 按鍵與展示用測試控制；旋轉流程以三次「旋轉一圈」按鈕代表硬體的 360°、720°、1080°。
+
+模擬器會以 `SIM-001`、`source=SIMULATION` 呼叫 FastAPI。API 可用時寫入模擬事件並讀取統計；請求失敗時使用頁面標示的 demo-data fallback。這不代表 ESP32 已與後端完成雙向即時同步。
+
+Wokwi 專案是外部硬體展示入口：<https://wokwi.com/projects/477775315279623169>。Wokwi 不會自動接收 Web 模擬器狀態。
+
+瀏覽器端 Web Audio 依照 `platformio/src/sounds.h` 與 `sounds/` 的音符、頻率和毫秒時長重現硬體聲音。因瀏覽器自動播放限制，使用者需先啟用音效；即使 AudioContext 失敗，狀態流程仍應可操作。
+
+> SQL 仍保留 `returned_bags` 作為後端相容欄位；在產品語意與前端文件中稱為 collected bags（收走數量），不是「退回數量」。

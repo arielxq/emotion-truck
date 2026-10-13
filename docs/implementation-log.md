@@ -593,3 +593,24 @@ reset      → 回到 IDLE，累積歸零
 - 依序執行 `m1`～`m8`，每次記錄聲音是否正確。
 - 若要停止 10 秒音樂，輸入 `m9`；目前播放函式為阻塞式，播放期間需等該段播放結束後才能處理新的序列埠指令。
 - 音效確認完成後，再將音效接入正式狀態機。
+
+---
+
+## 2026-10-14｜Web 模擬器、硬體音效與文件同步
+
+### 已完成
+
+- 建立 `truck/simulator.html`，提供 Game Boy 風格虛擬搖桿、A/B 按鍵、狀態展示、流程測試控制與 Chart.js 統計。
+- Web 模擬器完成 13-state 展示流程，包含 `REST_CLOSED`、`THROW_READY`、三種 `RESPONDING_*`、`COLLECTED` 與 `REST_DAILY_LIMIT`。
+- 使用 `platformio/src/sounds.h` 與 `sounds/` 的原始音符建立 Web Audio；加入 Fur Elise 約 10 秒接近／離開段落。
+- 音效啟用受瀏覽器使用者手勢限制；AudioContext 或 oscillator 失敗時不阻斷狀態機。
+- Web 模擬器加入 FastAPI/SQL 呼叫與 demo-data fallback，使用 `SIM-001` 與 `source=SIMULATION`。
+- 建立 `truck/showcase.html` 作為 3D 展示與硬體入口，Wokwi 使用外部連結，不作 Web 即時同步。
+- README、proposal 與 docs 改以 13-state、單色 LED GPIO27、1080° 三圈及 Web/Backend 分層為現行描述。
+
+### 邊界與待驗證
+
+- ESP32 實機燒錄、旋轉、LED、蜂鳴器與完整狀態仍須依 `docs/verification-matrix.md` 逐項確認。
+- Web simulator 的流程測試通過，不等於 ESP32 實機驗證通過。
+- SQL 的 `returned_bags` 是相容欄位，文件以 collected bags 表達收走數量。
+- 早期 RGB LED、單一 REST、RETURNED 與 12 段旋轉內容保留在歷史日誌，只代表開發過程，不是現行規格。
