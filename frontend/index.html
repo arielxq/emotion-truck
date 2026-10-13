@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>情緒垃圾車</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <main class="container">
+    <header><p class="eyebrow">EMOTION GARBAGE TRUCK</p><h1>情緒垃圾車</h1><p>把今天的壞情緒，交給垃圾車處理。</p></header>
+    <section class="card status-card"><div><span id="state" class="badge">IDLE</span><h2 id="message">垃圾車還沒來</h2><p id="clock"></p><p>上次收垃圾：<span id="last-collect">尚未收運</span></p></div><div id="led" class="led blue"></div></section>
+    <section class="card"><h2>測試控制</h2><p class="hint">測試模式：先讓垃圾車到達，再用方向鍵選擇情緒。</p><div class="controls"><button id="arrive">垃圾車到達</button><button id="reset" class="secondary">重置</button></div><div class="joystick"><button data-direction="UP">↑<small>ㄍㄢˋ</small></button><div><button data-direction="LEFT">←<small>ㄎㄠˋ</small></button><button data-direction="RIGHT">→<small>ㄘㄠˋ</small></button></div><button id="confirm">確認送出</button></div><p id="selection" class="selection">尚未選擇情緒</p></section>
+    <section id="animation" class="card animation"><div class="truck">🚛</div><div id="bag" class="bag">🗑️</div><p id="prompt"></p></section>
+  </main>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

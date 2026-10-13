@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒垃圾車 - 模擬控制台</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>情緒垃圾車 - 模擬控制台</h1>
+        <nav>
+            <a href="/">主頁</a>
+            <a href="/sim" class="active">模擬控制台</a>
+            <a href="/history">歷史記錄</a>
+            <a href="/stats">統計圖表</a>
+        </nav>
+    </header>
+    
+    <main class="sim-container">
+        <!-- 搖桿 -->
+        <section class="panel joystick-panel">
+            <h2>模擬搖桿</h2>
+            <div class="joystick">
+                <button class="dir-btn up" data-dir="UP">↑</button>
+                <button class="dir-btn left" data-dir="LEFT">←</button>
+                <div class="center-circle"></div>
+                <button class="dir-btn right" data-dir="RIGHT">→</button>
+                <button class="dir-btn down" data-dir="DOWN">↓</button>
+            </div>
+            <button class="sw-btn" id="sw-btn">按下 SW</button>
+        </section>
+        
+        <!-- LCD -->
+        <section class="panel lcd-panel">
+            <h2>模擬 LCD</h2>
+            <div class="lcd-display">
+                <div class="lcd-line" id="lcd-line1">Truck resting</div>
+                <div class="lcd-line" id="lcd-line2">
+                    <span class="emoji" id="lcd-emoji">😴</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- LED -->
+        <section class="panel led-panel">
+            <h2>模擬 LED</h2>
+            <div class="led-display">
+                <div class="led-circle" id="led-circle"></div>
+                <p id="led-status">熄滅</p>
+            </div>
+        </section>
+        
+        <!-- 蜂鳴器 -->
+        <section class="panel buzzer-panel">
+            <h2>模擬蜂鳴器</h2>
+            <div class="buzzer-display">
+                <div class="buzzer-icon" id="buzzer-icon">🔇</div>
+                <p id="buzzer-status">無聲</p>
+            </div>
+        </section>
+        
+        <!-- 狀態資訊 -->
+        <section class="panel status-panel">
+            <h2>狀態資訊</h2>
+            <table class="status-table">
+                <tr><td>當前狀態</td><td id="current-state">REST_CLOSED</td></tr>
+                <tr><td>Bags</td><td id="bags-count">0/5</td></tr>
+                <tr><td>今日清運</td><td id="daily-count">0/2</td></tr>
+                <tr><td>資料來源</td><td>SIMULATION</td></tr>
+            </table>
+        </section>
+        
+        <!-- 操作日誌 -->
+        <section class="panel log-panel">
+            <h2>操作日誌</h2>
+            <div class="log-output" id="log-output"></div>
+        </section>
+        
+        <!-- 測試指令 -->
+        <section class="panel test-panel">
+            <h2>快速測試</h2>
+            <div class="test-buttons">
+                <button data-test="state rest">REST</button>
+                <button data-test="state idle">IDLE</button>
+                <button data-test="state approaching">APPROACHING</button>
+                <button data-test="state arrived">ARRIVED</button>
+                <button data-test="state throw_ready">THROW_READY</button>
+                <button data-test="state throwing">THROWING</button>
+                <button data-test="state careful">CAREFUL</button>
+                <button data-test="state thanks">THANKS</button>
+                <button data-test="state recycle">RECYCLE</button>
+                <button data-test="state collected">COLLECTED</button>
+                <button data-test="state daily_limit">DAILY_LIMIT</button>
+                <button data-test="reset">RESET</button>
+            </div>
+        </section>
+    </main>
+    
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/sim.js"></script>
+</body>
+</html>

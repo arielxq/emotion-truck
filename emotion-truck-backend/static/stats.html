@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒垃圾車 - 統計圖表</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>情緒垃圾車</h1>
+        <nav>
+            <a href="/">主頁</a>
+            <a href="/sim">模擬控制台</a>
+            <a href="/history">歷史記錄</a>
+            <a href="/stats" class="active">統計圖表</a>
+        </nav>
+    </header>
+
+    <main class="sim-container">
+        <section class="panel" style="grid-column: 1 / -1;">
+            <h2>資料來源</h2>
+            <div class="filter-bar">
+                <button class="filter-btn active" data-source="HARDWARE">硬體</button>
+                <button class="filter-btn" data-source="SIMULATION">模擬</button>
+                <button class="filter-btn" data-source="ALL">全部</button>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>情緒分布</h2>
+            <div class="chart-wrapper">
+                <canvas id="emotionChart"></canvas>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>本週清運次數</h2>
+            <div class="chart-wrapper">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </section>
+
+        <section class="panel" style="grid-column: 1 / -1;">
+            <h2>總統計</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">總清運次數</div>
+                    <div class="summary-value" id="stat-total">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">退回總數</div>
+                    <div class="summary-value" id="stat-returned">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">平均清運包數</div>
+                    <div class="summary-value" id="stat-avg">0</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/stats.js"></script>
+</body>
+</html>

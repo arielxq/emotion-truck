@@ -1,0 +1,777 @@
+<!-- 第一章 -->
+    <div class="chapter" id="ch1">
+      <h3>第一章：專題概述</h3>
+      <h4>1.1 設計動機</h4>
+      <p>現代人每天線上線下遇到很多煩心瑣事和垃圾情緒。這些情緒不能隨便對人發洩，又不能一直憋著。<strong>與其讓情緒爛在心裡，不如丟進垃圾車。</strong></p>
+      <p>真實世界的垃圾車有固定的時間、固定的音樂、固定的規則，還有<strong>隨機的工作人員互動</strong>。本專題把「倒垃圾」這個日常行為，轉化成「倒情緒」的儀式：</p>
+      <ul>
+        <li>垃圾車音樂響起 → 提醒你「可以倒垃圾了」</li>
+        <li><strong>用搖桿選出情緒</strong> → 把壞情緒「打包」</li>
+        <li>螢幕顯示垃圾袋被拋棄、銷毀 → 象徵性情緒釋放</li>
+        <li><strong>工作人員隨機提示</strong> → 有時順利收走，有時被退還</li>
+        <li>音樂逐漸模糊消失 → 垃圾車開走了，情緒也走了</li>
+      </ul>
+      <h4>1.2 為什麼選這三種組合</h4>
+      <table>
+        <thead><tr><th>注音</th><th>情緒</th><th>日常對應</th></tr></thead>
+        <tbody>
+          <tr><td>ㄍㄢˋ</td><td>憤怒</td><td>遇到鳥事、被惹毛</td></tr>
+          <tr><td>ㄎㄠˋ</td><td>不爽</td><td>被雷到、無言</td></tr>
+          <tr><td>ㄘㄠˋ</td><td>煩躁</td><td>事情太多、卡住</td></tr>
+        </tbody>
+      </table>
+      <p><strong>三種就夠了</strong>。真實的垃圾車也只收三種垃圾：一般垃圾、資源回收、廚餘。情緒垃圾車也一樣，三種情緒，三種出口。</p>
+      <h4>1.3 v2.5 核心修正：改用傳統四腳 RGB LED</h4>
+      <table>
+        <thead><tr><th>原本設計</th><th>v2.5 修改</th></tr></thead>
+        <tbody>
+          <tr><td>WS2812 RGB LED（1 GPIO）</td><td><strong>傳統四腳 RGB LED：R、G、B、GRD</strong></td></tr>
+          <tr><td>RGB LED 閃爍模擬震動</td><td><strong>保留閃爍作為視覺回饋，不宣稱是真實震動</strong></td></tr>
+          <tr><td>合計 7 GPIO</td><td><strong>合計 9 GPIO</strong></td></tr>
+        </tbody>
+      </table>
+      <p><strong>控制邏輯</strong>：</p>
+      <ul>
+        <li><strong>R/G/B 三個腳位</strong> → 由 ESP32 分別控制三色亮度與混色</li>
+        <li><strong>GRD 公共腳</strong> → 接 ESP32 GND；本企劃使用共陰極四腳 RGB LED</li>
+        <li><strong>閃爍節奏</strong> → 作為視覺化回饋，不等同於實際震動</li>
+      </ul>
+      <p>好處：元件容易取得、三色控制直觀，且可使用 PWM 做出不同亮度與狀態效果。相較 WS2812，需增加兩個 GPIO。</p>
+    </div>
+
+    <!-- 第二章 -->
+    <div class="chapter" id="ch2">
+      <h3>第二章：時間規則與待機提示</h3>
+      <h4>2.1 時段狀態總表</h4>
+      <table>
+        <thead><tr><th>時段</th><th>狀態</th><th>螢幕顯示</th><th>音樂</th><th>搖桿</th></tr></thead>
+        <tbody>
+          <tr><td>開放時段（9:00–20:00）<strong>非播放時間</strong></td><td><strong>待機</strong></td><td>「垃圾車還沒來」</td><td>無</td><td>無效</td></tr>
+          <tr><td>開放時段（9:00–20:00）<strong>播放時間</strong></td><td><strong>到達</strong></td><td>「垃圾車來了！」</td><td>播放中</td><td>有效</td></tr>
+          <tr><td>非開放時段（20:00–9:00）</td><td><strong>休息</strong></td><td>「垃圾車休息中」</td><td>無</td><td>無效</td></tr>
+          <tr><td>週三、週日（全天）</td><td><strong>休息</strong></td><td>「垃圾車休息中」</td><td>無</td><td>無效</td></tr>
+        </tbody>
+      </table>
+      <h4>2.2 兩種待機提示的區別</h4>
+      <table>
+        <thead><tr><th>提示</th><th>出現時機</th><th>含義</th></tr></thead>
+        <tbody>
+          <tr><td>「垃圾車還沒來」</td><td>開放時段內，但不在隨機播放時間</td><td>今天會來，但還沒到，情緒先放著</td></tr>
+          <tr><td>「垃圾車休息中」</td><td>非開放時段，或週三/週日</td><td>今天不會來，明天再倒</td></tr>
+        </tbody>
+      </table>
+      <h4>2.3 時段判斷邏輯</h4>
+      <pre><code>讀取當前時間
+    │
+    ├── 是週三或週日？ → 顯示「垃圾車休息中」
+    │
+    ├── 時間 &lt; 09:00 或 &gt; 20:00？ → 顯示「垃圾車休息中」
+    │
+    ├── 在隨機播放時間內？ → 顯示「垃圾車來了！」
+    │
+    └── 其他（開放時段但非播放時間）→ 顯示「垃圾車還沒來」</code></pre>
+      <h4>2.4 隨機播放時間</h4>
+      <table>
+        <thead><tr><th>規則</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>開放時段</td><td>每天 09:00–20:00</td></tr>
+          <tr><td>隨機播放</td><td>每天隨機 2 次</td></tr>
+          <tr><td>播放間隔</td><td>兩次間隔至少 3 小時</td></tr>
+          <tr><td>播放時長</td><td>每次約 3–5 分鐘</td></tr>
+          <tr><td>休息日</td><td>週三、週日全天不播放</td></tr>
+        </tbody>
+      </table>
+      <h4>2.5 收垃圾間隔規則</h4>
+      <table>
+        <thead><tr><th>規則</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>最小間隔</td><td>兩次收垃圾間隔至少 10 分鐘</td></tr>
+          <tr><td>計算方式</td><td>從上一次「確認收走」的時間開始算</td></tr>
+          <tr><td>間隔內按搖桿</td><td>顯示「垃圾車剛走，請稍等」</td></tr>
+          <tr><td>測試模式</td><td>可重置當天垃圾車時間</td></tr>
+          <tr><td>正式模式</td><td>不可調整、不可重置</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第三章 -->
+    <div class="chapter" id="ch3">
+      <h3>第三章：搖桿操作設計</h3>
+      <h4>3.1 搖桿方向對應三種情緒</h4>
+      <p>用 <strong>HW504 搖桿</strong>，三個方向對應三種注音組合：</p>
+      <table>
+        <thead><tr><th>方向</th><th>注音</th><th>情緒</th><th>顏色</th><th>LCD 顯示</th></tr></thead>
+        <tbody>
+          <tr><td>↑ 上</td><td>ㄍㄢˋ</td><td>憤怒</td><td>紅</td><td>「ㄍㄢˋ · 憤怒」</td></tr>
+          <tr><td>← 左</td><td>ㄎㄠˋ</td><td>不爽</td><td>橙</td><td>「ㄎㄠˋ · 不爽」</td></tr>
+          <tr><td>→ 右</td><td>ㄘㄠˋ</td><td>煩躁</td><td>黃</td><td>「ㄘㄠˋ · 煩躁」</td></tr>
+          <tr><td>↓ 下</td><td>—</td><td>不觸發</td><td>—</td><td>—</td></tr>
+          <tr><td>按下</td><td>—</td><td>確認送出</td><td>—</td><td>「送出中…」</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第四章 -->
+    <div class="chapter" id="ch4">
+      <h3>第四章：完整互動流程</h3>
+      <pre><code>【休息狀態】非開放時段 / 週三 / 週日
+螢幕顯示「垃圾車休息中」
+        │
+        ▼
+【待機狀態】開放時段但非播放時間
+螢幕顯示「垃圾車還沒來」
+        │
+        ▼
+【音樂響起】隨機播放時間到
+垃圾車音樂從模糊逐漸清晰響亮
+螢幕顯示「垃圾車來了！」
+        │
+        ▼
+【搖桿選擇】推動搖桿選方向
+LCD 即時顯示當前方向對應的情緒
+        │
+        ▼
+【按下確認】搖桿按下
+        │
+        ├── 檢查 10 分鐘間隔
+        │       │
+        │       ├── 未滿 10 分鐘 → 顯示「垃圾車剛走，請稍等」→ 回到到達
+        │       │
+        │       └── 已滿 10 分鐘 → 繼續
+        │
+        ▼
+【工作人員隨機提示】三種結果隨機
+        │
+         ├── 結果 A：順利收走（機率 50%）
+         │       提示音：「小心」
+        │       → 垃圾袋拋入 → 壓縮 → 銷毀
+        │       → 記錄收垃圾時間
+        │
+         ├── 結果 B：順利收走（機率 25%）
+         │       提示音：「謝謝」
+        │       → 垃圾袋拋入 → 壓縮 → 銷毀
+        │       → 記錄收垃圾時間
+        │
+         └── 結果 C：退還（機率 25%）
+                 提示音：「這是回收哦」
+                → 垃圾袋被退回
+                → RGB LED 變紅 + 連續閃爍
+                → 螢幕顯示「不好意思，垃圾車不接回收垃圾」
+                → 等待搖桿確認
+                → 搖桿按下 → 垃圾收回
+                → 所有狀態回到待機
+        │
+        ▼
+【音樂漸遠】垃圾車音樂逐漸模糊消失
+螢幕顯示「垃圾已清運，心情清爽」或「垃圾已退回」
+        │
+        ▼
+【回到待機】顯示「垃圾車還沒來」</code></pre>
+    </div>
+
+    <!-- 第五章 -->
+    <div class="chapter" id="ch5">
+      <h3>第五章：工作人員隨機提示設計</h3>
+      <h4>5.1 三種提示與機率</h4>
+      <table>
+        <thead><tr><th>提示音</th><th>結果</th><th>機率</th><th>後續動作</th></tr></thead>
+        <tbody>
+          <tr><td><strong>「小心」</strong></td><td>順利收走</td><td>50%</td><td>播放 correct 旋律概念 → 垃圾袋拋入 → 銷毀</td></tr>
+          <tr><td><strong>「謝謝」</strong></td><td>順利收走</td><td>25%</td><td>播放 achievement-bling 旋律概念 → 垃圾袋拋入 → 銷毀</td></tr>
+          <tr><td><strong>「這是回收哦」</strong></td><td><strong>退還</strong></td><td>25%</td><td>播放 error 旋律概念 → 垃圾袋退回 → 紅燈 → 等待確認</td></tr>
+        </tbody>
+      </table>
+      <h4>5.2 退還流程（結果 C）</h4>
+      <pre><code>垃圾袋被退回
+        │
+        ▼
+RGB LED 變紅 + 連續閃爍（模擬震動）
+        │
+        ▼
+螢幕顯示「不好意思，垃圾車不接回收垃圾」
+        │
+        ▼
+等待搖桿確認
+        │
+        ▼
+搖桿按下 → 垃圾收回
+        │
+        ▼
+所有狀態回到待機</code></pre>
+      <h4>5.3 提示音實作方式</h4>
+      <table>
+        <thead><tr><th>方式</th><th>說明</th><th>標記</th></tr></thead>
+        <tbody>
+          <tr><td>小心</td><td>參考 <code>sounds/correct.ino</code> 的音高與節奏，重新整理成專案音符表</td><td><span class="tag tag-proto">旋律參考</span></td></tr>
+          <tr><td>謝謝</td><td>參考 <code>sounds/achievement-bling.ino</code> 的獎勵音型，重新整理成專案音符表</td><td><span class="tag tag-proto">旋律參考</span></td></tr>
+          <tr><td>退還</td><td>參考 <code>sounds/error.ino</code> 的警告音型，重新整理成專案音符表</td><td><span class="tag tag-proto">旋律參考</span></td></tr>
+          <tr><td>原始檔案使用規則</td><td><strong>不直接使用 sounds/ 內的 .ino 檔案</strong>，只參考旋律，再以非阻塞播放器重新實作</td><td><span class="tag tag-done">設計規則</span></td></tr>
+          <tr><td>語音合成</td><td>TTS 合成提示文字，列為未來擴充</td><td><span class="tag tag-concept">概念／未來擴充</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第六章 -->
+    <div class="chapter" id="ch6">
+      <h3>第六章：時間顯示設計</h3>
+      <h4>6.1 螢幕顯示內容</h4>
+      <table>
+        <thead><tr><th>區域</th><th>內容</th><th>更新頻率</th></tr></thead>
+        <tbody>
+          <tr><td>頂部</td><td>當前日期（YYYY-MM-DD）</td><td>每分鐘</td></tr>
+          <tr><td>頂部</td><td>當前時間（HH:MM:SS）</td><td>每秒</td></tr>
+          <tr><td>中部</td><td>當天狀態（休息/待機/到達）</td><td>即時</td></tr>
+          <tr><td>底部</td><td>當天最後一次收垃圾時間</td><td>收垃圾後更新</td></tr>
+        </tbody>
+      </table>
+      <h4>6.2 顯示範例</h4>
+      <pre><code>┌─────────────────────────────┐
+│ 2026-10-10  14:35:22        │
+│ 狀態：垃圾車還沒來            │
+│ 上次收垃圾：13:52            │
+└─────────────────────────────┘</code></pre>
+      <h4>6.3 測試模式 vs 正式模式</h4>
+      <table>
+        <thead><tr><th>模式</th><th>重置功能</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><strong>測試模式</strong></td><td>可重置當天垃圾車時間</td><td>開發、演示用</td></tr>
+          <tr><td><strong>正式模式</strong></td><td><strong>不可調整、不可重置</strong></td><td>上線後鎖定</td></tr>
+        </tbody>
+      </table>
+      <p><strong>切換方式</strong>：<code>.env</code> 設定 <code>MODE=test</code> 或 <code>MODE=prod</code>。</p>
+    </div>
+
+    <!-- 第七章 -->
+    <div class="chapter" id="ch7">
+      <h3>第七章：硬體設計（傳統四腳 RGB LED）</h3>
+      <h4>7.1 硬體清單</h4>
+      <table>
+        <thead><tr><th>硬體</th><th>用途</th><th>標記</th></tr></thead>
+        <tbody>
+          <tr><td>ESP32</td><td>主控</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>搖桿 HW504</td><td>方向選擇 + 確認</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>LCD1602 或 OLED</td><td>顯示狀態、日期時間、情緒</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>蜂鳴器（無源）</td><td>播放 Toelise 垃圾車音樂 + 三種提示音旋律</td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+          <tr><td><strong>傳統四腳 RGB LED</strong></td><td><strong>R/G/B 三腳 PWM 顏色指示，GRD 接地；閃爍作為視覺回饋</strong></td><td><span class="tag tag-proto">硬體規格</span></td></tr>
+          <tr><td>網頁/螢幕</td><td>垃圾袋動畫</td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+        </tbody>
+      </table>
+      <h4>7.2 引腳佔用（v2.5 四腳 RGB LED）</h4>
+      <table>
+        <thead><tr><th>硬體</th><th>GPIO</th><th>備註</th></tr></thead>
+        <tbody>
+          <tr><td>搖桿 X 軸</td><td>1</td><td>ADC</td></tr>
+          <tr><td>搖桿 Y 軸</td><td>1</td><td>ADC</td></tr>
+          <tr><td>搖桿按鍵</td><td>1</td><td>數位</td></tr>
+          <tr><td>LCD1602 (I2C)</td><td>2</td><td>SDA/SCL</td></tr>
+          <tr><td>蜂鳴器</td><td>1</td><td>PWM</td></tr>
+          <tr><td>RGB LED R</td><td>1</td><td>PWM，建議 GPIO 26</td></tr>
+          <tr><td>RGB LED G</td><td>1</td><td>PWM，建議 GPIO 32</td></tr>
+          <tr><td>RGB LED B</td><td>1</td><td>PWM，建議 GPIO 33</td></tr>
+          <tr><td>RGB LED GRD</td><td>0</td><td>共陰極公共腳接 GND</td></tr>
+          <tr><td><strong>合計</strong></td><td><strong>9</strong></td><td>不包含 GND；比 WS2812 方案多 2 個 GPIO</td></tr>
+        </tbody>
+      </table>
+      <p><strong>注意</strong>：本企劃改用<strong>共陰極傳統四腳 RGB LED</strong>。R、G、B 各接一個具有限流電阻的 GPIO，GRD 接 ESP32 GND。若實際使用共陽極版本，公共腳需改接 3.3V，且程式的 PWM 邏輯需要反相。</p>
+      <h4>7.3 RGB LED 的顏色與閃爍角色</h4>
+      <table>
+        <thead><tr><th>角色</th><th>呈現方式</th><th>對應狀態</th></tr></thead>
+        <tbody>
+          <tr><td><strong>顏色指示</strong></td><td>綠/橙/黃/紅</td><td>待機/選擇/收走/退還</td></tr>
+          <tr><td><strong>閃爍節奏</strong></td><td>短閃/長閃/連續閃</td><td>視覺化互動回饋，不代表實際震動</td></tr>
+        </tbody>
+      </table>
+      <p><strong>閃爍節奏對照表</strong>：</p>
+      <table>
+        <thead><tr><th>節奏</th><th>閃爍模式</th><th>含義</th><th>對應場景</th></tr></thead>
+        <tbody>
+          <tr><td>不閃</td><td>常亮</td><td>待機</td><td>待機狀態</td></tr>
+          <tr><td>單次短閃</td><td>亮 200ms</td><td>短震</td><td>搖桿確認</td></tr>
+          <tr><td>雙次短閃</td><td>亮 100ms ×2</td><td>已收到</td><td>送出情緒</td></tr>
+          <tr><td>連續閃爍</td><td>亮 200ms ×5</td><td>連續震</td><td>退還提醒</td></tr>
+          <tr><td>長閃</td><td>亮 1s</td><td>長震</td><td>緊急狀態</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第八章 -->
+    <div class="chapter" id="ch8">
+      <h3>第八章：軟體架構</h3>
+      <h4>8.1 狀態機</h4>
+      <pre><code>[休息 REST]
+    │ 非開放時段 / 週三 / 週日
+    │ 顯示「垃圾車休息中」
+    │ RGB LED：R/G/B 關閉
+    │
+    ├── 進入開放時段 → [待機 IDLE]
+    │
+[待機 IDLE]
+    │ 開放時段但非播放時間
+    │ 顯示「垃圾車還沒來」
+    │ RGB LED：藍（常亮，B 腳 PWM）
+    │
+    ├── 隨機播放時間到 → [接近 APPROACHING]
+    │
+[接近 APPROACHING]
+    │ 音樂逐漸清晰
+    │ 顯示「垃圾車快到了…」
+    │ RGB LED：黃（慢閃，R+B 腳 PWM）
+    │
+    ├── 音樂到達最響 → [到達 ARRIVED]
+    │
+[到達 ARRIVED]
+    │ 顯示「垃圾車來了！」
+    │ RGB LED：綠（常亮，G 腳 PWM）
+    │ 等待搖桿輸入
+    │
+    ├── 搖桿按下 → [檢查間隔 CHECK_INTERVAL]
+    │
+[檢查間隔 CHECK_INTERVAL]
+    │ 檢查是否滿 10 分鐘
+    │
+    ├── 未滿 → 顯示「垃圾車剛走，請稍等」→ 回 ARRIVED
+    │
+    ├── 已滿 → [工作人員提示 WORKER_PROMPT]
+    │
+[工作人員提示 WORKER_PROMPT]
+    │ 隨機三種結果
+    │
+    ├── 結果 A/B（收走）→ [拋棄 THROWING]
+    │
+    ├── 結果 C（退還）→ [退還 RETURNING]
+    │
+[拋棄 THROWING]
+    │ 垃圾袋動畫 → 銷毀
+    │ RGB LED：綠（雙短閃，G 腳 PWM）
+    │ 記錄收垃圾時間
+    │
+    ├── 動畫結束 → [銷毀 DESTROYING]
+    │
+[銷毀 DESTROYING]
+    │ 音樂逐漸模糊
+    │
+    ├── 音樂消失 → [待機 IDLE]
+    │
+[退還 RETURNING]
+    │ 垃圾袋退回
+    │ RGB LED：紅（連續閃爍，R 腳 PWM）
+    │ 螢幕顯示「不好意思，垃圾車不接回收垃圾」
+    │
+    ├── 搖桿按下確認 → 垃圾收回 → [待機 IDLE]</code></pre>
+      <h4>8.2 核心服務</h4>
+      <table>
+        <thead><tr><th>服務</th><th>職責</th><th>標記</th></tr></thead>
+        <tbody>
+          <tr><td><code>time-scheduler</code></td><td>判斷開放時段、休息日、隨機播放</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>idle-message</code></td><td>依時段顯示不同待機提示</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>clock-display</code></td><td>顯示日期時間、上次收垃圾時間</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>interval-checker</code></td><td>檢查 10 分鐘間隔</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>worker-prompt</code></td><td>隨機三種工作人員提示</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>music-player</code></td><td>播放垃圾車音樂，音量漸變</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>prompt-sound</code></td><td>播放「小心／謝謝／這是回收哦」三種提示音旋律</td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+          <tr><td><code>joystick-handler</code></td><td>讀取搖桿方向與按鍵</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>direction-mapper</code></td><td>方向 → 三種情緒對應</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td><code>rgb-led-controller</code></td><td><strong>R/G/B PWM 顏色 + 閃爍節奏</strong></td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+          <tr><td><code>trash-animation</code></td><td>垃圾袋動畫（網頁/螢幕）</td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+          <tr><td><code>state-machine</code></td><td>狀態切換</td><td><span class="tag tag-done">已實作</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第九章 -->
+    <div class="chapter" id="ch9">
+      <h3>第九章：FastAPI 後端設計</h3>
+      <h4>9.1 接口清單</h4>
+      <table>
+        <thead><tr><th>方法</th><th>路徑</th><th>作用</th><th>標記</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/api/status</code></td><td>查當前狀態</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>GET</td><td><code>/api/clock</code></td><td>查當前日期時間、上次收垃圾時間</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>GET</td><td><code>/api/schedule</code></td><td>查今日垃圾車時間</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>POST</td><td><code>/api/joystick</code></td><td>接收搖桿方向</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>POST</td><td><code>/api/throw</code></td><td>觸發拋棄動畫</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>POST</td><td><code>/api/worker-prompt</code></td><td>觸發工作人員提示</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>POST</td><td><code>/api/reset</code></td><td>重置當天時間（<strong>僅測試模式</strong>）</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>GET</td><td><code>/api/history</code></td><td>查倒垃圾歷史</td><td><span class="tag tag-concept">概念／未來擴充</span></td></tr>
+        </tbody>
+      </table>
+      <h4>9.2 狀態回應範例</h4>
+      <pre><code>// 休息時段
+{
+  "state": "REST",
+  "message": "垃圾車休息中",
+  "can_throw": false,
+  "current_time": "2026-10-10 08:30:00",
+  "last_collect": null,
+  "led": {"color": "GRAY", "pattern": "SOLID"}
+}
+
+// 待機時段
+{
+  "state": "IDLE",
+  "message": "垃圾車還沒來",
+  "can_throw": false,
+  "current_time": "2026-10-10 14:35:22",
+  "last_collect": "13:52",
+  "led": {"color": "BLUE", "pattern": "SOLID"}
+}
+
+// 到達時段
+{
+  "state": "ARRIVED",
+  "message": "垃圾車來了！",
+  "can_throw": true,
+  "current_time": "2026-10-10 15:00:00",
+  "last_collect": "13:52",
+  "led": {"color": "GREEN", "pattern": "SOLID"}
+}
+
+// 退還時段
+{
+  "state": "RETURNED",
+  "message": "不好意思，垃圾車不接回收垃圾",
+  "can_throw": false,
+  "current_time": "2026-10-10 15:01:00",
+  "last_collect": "13:52",
+  "led": {"color": "RED", "pattern": "BLINK_FAST"}
+}</code></pre>
+      <h4>9.3 資料庫表（MySQL）</h4>
+      <pre><code>CREATE TABLE emotion_log (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    device_id     VARCHAR(32) NOT NULL,
+    direction     VARCHAR(16),
+    emotion_type  VARCHAR(32),
+    emotion_text  VARCHAR(16),
+    worker_prompt VARCHAR(32),
+    result        VARCHAR(16),
+    thrown_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE truck_schedule (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    schedule_date DATE NOT NULL,
+    play_time_1   TIME,
+    play_time_2   TIME,
+    is_holiday    TINYINT DEFAULT 0
+);
+
+CREATE TABLE collection_log (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    device_id     VARCHAR(32) NOT NULL,
+    collected_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    emotion_type  VARCHAR(32),
+    worker_prompt VARCHAR(32)
+);</code></pre>
+      <h4>9.4 工作人員提示映射（後端）</h4>
+      <pre><code>import random
+
+WORKER_PROMPTS = [
+    {"sound": "CAREFUL", "text": "小心",   "result": "COLLECTED", "weight": 50,
+     "led": {"color": "GREEN", "pattern": "DOUBLE_BLINK"}},
+    {"sound": "THANKS",  "text": "謝謝",   "result": "COLLECTED", "weight": 25,
+     "led": {"color": "GREEN", "pattern": "DOUBLE_BLINK"}},
+    {"sound": "RECYCLE", "text": "這是回收哦", "result": "RETURNED",  "weight": 25,
+     "led": {"color": "RED",   "pattern": "BLINK_FAST"}},
+]
+
+def pick_worker_prompt():
+    total = sum(p["weight"] for p in WORKER_PROMPTS)
+    r = random.uniform(0, total)
+    upto = 0
+    for p in WORKER_PROMPTS:
+        upto += p["weight"]
+        if r &lt;= upto:
+            return p
+    return WORKER_PROMPTS[0]</code></pre>
+    </div>
+
+    <!-- 第十章 -->
+    <div class="chapter" id="ch10">
+      <h3>第十章：Web 演示頁設計</h3>
+      <h4>10.1 頁面清單</h4>
+      <table>
+        <thead><tr><th>#</th><th>頁面</th><th>功能</th><th>標記</th></tr></thead>
+        <tbody>
+          <tr><td>W1</td><td>垃圾車主頁</td><td>顯示狀態、日期時間、上次收垃圾時間</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>W2</td><td>搖桿模擬</td><td>網頁上的虛擬搖桿（三方向）</td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+          <tr><td>W3</td><td>垃圾袋動畫</td><td>拋棄或退回動畫</td><td><span class="tag tag-proto">原型／仿真</span></td></tr>
+          <tr><td>W4</td><td>工作人員提示</td><td>顯示三種提示與結果</td><td><span class="tag tag-done">已實作</span></td></tr>
+          <tr><td>W5</td><td>歷史記錄</td><td>倒垃圾次數</td><td><span class="tag tag-concept">概念／未來擴充</span></td></tr>
+        </tbody>
+      </table>
+      <h4>10.2 主頁狀態顯示</h4>
+      <table>
+        <thead><tr><th>狀態</th><th>顯示文字</th><th>背景色</th><th>LED 顏色</th><th>LED 節奏</th></tr></thead>
+        <tbody>
+          <tr><td>REST</td><td>垃圾車休息中</td><td>灰</td><td>灰</td><td>常亮</td></tr>
+          <tr><td>IDLE</td><td>垃圾車還沒來</td><td>淺藍</td><td>藍</td><td>常亮</td></tr>
+          <tr><td>APPROACHING</td><td>垃圾車快到了…</td><td>淺黃</td><td>黃</td><td>慢閃</td></tr>
+          <tr><td>ARRIVED</td><td>垃圾車來了！</td><td>綠</td><td>綠</td><td>常亮</td></tr>
+          <tr><td>COLLECTED</td><td>垃圾已清運，心情清爽</td><td>綠</td><td>綠</td><td>雙短閃</td></tr>
+          <tr><td>RETURNED</td><td>不好意思，垃圾車不接回收垃圾</td><td>紅</td><td>紅</td><td>連續閃爍</td></tr>
+        </tbody>
+      </table>
+      <h4>10.3 垃圾袋動畫規格</h4>
+      <table>
+        <thead><tr><th>階段</th><th>動畫</th><th>時長</th><th>LED</th></tr></thead>
+        <tbody>
+          <tr><td>出現</td><td>1–5 個垃圾袋從底部升起</td><td>0.5s</td><td>綠（常亮）</td></tr>
+          <tr><td>拋入</td><td>垃圾袋飛向垃圾車</td><td>1.0s</td><td>綠（雙短閃）</td></tr>
+          <tr><td>壓縮</td><td>垃圾車內部壓縮動畫</td><td>0.5s</td><td>綠（常亮）</td></tr>
+          <tr><td>銷毀</td><td>垃圾袋消失，出現「已銷毀」</td><td>0.5s</td><td>綠（常亮）</td></tr>
+          <tr><td><strong>退還</strong></td><td>垃圾袋飛回，紅燈閃爍</td><td>1.5s</td><td>紅（連續閃爍）</td></tr>
+          <tr><td>音樂漸遠</td><td>音樂音量從 100% → 0%</td><td>3.0s</td><td>漸暗</td></tr>
+        </tbody>
+      </table>
+      <p><strong>垃圾袋顏色</strong>依情緒而定：</p>
+      <ul>
+        <li>ㄍㄢˋ → 紅色垃圾袋</li>
+        <li>ㄎㄠˋ → 橙色垃圾袋</li>
+        <li>ㄘㄠˋ → 黃色垃圾袋</li>
+      </ul>
+    </div>
+
+    <!-- 第十一章 -->
+    <div class="chapter" id="ch11">
+      <h3>第十一章：音樂與提示音設計</h3>
+      <h4>11.1 垃圾車音樂（無源蜂鳴器）</h4>
+      <table>
+        <thead><tr><th>階段</th><th>頻率</th><th>節奏</th></tr></thead>
+        <tbody>
+          <tr><td>接近</td><td>由低到高</td><td>慢 → 快</td></tr>
+          <tr><td>到達</td><td>固定頻率</td><td>穩定</td></tr>
+          <tr><td>倒垃圾</td><td>旋律循環</td><td>輕快</td></tr>
+          <tr><td>離開</td><td>由高到低</td><td>快 → 慢</td></tr>
+        </tbody>
+      </table>
+      <p><strong>旋律</strong>：參考 <code>sounds/toelise.ino</code> 中《致愛麗絲（Toelise）》的主旋律，正式程式只重新整理音高與節奏，不直接使用該檔案。</p>
+      <h4>11.2 垃圾車接近與離開的音量效果</h4>
+      <table>
+        <thead><tr><th>階段</th><th>旋律</th><th>效果</th><th>實作方式</th></tr></thead>
+        <tbody>
+          <tr><td>接近 APPROACHING</td><td>Toelise 主旋律</td><td>逐漸清晰、明亮</td><td>由低音量／低密度開始，逐段增加播放音量或音符密度</td></tr>
+          <tr><td>到達 ARRIVED</td><td>Toelise 主旋律循環</td><td>最清晰、最明亮</td><td>維持設定音量，等待互動</td></tr>
+          <tr><td>離開 DEPARTING</td><td>Toelise 主旋律</td><td>逐漸淡化、消失</td><td>逐段降低音量或播放密度，結束後停止蜂鳴器</td></tr>
+        </tbody>
+      </table>
+      <p><strong>硬體限制</strong>：無源蜂鳴器不像喇叭具有真正的音量控制，因此以 PWM duty、播放密度、音符間隔與逐段停止的方式近似「由遠到近」及「由近到遠」。</p>
+      <h4>11.3 三種工作人員提示音</h4>
+      <table>
+        <thead><tr><th>提示音</th><th>旋律特徵</th><th>對應結果</th><th>LED</th></tr></thead>
+        <tbody>
+          <tr><td>「小心」</td><td>參考 correct.ino：明顯上揚、明亮高頻結尾</td><td>收走</td><td>綠（雙短閃）</td></tr>
+          <tr><td>「謝謝」</td><td>參考 achievement-bling.ino：快速獎勵音型</td><td>收走</td><td>綠（雙短閃）</td></tr>
+          <tr><td>「這是回收哦」</td><td>參考 error.ino：警告音型並重複一次</td><td>退還</td><td>紅（連續閃爍）</td></tr>
+        </tbody>
+      </table>
+      <h4>11.4 音量漸變（網頁播放）</h4>
+      <table>
+        <thead><tr><th>階段</th><th>音量</th></tr></thead>
+        <tbody>
+          <tr><td>接近</td><td>0% → 80%</td></tr>
+          <tr><td>到達</td><td>100%</td></tr>
+          <tr><td>倒垃圾</td><td>100%</td></tr>
+          <tr><td>離開</td><td>100% → 0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第十二章 -->
+    <div class="chapter" id="ch12">
+      <h3>第十二章：情境與邊界條件</h3>
+      <table>
+        <thead><tr><th>情境</th><th>狀態</th><th>顯示</th><th>LED</th><th>搖桿</th></tr></thead>
+        <tbody>
+          <tr><td>週三/週日</td><td>REST</td><td>垃圾車休息中</td><td>灰（常亮）</td><td>無效</td></tr>
+          <tr><td>非開放時段</td><td>REST</td><td>垃圾車休息中</td><td>灰（常亮）</td><td>無效</td></tr>
+          <tr><td>開放時段非播放時間</td><td>IDLE</td><td>垃圾車還沒來</td><td>藍（常亮）</td><td>無效</td></tr>
+          <tr><td>播放時間</td><td>ARRIVED</td><td>垃圾車來了！</td><td>綠（常亮）</td><td>有效</td></tr>
+          <tr><td>未滿 10 分鐘</td><td>ARRIVED</td><td>垃圾車剛走，請稍等</td><td>黃（慢閃）</td><td>無效</td></tr>
+          <tr><td>提示「小心」</td><td>COLLECTED</td><td>垃圾已清運</td><td>綠（雙短閃）</td><td>—</td></tr>
+          <tr><td>提示「謝謝」</td><td>COLLECTED</td><td>垃圾已清運</td><td>綠（雙短閃）</td><td>—</td></tr>
+          <tr><td>提示「這是回收哦」</td><td>RETURNED</td><td>不好意思，垃圾車不接回收垃圾</td><td>紅（連續閃爍）</td><td>等待確認</td></tr>
+          <tr><td>退還後搖桿確認</td><td>IDLE</td><td>垃圾車還沒來</td><td>藍（常亮）</td><td>—</td></tr>
+          <tr><td>網路斷線</td><td>本地狀態機繼續</td><td>恢復後補傳</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第十三章 -->
+    <div class="chapter" id="ch13">
+      <h3>第十三章：企業／評審表達要點</h3>
+      <table>
+        <thead><tr><th>關心</th><th>你展示的能力</th></tr></thead>
+        <tbody>
+          <tr><td>情緒設計</td><td>把抽象情緒轉化為具體互動</td></tr>
+          <tr><td>儀式感</td><td>垃圾車音樂、時間規則、休息日</td></tr>
+          <tr><td>隨機性</td><td>工作人員三種提示，有驚喜感</td></tr>
+          <tr><td>拒絕與接受</td><td>有時收走，有時退還，模擬真實</td></tr>
+          <tr><td>時間顯示</td><td>日期時間、上次收垃圾時間</td></tr>
+          <tr><td>間隔規則</td><td>10 分鐘間隔，避免過度使用</td></tr>
+          <tr><td>測試/正式模式</td><td>可重置 vs 不可重置</td></tr>
+          <tr><td><strong>硬體控制</strong></td><td><strong>傳統四腳 RGB LED 以 R/G/B 三個 GPIO 控制，GRD 接地；閃爍提供視覺回饋</strong></td></tr>
+          <tr><td>技術整合</td><td>ESP32 + FastAPI + MySQL + Web 動畫</td></tr>
+          <tr><td>象徵意義</td><td>情緒是垃圾，有時會被退還，但終究會清運</td></tr>
+        </tbody>
+      </table>
+
+      <div class="warn-box">
+        <strong>⚠️ 能力邊界</strong>：本裝置為情緒宣洩的象徵性互動，不是心理治療工具，不提供醫療建議。
+      </div>
+    </div>
+
+    <!-- 第十四章 -->
+    <div class="chapter" id="ch14">
+      <h3>第十四章：與專題一的區隔</h3>
+      <table>
+        <thead><tr><th></th><th>專題一 ElderGuard AI</th><th>專題二 情緒垃圾車</th></tr></thead>
+        <tbody>
+          <tr><td>類型</td><td>嚴肅 / 照護</td><td>趣味 / 情緒</td></tr>
+          <tr><td>對象</td><td>獨居老人</td><td>現代人</td></tr>
+          <tr><td>核心</td><td>安全監測 + 認知分級</td><td>情緒宣洩 + 儀式感</td></tr>
+          <tr><td>技術</td><td>ESP32 + FastAPI + Oracle + AI 規則</td><td>ESP32 + FastAPI + MySQL + 動畫</td></tr>
+          <tr><td>輸入</td><td>傳感器自動</td><td>搖桿手動</td></tr>
+          <tr><td>隨機性</td><td>無</td><td>工作人員三種提示</td></tr>
+          <tr><td>時間顯示</td><td>無</td><td>日期時間 + 上次收垃圾</td></tr>
+          <tr><td>間隔規則</td><td>無</td><td>10 分鐘間隔</td></tr>
+          <tr><td>測試/正式</td><td>無區分</td><td>測試可重置，正式不可</td></tr>
+          <tr><td><strong>LED 使用</strong></td><td><strong>RGB LED + 震動 LED 分開</strong></td><td><strong>傳統四腳 RGB LED（R/G/B/GRD）+ 閃爍視覺回饋</strong></td></tr>
+          <tr><td>互補</td><td>一個講「人如何被照顧」</td><td>一個講「人如何照顧自己」</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第十五章 -->
+    <div class="chapter" id="ch15">
+      <h3>第十五章：實作準備</h3>
+      <h4>15.1 框架</h4>
+      <table>
+        <thead><tr><th>層</th><th>技術</th></tr></thead>
+        <tbody>
+          <tr><td>裝置</td><td>ESP32 + Velxio（模擬）/ PlatformIO（真機）</td></tr>
+          <tr><td>後端</td><td>FastAPI + MySQL</td></tr>
+          <tr><td>前端</td><td>純 HTML + JS + CSS</td></tr>
+          <tr><td>音樂</td><td>無源蜂鳴器（裝置）/ Web Audio API（網頁）</td></tr>
+          <tr><td>LED</td><td>傳統四腳共陰極 RGB LED（R/G/B/GRD）</td></tr>
+        </tbody>
+      </table>
+      <h4>15.2 專案結構</h4>
+      <pre><code>emotion-garbage-truck/
+├── app/
+│   ├── main.py
+│   ├── models.py
+│   ├── db.py
+│   ├── config.py                # MODE=test/prod
+│   ├── services/
+│   │   ├── scheduler.py         # 時間排程 + 狀態判斷
+│   │   ├── idle_message.py      # 待機提示
+│   │   ├── clock_display.py     # 日期時間 + 上次收垃圾
+│   │   ├── interval_checker.py  # 10 分鐘間隔
+│   │   ├── worker_prompt.py     # 工作人員隨機提示
+│   │   ├── music_player.py      # 音樂播放
+│   │   ├── prompt_sound.py      # 三種提示音
+│   │   ├── joystick_handler.py  # 搖桿處理
+│   │   ├── direction_mapper.py  # 方向→三種情緒
+│   │   ├── rgb_led_controller.py # R/G/B PWM 顏色 + 閃爍節奏
+│   │   └── state_machine.py     # 狀態機
+│   └── routers/
+│       ├── status.py
+│       ├── clock.py
+│       ├── joystick.py
+│       ├── throw.py
+│       ├── worker_prompt.py
+│       └── reset.py             # 僅測試模式
+├── static/
+│   ├── index.html               # W1 主頁
+│   ├── joystick.html            # W2 虛擬搖桿
+│   ├── animation.html           # W3 垃圾袋動畫
+│   ├── worker.html              # W4 工作人員提示
+│   ├── css/style.css
+│   ├── js/api.js
+│   ├── js/joystick.js
+│   └── audio/
+│       ├── truck.mp3            # Toelise 旋律的 Web 版（重新製作）
+│       ├── careful.mp3          # 小心提示音（重新製作）
+│       ├── thanks.mp3           # 謝謝提示音（重新製作）
+│       └── recycle.mp3          # 回收提示音（重新製作）
+├── sql/
+│   └── schema.sql
+├── velxio/
+│   └── esp32_sketch.ino
+├── platformio/
+│   └── src/main.cpp             # 真機驗證版
+└── requirements.txt</code></pre>
+      <h4>15.3 執行順序</h4>
+      <table>
+        <thead><tr><th>天</th><th>任務</th><th>產出</th></tr></thead>
+        <tbody>
+          <tr><td>Day 1</td><td>Velxio/PlatformIO 接線 + ESP32 搖桿/蜂鳴器/四腳 RGB LED</td><td>搖桿可讀三方向、蜂鳴器可響、R/G/B 可獨立控制</td></tr>
+          <tr><td>Day 2</td><td>FastAPI + MySQL + 狀態機 + 時鐘 + 間隔檢查</td><td>API 可查狀態、時間、間隔</td></tr>
+          <tr><td>Day 3</td><td>工作人員隨機提示 + Web 動畫 + Toelise 音樂 + LED</td><td>三種提示、垃圾袋動畫、接近清晰/離開淡出、LED 節奏</td></tr>
+          <tr><td>Day 4</td><td>測試/正式模式 + 彩排</td><td>完整演示、重置功能</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 第十六章 -->
+    <div class="chapter" id="ch16">
+      <h3>第十六章：下一步</h3>
+      <p>企劃完成後，可依序生成：</p>
+      <ol>
+        <li><strong>ESP32 PlatformIO/Velxio 程式</strong>（搖桿三方向 + 蜂鳴器 + 四腳 RGB LED R/G/B PWM + 狀態機 + 間隔檢查）</li>
+        <li><strong>FastAPI 完整後端</strong>（狀態機 + 排程 + 搖桿 + 工作人員提示 + 時鐘 + 間隔 + 測試模式）</li>
+        <li><strong>Web 動畫頁</strong>（垃圾袋拋棄/退回 + 音樂漸變 + 虛擬搖桿 + 時鐘顯示 + 工作人員提示 + LED 模擬）</li>
+        <li><strong>MySQL schema + seed</strong></li>
+        <li><strong>垃圾車音樂 + 三種提示音</strong>（參考 sounds/ 旋律後重新製作的無源蜂鳴器版）</li>
+      </ol>
+    </div>
+
+    <!-- 附錄 -->
+    <div class="chapter" id="appendix">
+      <h3>附錄：音效頻率表</h3>
+      <h4>A.1 音符頻率對照</h4>
+      <table>
+        <thead><tr><th>音符</th><th>頻率 (Hz)</th></tr></thead>
+        <tbody>
+          <tr><td>C4</td><td>262</td></tr>
+          <tr><td>D4</td><td>294</td></tr>
+          <tr><td>E4</td><td>330</td></tr>
+          <tr><td>F4</td><td>349</td></tr>
+          <tr><td>G4</td><td>392</td></tr>
+          <tr><td>GS4</td><td>415</td></tr>
+          <tr><td>A4</td><td>440</td></tr>
+          <tr><td>B4</td><td>494</td></tr>
+          <tr><td>C5</td><td>523</td></tr>
+          <tr><td>D5</td><td>587</td></tr>
+          <tr><td>DS5</td><td>622</td></tr>
+          <tr><td>E5</td><td>659</td></tr>
+        </tbody>
+      </table>
+      <h4>A.2 三種提示音頻率設計</h4>
+      <table>
+        <thead><tr><th>提示音</th><th>頻率序列</th><th>時長</th></tr></thead>
+        <tbody>
+          <tr><td>「小心」</td><td>參考 correct.ino 的上揚高頻旋律</td><td>依專案音符表重新編排</td></tr>
+          <tr><td>「謝謝」</td><td>參考 achievement-bling.ino 的快速獎勵音型</td><td>依專案音符表重新編排</td></tr>
+          <tr><td>「這是回收哦」</td><td>參考 error.ino 的警告音型並重複一次</td><td>依專案音符表重新編排</td></tr>
+        </tbody>
+      </table>
+      <h4>A.3 ESP32 可用 PWM 腳位（推薦）</h4>
+      <table>
+        <thead><tr><th>GPIO</th><th>可用性</th><th>備註</th></tr></thead>
+        <tbody>
+          <tr><td>25</td><td>✅</td><td>DAC 腳，PWM 穩定</td></tr>
+          <tr><td>26</td><td>✅</td><td>DAC 腳，PWM 穩定</td></tr>
+          <tr><td>27</td><td>✅</td><td>普通 PWM</td></tr>
+          <tr><td>32</td><td>✅</td><td>普通 PWM</td></tr>
+          <tr><td>33</td><td>✅</td><td>普通 PWM</td></tr>
+          <tr><td>23</td><td>❌</td><td>SPI MOSI，被佔用</td></tr>
+          <tr><td>18</td><td>❌</td><td>SPI CLK，被佔用</td></tr>
+          <tr><td>19</td><td>❌</td><td>SPI MISO，被佔用</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+

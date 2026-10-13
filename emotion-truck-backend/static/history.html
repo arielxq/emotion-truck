@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒垃圾車 - 歷史記錄</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>情緒垃圾車</h1>
+        <nav>
+            <a href="/">主頁</a>
+            <a href="/sim">模擬控制台</a>
+            <a href="/history" class="active">歷史記錄</a>
+            <a href="/stats">統計圖表</a>
+        </nav>
+    </header>
+
+    <main class="sim-container">
+        <section class="panel" style="grid-column: 1 / -1;">
+            <h2>資料來源</h2>
+            <div class="filter-bar">
+                <button class="filter-btn active" data-source="HARDWARE">硬體</button>
+                <button class="filter-btn" data-source="SIMULATION">模擬</button>
+                <button class="filter-btn" data-source="ALL">全部</button>
+            </div>
+        </section>
+
+        <section class="panel" style="grid-column: 1 / -1;">
+            <h2>情緒記錄</h2>
+            <div class="table-wrapper">
+                <table class="data-table" id="emotion-table">
+                    <thead>
+                        <tr>
+                            <th>時間</th>
+                            <th>來源</th>
+                            <th>方向</th>
+                            <th>情緒類型</th>
+                            <th>情緒文字</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emotion-tbody">
+                        <tr><td colspan="5" class="empty-row">載入中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" style="grid-column: 1 / -1;">
+            <h2>清運記錄</h2>
+            <div class="table-wrapper">
+                <table class="data-table" id="collection-table">
+                    <thead>
+                        <tr>
+                            <th>時間</th>
+                            <th>來源</th>
+                            <th>工作人員回應</th>
+                            <th>清運前</th>
+                            <th>清運後</th>
+                            <th>退回</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collection-tbody">
+                        <tr><td colspan="6" class="empty-row">載入中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" style="grid-column: 1 / -1;">
+            <h2>今日摘要</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">情緒選擇次數</div>
+                    <div class="summary-value" id="summary-emotions">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">清運次數</div>
+                    <div class="summary-value" id="summary-collections">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">退回總數</div>
+                    <div class="summary-value" id="summary-returned">0</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/history.js"></script>
+</body>
+</html>

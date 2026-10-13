@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒垃圾車 - 主頁</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>情緒垃圾車</h1>
+        <nav>
+            <a href="/" class="active">主頁</a>
+            <a href="/sim">模擬控制台</a>
+            <a href="/history">歷史記錄</a>
+            <a href="/stats">統計圖表</a>
+        </nav>
+    </header>
+    
+    <main class="sim-container">
+        <section class="panel">
+            <h2>硬體狀態</h2>
+            <table class="status-table" id="hardware-status">
+                <tr><td>狀態</td><td id="hw-state">載入中...</td></tr>
+                <tr><td>Bags</td><td id="hw-bags">-</td></tr>
+                <tr><td>今日清運</td><td id="hw-daily">-</td></tr>
+                <tr><td>最後心跳</td><td id="hw-heartbeat">-</td></tr>
+            </table>
+        </section>
+        
+        <section class="panel">
+            <h2>模擬狀態</h2>
+            <table class="status-table" id="sim-status">
+                <tr><td>狀態</td><td id="sim-state">載入中...</td></tr>
+                <tr><td>Bags</td><td id="sim-bags">-</td></tr>
+                <tr><td>今日清運</td><td id="sim-daily">-</td></tr>
+                <tr><td>最後心跳</td><td id="sim-heartbeat">-</td></tr>
+            </table>
+        </section>
+        
+        <section class="panel">
+            <h2>今日統計</h2>
+            <table class="status-table">
+                <tr><td>硬體清運次數</td><td id="hw-total">-</td></tr>
+                <tr><td>模擬清運次數</td><td id="sim-total">-</td></tr>
+                <tr><td>退回總數</td><td id="total-returned">-</td></tr>
+            </table>
+        </section>
+        
+        <section class="panel">
+            <h2>今日排程</h2>
+            <table class="status-table">
+                <tr><td>第一次清運</td><td id="schedule-1">-</td></tr>
+                <tr><td>第二次清運</td><td id="schedule-2">-</td></tr>
+                <tr><td>是否休息日</td><td id="schedule-holiday">-</td></tr>
+            </table>
+        </section>
+    </main>
+    
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/index.js"></script>
+</body>
+</html>

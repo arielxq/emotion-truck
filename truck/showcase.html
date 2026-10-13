@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情緒垃圾車 Emotion Garbage Truck — 互動展示簡報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 色彩範圍（依指定色票調配）：
+       #555934 (苔蘚橄欖綠) | #F2E6D8 (象牙暖米白) | #BF9B7A (溫暖燕麥駝色)
+       #8C5B3E (赤陶暖棕)   | #593E2E (深焙濃縮咖啡黑) + 黑白基礎色
+    */
+    --primary: #593e2e;          /* 主文字與深色結構：深焙濃縮咖啡黑 (#593E2E) */
+    --primary-dark: #1a1512;     /* 基礎深黑 */
+    --accent: #8c5b3e;           /* 主視覺強調色：赤陶暖棕 (#8C5B3E) */
+    --accent-hover: #73482e;     /* 沉著赤陶懸浮 */
+    --accent-soft: rgba(140, 91, 62, 0.1); /* 輕柔赤陶淡底 */
+    --moss: #555934;             /* 苔蘚橄欖綠 (#555934) 象徵養分、正向、成長 */
+    --sand: #bf9b7a;             /* 燕麥駝色 (#BF9B7A) 溫潤過渡與輔助色 */
+    --cream: #f2e6d8;            /* 象牙暖米白 (#F2E6D8) 溫潤大地底色 */
+    --bg-white: #ffffff;         /* 基礎純白 */
+    --bg-alt: #f7f2ea;           /* 極輕柔米白底色 (基於 #F2E6D8 提亮) */
+    --bg-card: #ffffff;          /* 純淨雪白卡片 */
+    --border: #e6ded3;           /* 細緻暖米灰邊框 (基於 #F2E6D8 調和) */
+    --border-light: #f0eae1;     /* 輕柔分隔線 */
+    --text: #2c221c;             /* 主內文深黑 */
+    --text-soft: #63554b;        /* 副內文暖灰 */
+    --text-muted: #94867c;       /* 次要說明 */
+    --code-bg: #ece3d7;          /* 灰米色代碼背景 */
+    --done: #555934;             /* 苔蘚橄欖綠 (#555934) */
+    --proto: #bf9b7a;            /* 溫暖燕麥駝色 (#BF9B7A) */
+    --warn: #8c5b3e;             /* 赤陶暖棕警告 (#8C5B3E) */
+    --warn-bg: #faf3ee;          /* 輕盈暖陶底色 */
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --shadow-subtle: 0 4px 20px rgba(89, 62, 46, 0.04);
+    --shadow-float: 0 16px 36px rgba(89, 62, 46, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg-white);
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== 頂部導覽列 (Sticky blur) ===== */
+  nav.navbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: rgba(250, 249, 246, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    transition: background 0.3s;
+  }
+  .nav-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 16px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-brand {
+    font-size: 1.05em;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .nav-brand span.highlight {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-soft);
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: color 0.2s ease;
+  }
+  .nav-links a:hover {
+    color: var(--primary);
+  }
+
+  /* ===== 容器 & 通用章節樣式 ===== */
+  .container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+  section {
+    padding: 96px 0;
+    position: relative;
+  }
+  section.bg-alt {
+    background: var(--bg-alt);
+  }
+
+  .section-label {
+    font-size: 0.76em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: inline-block;
+  }
+  h2.section-title {
+    font-size: 2.25em;
+    margin: 0 0 16px;
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+  }
+  h2.section-title .highlight {
+    color: var(--accent);
+  }
+  .section-desc {
+    font-size: 1.08em;
+    color: var(--text-soft);
+    max-width: 740px;
+    margin: 0 0 48px;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+
+  /* ===== 按鈕 (Apple Minimalist Pill / Rounded) ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 26px;
+    border-radius: 980px; /* Apple classic pill button */
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.94em;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid var(--primary);
+  }
+  .btn-primary:hover {
+    background: #333336;
+    border-color: #333336;
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+  .btn-outline {
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+  .btn-outline:hover {
+    background: #ffffff;
+    border-color: #cfccc4;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  /* ===== Wokwi 硬體展示入口 ===== */
+  .wokwi-entry {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 28px;
+    align-items: stretch;
+    padding: 28px;
+    background: linear-gradient(135deg, #fff 0%, var(--cream) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-subtle);
+  }
+  .wokwi-entry-copy h3 { margin: 8px 0 10px; color: var(--primary); font-size: 1.35em; }
+  .wokwi-entry-copy p { margin: 0 0 20px; color: var(--text-soft); line-height: 1.75; }
+  .wokwi-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--moss); font-size: .75em; font-weight: 700; letter-spacing: .12em; }
+  .wokwi-tag::before { content: ""; width: 8px; height: 8px; background: var(--moss); border-radius: 50%; }
+  .wokwi-specs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: center; }
+  .wokwi-spec { padding: 14px; background: rgba(255,255,255,.72); border: 1px solid var(--border-light); border-radius: var(--radius-sm); }
+  .wokwi-spec strong { display: block; color: var(--primary); font-size: .9em; }
+  .wokwi-spec span { display: block; color: var(--text-muted); font-size: .78em; margin-top: 3px; }
+  @media (max-width: 700px) { .wokwi-entry { grid-template-columns: 1fr; padding: 22px; } }
+
+  /* ===== HERO SECTION（Sticky 3D Truck） ===== */
+  .hero-section {
+    padding: 30px 0 88px;
+    background: linear-gradient(180deg, var(--bg-white) 0%, var(--cream) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-wrapper {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 52px;
+    align-items: start;
+    position: relative;
+  }
+  .hero-left {
+    padding: 36px 0;
+  }
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    border-radius: 980px;
+    font-size: 0.82em;
+    font-weight: 600;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-subtle);
+  }
+  .hero-left h1 {
+    font-size: 3.1em;
+    line-height: 1.15;
+    margin: 0 0 20px;
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+  .hero-left h1 .highlight {
+    color: var(--accent);
+  }
+  .hero-left .subtitle {
+    font-size: 1.15em;
+    color: var(--text-soft);
+    margin: 0 0 32px;
+    line-height: 1.7;
+    max-width: 560px;
+    font-weight: 400;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .hero-extra-scroll {
+    border-top: 1px solid var(--border-light);
+    padding-top: 36px;
+    margin-top: 10px;
+  }
+  .hero-extra-scroll .block {
+    margin-bottom: 28px;
+  }
+  .hero-extra-scroll h3 {
+    font-size: 1.15em;
+    margin: 0 0 8px;
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .hero-extra-scroll p {
+    font-size: 0.95em;
+    color: var(--text-soft);
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  /* Hero 右欄 Sticky */
+  .hero-right-sticky {
+    position: sticky;
+    top: 100px;
+    height: calc(100vh - 140px);
+    max-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .threejs-card {
+    width: 100%;
+    height: 100%;
+    min-height: 460px;
+    background: linear-gradient(145deg, #ffffff 0%, var(--cream) 55%, #eae3d7 100%);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 20px 48px rgba(89, 62, 46, 0.06), 0 1px 3px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+  }
+  .threejs-badge {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-soft);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 13px;
+    border-radius: 980px;
+    box-shadow: 0 2px 8px rgba(89, 62, 46, 0.04);
+    border: 1px solid var(--border-light);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+  }
+  .threejs-hint {
+    position: absolute;
+    bottom: 16px;
+    right: 20px;
+    font-size: 0.75em;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 12px;
+    border-radius: 980px;
+    border: 1px solid var(--border-light);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    pointer-events: none;
+  }
+  #truck-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    outline: none;
+    cursor: grab;
+  }
+  #truck-canvas:active { cursor: grabbing; }
+  #truck-loading {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.88em;
+    color: var(--text-soft);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-float);
+    border: 1px solid var(--border-light);
+    pointer-events: none;
+    z-index: 20;
+    text-align: center;
+  }
+
+  /* ===== ONE JOB SECTION ===== */
+  .onejob-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 36px;
+    align-items: start;
+    margin-top: 10px;
+  }
+  .emotion-cards-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .emotion-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    border-left: 5px solid #ccc;
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
+  }
+  .emotion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-float);
+  }
+  .emotion-card.red { border-left-color: #8c5b3e; }    /* 赤陶暖棕 */
+  .emotion-card.orange { border-left-color: #bf9b7a; } /* 燕麥駝色 */
+  .emotion-card.yellow { border-left-color: #555934; } /* 苔蘚橄欖綠 */
+  .emotion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .emotion-name { font-weight: 700; font-size: 1.12em; color: var(--primary); letter-spacing: -0.01em; }
+  .emotion-dir {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 980px;
+    font-size: 0.82em;
+  }
+  .emotion-card.red .emotion-dir { background: #faf3ee; color: #8c5b3e; }
+  .emotion-card.orange .emotion-dir { background: #f8f3ec; color: #7d5e42; }
+  .emotion-card.yellow .emotion-dir { background: #f0f1ea; color: #555934; }
+  .emotion-desc { font-size: 0.9em; color: var(--text-soft); margin: 0; }
+
+  .schedule-sheet {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 34px 38px;
+    box-shadow: var(--shadow-subtle);
+  }
+  .schedule-header {
+    font-size: 0.74em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .schedule-list { list-style: none; padding: 0; margin: 0; }
+  .schedule-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.95em;
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-key { color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .schedule-key .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .schedule-val { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace; font-weight: 600; color: var(--text-soft); }
+  .schedule-val.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 10px;
+    border-radius: 980px;
+    font-weight: 700;
+  }
+  .schedule-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 22px;
+    margin-top: 8px;
+    border-top: 1px solid var(--primary);
+    font-weight: 700;
+  }
+  .schedule-total-val { font-size: 1.5em; color: var(--accent); font-weight: 800; letter-spacing: -0.02em; }
+  .schedule-note { font-size: 0.82em; color: var(--text-muted); margin-top: 12px; }
+
+  /* ===== 3-COL CARDS & 8-ITEM GRID & 4-PARA ===== */
+  .three-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 34px 30px;
+    box-shadow: var(--shadow-subtle);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-float);
+    border-color: #d8d4cb;
+  }
+  .card-emoji { font-size: 2.2em; margin-bottom: 16px; display: inline-block; }
+  .info-card h3 { font-size: 1.16em; margin: 0 0 12px; color: var(--primary); font-weight: 700; letter-spacing: -0.015em; }
+  .info-card p { font-size: 0.93em; color: var(--text-soft); line-height: 1.7; margin: 0; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .feature-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 26px 24px;
+    box-shadow: var(--shadow-subtle);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .feature-box:hover {
+    border-color: #d8d4cb;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-float);
+  }
+  .feature-box h4 { font-size: 1.05em; margin: 0 0 8px; color: var(--primary); font-weight: 700; letter-spacing: -0.015em; }
+  .feature-box p { font-size: 0.88em; color: var(--text-soft); line-height: 1.65; margin: 0; }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    margin-top: 20px;
+  }
+  .why-col h3 { font-size: 1.08em; margin: 0 0 12px; color: var(--primary); font-weight: 700; line-height: 1.4; letter-spacing: -0.015em; }
+  .why-col p { font-size: 0.91em; color: var(--text-soft); line-height: 1.75; margin: 0; }
+
+  /* ===== 視覺化圖表共用卡片 ===== */
+  .visual-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 38px 42px;
+    margin-top: 28px;
+    box-shadow: var(--shadow-subtle);
+  }
+  .warn-banner {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn);
+    padding: 18px 24px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin: 20px 0 40px;
+    font-size: 0.94em;
+    color: #8c2e28;
+    line-height: 1.7;
+  }
+  .warn-banner strong { color: var(--warn); }
+
+  /* 流程圖 (Flowchart) */
+  .flow-nodes-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  .flow-node {
+    padding: 10px 18px;
+    border-radius: 980px;
+    font-weight: 600;
+    font-size: 0.86em;
+    border: 1px solid var(--border);
+    background: var(--bg-alt);
+    color: var(--primary);
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .flow-node.highlight { background: var(--cream); border-color: #dfd4c5; color: var(--accent); }
+  .flow-node.decision { background: #fbf5ef; border-color: #e8d7c7; color: var(--accent); }
+  .flow-node.branch { background: #faf3ee; border-color: #eedacf; color: var(--warn); }
+  .flow-node.success { background: #f0f1ea; border-color: #d2d4c3; color: var(--moss); }
+  .flow-arrow { color: #b5b3aa; font-weight: 700; font-size: 1.1em; }
+
+  /* 十字方向圖 */
+  .cross-joystick {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    margin: 30px auto;
+  }
+  .cross-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 88px; height: 88px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85em;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(89, 62, 46, 0.25);
+    z-index: 5;
+  }
+  .cross-dir {
+    position: absolute;
+    padding: 10px 18px;
+    border-radius: 980px;
+    font-weight: 700;
+    font-size: 0.88em;
+    text-align: center;
+    box-shadow: var(--shadow-subtle);
+    border: 1px solid transparent;
+  }
+  .dir-up {
+    top: 0; left: 50%; transform: translateX(-50%);
+    background: #faf3ee; border-color: #eedacf; color: var(--accent); /* 赤陶暖棕 */
+  }
+  .dir-left {
+    top: 50%; left: 0; transform: translateY(-50%);
+    background: #f8f3ec; border-color: #e5d7c8; color: #7d5e42; /* 燕麥駝色 */
+  }
+  .dir-right {
+    top: 50%; right: 0; transform: translateY(-50%);
+    background: #f0f1ea; border-color: #d2d4c3; color: var(--moss); /* 苔蘚橄欖綠 */
+  }
+  .dir-down {
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    background: var(--bg-alt); border-color: var(--border); color: var(--text-muted);
+  }
+
+  /* 提示圓餅圖 & 退還流程 */
+  .worker-prompt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .pie-chart-mock {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .pie-visual {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #555934 0% 50%,    /* 50% 苔蘚橄欖綠 (小心) */
+      #bf9b7a 50% 75%,   /* 25% 燕麥駝色 (謝謝) */
+      #8c5b3e 75% 100%   /* 25% 赤陶暖棕 (這是回收) */
+    );
+    box-shadow: 0 8px 22px rgba(89, 62, 46, 0.08);
+  }
+  .pie-legend { list-style: none; padding: 0; margin: 0; }
+  .pie-legend li { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 0.92em; font-weight: 500; }
+  .pie-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* LCD 螢幕模擬框 (Apple Vintage LCD Style) */
+  .lcd-mockup {
+    background: #242922;
+    color: #8edc6e;
+    font-family: ui-monospace, "SF Mono", "Courier New", monospace;
+    font-weight: 600;
+    padding: 24px 30px;
+    border-radius: var(--radius-md);
+    border: 6px solid #1a1e18;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 10px 24px rgba(0,0,0,0.08);
+    font-size: 1.12em;
+    line-height: 1.8;
+    max-width: 480px;
+    margin: 10px auto;
+    letter-spacing: 0.06em;
+  }
+
+  /* 甘特條 / 時間軸 */
+  .timeline-bar {
+    display: flex;
+    margin: 24px 0 10px;
+    border-radius: 980px;
+    overflow: hidden;
+    height: 36px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .timeline-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.8em;
+    font-weight: 600;
+  }
+  .gantt-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .gantt-day {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+    border-top: 3px solid var(--accent);
+    box-shadow: var(--shadow-subtle);
+  }
+  .gantt-day .day-num { font-weight: 700; font-size: 1.02em; color: var(--primary); margin-bottom: 6px; letter-spacing: -0.01em; }
+  .gantt-day .day-task { font-size: 0.88em; color: var(--text-soft); }
+
+  /* 表格樣式 */
+  table.custom-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 0.9em;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  table.custom-table th, table.custom-table td {
+    padding: 13px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+  }
+  table.custom-table th { background: var(--bg-alt); font-weight: 600; color: var(--primary); }
+  table.custom-table tr:last-child td { border-bottom: none; }
+
+  /* 音量曲線圖 (Volume Curve) */
+  .curve-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .curve-stage {
+    background: var(--bg-alt);
+    border-radius: var(--radius-md);
+    padding: 20px 16px;
+    border: 1px solid var(--border-light);
+    text-align: center;
+  }
+  .curve-stage .stage-title { font-size: 0.86em; font-weight: 600; color: var(--primary); margin-bottom: 8px; }
+  .curve-stage .stage-val { font-size: 1.35em; font-weight: 700; color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace; }
+
+  /* FINAL CTA & FOOTER (Apple Warm Minimal Dark & Crisp Clean Footer) */
+  .cta-final {
+    text-align: center;
+    padding: 110px 0;
+    background: linear-gradient(180deg, #1c1c1e 0%, #121214 100%);
+    color: #fff;
+  }
+  .cta-final h2 { font-size: 2.3em; margin: 0 0 16px; font-weight: 800; letter-spacing: -0.03em; }
+  .cta-final p { color: #8e8e93; max-width: 620px; margin: 0 auto 38px; font-size: 1.05em; font-weight: 400; }
+  .cta-final .btn-primary { background: #ffffff; color: var(--primary); border-color: #ffffff; }
+  .cta-final .btn-primary:hover { background: #f2f2f7; color: #000; transform: scale(1.02); }
+  .cta-final .btn-outline { color: #ffffff; border-color: rgba(255,255,255,0.25); background: transparent; }
+  .cta-final .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.6); }
+
+  footer {
+    text-align: center;
+    padding: 44px 0;
+    color: var(--text-muted);
+    font-size: 0.85em;
+    border-top: 1px solid var(--border);
+    background: var(--bg-white);
+  }
+
+  /* ===== 響應式佈局 (Mobile < 860px) ===== */
+  @media (max-width: 860px) {
+    .hero-wrapper {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    .hero-right-sticky {
+      position: static;
+      top: auto;
+      height: auto;
+      max-height: none;
+      padding: 0;
+    }
+    .threejs-card { min-height: 380px; height: 380px; }
+    .onejob-grid { grid-template-columns: 1fr; }
+    .three-cards-grid { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .why-grid { grid-template-columns: 1fr; gap: 20px; }
+    .worker-prompt-grid { grid-template-columns: 1fr; }
+    .gantt-grid { grid-template-columns: 1fr; }
+    .curve-container { grid-template-columns: repeat(2, 1fr); }
+    .nav-links { display: none; }
+    .hero-left h1 { font-size: 2.3em; }
+    h2.section-title { font-size: 1.8em; }
+    .visual-block { padding: 24px 20px; }
+    .schedule-sheet { padding: 24px 20px; }
+  }
+  @media (max-width: 520px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .curve-container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 頂部導覽列 ===== -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-brand">
+      情緒垃圾車 <span class="highlight">Emotion Garbage Truck</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#demo">系統演示</a></li>
+      <li><a href="#audience">給誰用</a></li>
+      <li><a href="#features">核心特性</a></li>
+      <li><a href="#why">設計理念</a></li>
+      <li><a href="#architecture">狀態與架構</a></li>
+      <li><a href="#hardware">硬體與音效</a></li>
+      <li><a href="#wokwi">Wokwi 硬體</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO SECTION (Sticky 3D on Right) ===== -->
+<section class="hero-section" id="hero">
+  <div class="container">
+    <div class="hero-wrapper">
+      <!-- 左欄：文案、按鈕與滾動內文 -->
+      <div class="hero-left">
+        <div class="hero-pill">🚚 趣味互動裝置 · 情緒設計專題 v2.5 / v3.0</div>
+        <h1>丟掉壞情緒，<br>而不只是<span class="highlight">一個念頭</span>。</h1>
+        <p class="subtitle">
+          情緒不是垃圾，是養分；但壞情緒需要被清運。這是一台只能倒「壞情緒」的垃圾車 — 結合時間規則、搖桿手動選擇、工作人員隨機提示到音樂漸遠，每一幀都為了「把壞情緒打包銷毀」而設計。
+        </p>
+        <div class="hero-cta">
+          <a href="#demo" class="btn btn-primary">觀看系統演示</a>
+          <a href="#architecture" class="btn btn-outline">瀏覽架構圖解</a>
+        </div>
+
+        <!-- 滾動內文：確保左欄滾動幅度充分展現右欄 Sticky 特性 -->
+        <div class="hero-extra-scroll">
+          <div class="block">
+            <h3>為什麼需要這台垃圾車？</h3>
+            <p>現代人每天在線上線下遇到很多煩心瑣事和負面垃圾。這些情緒不能隨便對人發洩，又不能一直憋在心裡。與其讓壞情緒爛在心裡發酵，不如將它打包丟進垃圾車銷毀。</p>
+          </div>
+          <div class="block">
+            <h3>三種壞情緒，手動選擇出口</h3>
+            <p>設計「ㄍㄢˋ」（憤怒）、「ㄎㄠˋ」（不爽）、「ㄘㄠˋ」（煩躁）三種直覺的壞情緒出口。透過 HW504 類比搖桿手動推動與確認 — 人做決策，機器做執行，給予踏實的心理宣洩與儀式感。</p>
+          </div>
+          <div class="block">
+            <h3>完整日常儀式：定時前來、音樂漸遠</h3>
+            <p>垃圾車依時段隨機到訪，播放經典《給愛麗絲》蜂鳴器旋律。倒完垃圾後，工作人員隨機給予「小心」、「謝謝」或「這是回收」回饋，伴隨音樂漸遠淡出，象徵壞情緒真正遠去。</p>
+          </div>
+          <div class="block">
+            <h3>低多邊形 3D 萌化設計</h3>
+            <p>右側即為專屬設計的 3D 垃圾車模型，擁有奶油白車身、薄荷綠壓縮車斗、柔和警示橙以及專屬 LCD 螢幕表情雙眼，讓嚴肅的壞情緒清運變得溫暖而撫慰。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右欄：STICKY 3D 模型卡片 -->
+      <div class="hero-right-sticky">
+        <div class="threejs-card">
+          <div class="threejs-badge">3D TRUCK MODEL</div>
+          <div id="truck-loading">載入 <code>truck3D.obj</code> 與材質中…</div>
+          <canvas id="truck-canvas"></canvas>
+          <div class="threejs-hint">拖曳旋轉 · 自動浮動</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2. ONE JOB SECTION ===== -->
+<section class="bg-alt" id="demo">
+  <div class="container">
+    <div class="section-label">One Job</div>
+    <h2 class="section-title">每一種壞情緒，<br>都能被<span class="highlight">找到並清運</span>。</h2>
+    <p class="section-desc">
+      你只負責選出當下的壞情緒。情緒垃圾車接手整個執行系統 — 時間規則、搖桿方向、工作人員提示、LED 回饋到音樂漸變，完整承載你的情緒釋放。
+    </p>
+
+    <div class="onejob-grid">
+      <!-- 三色情緒卡 -->
+      <div class="emotion-cards-col">
+        <div class="emotion-card red">
+          <div class="emotion-header">
+            <span class="emotion-name">ㄍㄢˋ · 憤怒</span>
+            <span class="emotion-dir">↑ 推上</span>
+          </div>
+          <p class="emotion-desc">遇到鳥事、被無端惹毛。對應紅色燈效與警告紅色垃圾袋。</p>
+        </div>
+        <div class="emotion-card orange">
+          <div class="emotion-header">
+            <span class="emotion-name">ㄎㄠˋ · 不爽</span>
+            <span class="emotion-dir">← 推左</span>
+          </div>
+          <p class="emotion-desc">被豬隊友雷到、滿心無言。對應橙色燈效與沉悶橙色垃圾袋。</p>
+        </div>
+        <div class="emotion-card yellow">
+          <div class="emotion-header">
+            <span class="emotion-name">ㄘㄠˋ · 煩躁</span>
+            <span class="emotion-dir">→ 推右</span>
+          </div>
+          <p class="emotion-desc">事情多到炸開、思緒卡住。對應黃色燈效與浮躁黃色垃圾袋。</p>
+        </div>
+      </div>
+
+      <!-- 清運 Schedule 報表單 -->
+      <div class="schedule-sheet">
+        <div class="schedule-header">
+          <span>SCHEDULE — 今日情緒清運單</span>
+          <span>STATUS: READY</span>
+        </div>
+        <ul class="schedule-list">
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#8c5b3e;"></span>ㄍㄢˋ · 憤怒（紅）</span>
+            <span class="schedule-val">↑ 上</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#bf9b7a;"></span>ㄎㄠˋ · 不爽（橙）</span>
+            <span class="schedule-val">← 左</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#555934;"></span>ㄘㄠˋ · 煩躁（黃）</span>
+            <span class="schedule-val">→ 右</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#555934;"></span>工作人員提示「小心」</span>
+            <span class="schedule-val">50%</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#bf9b7a;"></span>工作人員提示「謝謝」</span>
+            <span class="schedule-val">25%</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#8c5b3e;"></span>工作人員提示「這是回收哦」</span>
+            <span class="schedule-val">25%</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#593e2e;"></span>收垃圾最小間隔</span>
+            <span class="schedule-val active">10 分鐘</span>
+          </li>
+        </ul>
+        <div class="schedule-total">
+          <span>情緒清運總計</span>
+          <span class="schedule-total-val">3 種出口</span>
+        </div>
+        <div class="schedule-note">1 次互動 · 由搖桿手動選擇</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. WHO IT'S FOR ===== -->
+<section id="audience">
+  <div class="container">
+    <div class="section-label">Who it's for</div>
+    <h2 class="section-title">給需要<span class="highlight">把情緒倒掉</span>的人。</h2>
+    <p class="section-desc">
+      情緒垃圾車不是心理治療工具，而是一個象徵性的互動儀式。它為現代人每天線上線下累積的垃圾情緒，提供一個具體、可愛、有規則的出口。
+    </p>
+
+    <div class="three-cards-grid">
+      <div class="info-card">
+        <span class="card-emoji">😤</span>
+        <h3>遇到鳥事的人</h3>
+        <p>被惹毛、被雷到、被卡住。你需要一個地方，把「ㄍㄢˋ」「ㄎㄠˋ」「ㄘㄠˋ」這三種情緒丟進去，然後看著它被銷毀。</p>
+      </div>
+      <div class="info-card">
+        <span class="card-emoji">⏰</span>
+        <h3>需要儀式感的人</h3>
+        <p>垃圾車有固定時間、固定音樂、固定規則。等待音樂響起，推動搖桿，按下確認 — 這是一套完整的倒垃圾儀式。</p>
+      </div>
+      <div class="info-card">
+        <span class="card-emoji">🎲</span>
+        <h3>喜歡驚喜的人</h3>
+        <p>工作人員有三種隨機提示：50% 收走、25% 收走、25% 退還。有時順利，有時被拒絕，模擬真實世界的隨機性。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. FEATURES ===== -->
+<section class="bg-alt" id="features">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">每一行，<br>都在每一趟車上。</h2>
+    <p class="section-desc">
+      從時間規則到 LED 閃爍，從搖桿方向到音樂漸變 — 情緒垃圾車的每個部件，都是系統的一部分。
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <h4>時間規則</h4>
+        <p>每天 09:00–20:00 開放，隨機播放 2 次，間隔至少 3 小時。週三、週日休息。非播放時間顯示「垃圾車還沒來」。</p>
+      </div>
+      <div class="feature-box">
+        <h4>搖桿操作</h4>
+        <p>HW504 搖桿，三個方向對應三種注音情緒：↑ ㄍㄢˋ、← ㄎㄠˋ、→ ㄘㄠˋ。按下確認送出。</p>
+      </div>
+      <div class="feature-box">
+        <h4>工作人員隨機提示</h4>
+        <p>三種結果隨機：「小心」50% 收走、「謝謝」25% 收走、「這是回收哦」25% 退還。退還時紅燈連續閃爍。</p>
+      </div>
+      <div class="feature-box">
+        <h4>收垃圾間隔</h4>
+        <p>兩次收垃圾間隔至少 10 分鐘，從上次「確認收走」開始算。間隔內按搖桿顯示「垃圾車剛走，請稍等」。</p>
+      </div>
+      <div class="feature-box">
+        <h4>傳統四腳 RGB LED</h4>
+        <p>R/G/B 三腳 PWM 控制顏色與閃爍，GRD 接地。閃爍作為視覺回饋，不等同於實際震動。</p>
+      </div>
+      <div class="feature-box">
+        <h4>音樂與提示音</h4>
+        <p>無源蜂鳴器播放 Toelise 垃圾車旋律，接近時逐漸清晰，離開時逐漸模糊。三種提示音參考旋律重新編排。</p>
+      </div>
+      <div class="feature-box">
+        <h4>3D 動畫</h4>
+        <p>圓潤可愛的垃圾車，車頂 LED 信號燈、LCD 眼睛、車頂喇叭。低多邊形風格，關鍵幀動畫驅動。</p>
+      </div>
+      <div class="feature-box">
+        <h4>測試 / 正式模式</h4>
+        <p><code>.env</code> 設定 <code>MODE=test</code> 可重置當天時間，<code>MODE=prod</code> 不可調整、不可重置。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. WHY WE BUILD IT THIS WAY ===== -->
+<section id="why">
+  <div class="container">
+    <div class="section-label">About us</div>
+    <h2 class="section-title">為什麼我們<span class="highlight">這樣做</span>。</h2>
+    <p class="section-desc">
+      我們為需要倒情緒的人，和需要被療癒的人，打造這台垃圾車。我們有些人，一開始也是用手在倒垃圾的。
+    </p>
+
+    <div class="why-grid">
+      <div class="why-col">
+        <h3>情緒會爛在心裡</h3>
+        <p>我們從看不見的損失開始。不是第二名的那個標案，而是沒有人打開的那包情緒。與其讓它爛在心裡，不如丟進垃圾車。</p>
+      </div>
+      <div class="why-col">
+        <h3>倒垃圾的權利是你的</h3>
+        <p>要丟什麼、丟給誰、什麼時候走開，屬於那個名字寫在上面的人。我們不自動化那個。</p>
+      </div>
+      <div class="why-col">
+        <h3>沒有人需要重新訓練</h3>
+        <p>真實世界的垃圾車有固定規則。我們把規則讀出來，放在你可以修正的地方。</p>
+      </div>
+      <div class="why-col">
+        <h3>每一幀都顯示來源</h3>
+        <p>我們寧願被檢查，而不是被相信。每個骨骼、每個關鍵幀、每個 LED 節奏，都有它的時間戳和理由。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6. 互動流程圖（狀態機） & 7. 時間規則時序表 ===== -->
+<section class="bg-alt" id="architecture">
+  <div class="container">
+    <div class="section-label">Architecture & Timelines</div>
+    <h2 class="section-title">互動狀態機與<span class="highlight">時間時序</span>。</h2>
+    <p class="section-desc">
+      嚴謹的狀態轉換模型與日常排程規則，將混亂的情緒轉化為清晰的數位運作節奏。
+    </p>
+
+    <!-- 安全邊界聲明 (頂部放置) -->
+    <div class="warn-banner">
+      <strong>⚠️ 能力邊界聲明</strong>：本裝置為<strong>情緒宣洩的象徵性互動</strong>，不是心理治療工具，不提供醫療建議。若情緒困擾持續，請尋求專業協助。
+    </div>
+
+    <!-- 6. 互動流程圖 (狀態機) -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">6. 互動流程圖（狀態機架構）</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        系統嚴格遵循單向推進與逾時回退機制，確保任何異常均能安全回到待機狀態：
+      </p>
+
+      <div class="flow-nodes-wrapper">
+        <div class="flow-node">REST (休息)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">IDLE (待機)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">APPROACHING (接近)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">ARRIVED (到達)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node decision">CHECK_INTERVAL (檢查 10m)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node decision">WORKER_PROMPT (工作人員提示)</div>
+      </div>
+
+      <div class="flow-nodes-wrapper" style="margin-top:10px; background:var(--bg-alt); padding:18px 24px; border-radius:12px;">
+        <span style="font-weight:700; font-size:0.9em; color:var(--primary); margin-right:12px;">提示分支：</span>
+        <div class="flow-node success">結果 A/B：順利收走 (75%) → THROWING → DESTROYING → 回到 IDLE</div>
+        <div class="flow-node branch">結果 C：退還 (25%) → RETURNING (紅燈閃爍) → 等待確認 → 回到 IDLE</div>
+      </div>
+    </div>
+
+    <!-- 7. 時間規則時序表 -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">7. 時間規則時序表（09:00–20:00 排程）</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        每日隨機安排 2 次清運時段（間隔 &ge; 3 小時），週三與週日全天公休：
+      </p>
+
+      <!-- 24H 橫向時序示意 -->
+      <div style="margin:24px 0 10px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.78em; color:var(--text-muted); margin-bottom:6px; font-family:monospace;">
+          <span>00:00</span>
+          <span>09:00 (開放)</span>
+          <span>13:00 (車次 1)</span>
+          <span>17:30 (車次 2)</span>
+          <span>20:00 (關閉)</span>
+          <span>24:00</span>
+        </div>
+        <div class="timeline-bar">
+          <div class="timeline-seg" style="width:37.5%; background:#593e2e;" title="00:00-09:00 休息">休息 REST</div>
+          <div class="timeline-seg" style="width:16.6%; background:#555934;" title="09:00-13:00 待機中">待機 IDLE</div>
+          <div class="timeline-seg" style="width:4.2%; background:#8c5b3e;" title="13:00 到達 (3-5m)">到達</div>
+          <div class="timeline-seg" style="width:14.6%; background:#555934;" title="間隔等待 & 待機">待機 (&ge;3h)</div>
+          <div class="timeline-seg" style="width:4.2%; background:#8c5b3e;" title="17:30 到達 (3-5m)">到達</div>
+          <div class="timeline-seg" style="width:6.2%; background:#555934;" title="傍晚待機">待機</div>
+          <div class="timeline-seg" style="width:16.7%; background:#593e2e;" title="20:00-24:00 休息">休息 REST</div>
+        </div>
+      </div>
+
+      <table class="custom-table" style="margin-top:20px;">
+        <thead>
+          <tr>
+            <th>情境狀態</th>
+            <th>螢幕 LCD 提示</th>
+            <th>背後邏輯與規則</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>開放時段（非播放時間）</strong></td>
+            <td><code>「垃圾車還沒來」</code></td>
+            <td>今天會來，但時間未到。情緒可先在心中暫存。</td>
+          </tr>
+          <tr>
+            <td><strong>夜間 / 週三 / 週日全天</strong></td>
+            <td><code>「垃圾車休息中」</code></td>
+            <td>今天不會來，請好好休息，明天再倒。</td>
+          </tr>
+          <tr>
+            <td><strong>兩次收垃圾間隔未滿</strong></td>
+            <td><code>「垃圾車剛走，請稍等」</code></td>
+            <td>從上次確認收走起算，冷卻至少 10 分鐘，防禦連續濫用。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 8. 搖桿十字圖、9. 提示圓餅圖、10. LCD 螢幕模擬框 ===== -->
+<section id="controls">
+  <div class="container">
+    <div class="section-label">Interaction Mockups</div>
+    <h2 class="section-title">控制器操作與<span class="highlight">介面模擬</span>。</h2>
+    <p class="section-desc">
+      硬體手感、隨機機率分配與終端液晶顯示的仿真還原。
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <!-- 8. 搖桿十字方向圖 -->
+      <div class="visual-block" style="margin-top:0;">
+        <h3 style="margin-top:0; color:var(--primary);">8. 搖桿十字方向圖</h3>
+        <p style="color:var(--text-soft); font-size:0.88em;">HW504 類比搖桿，推動選擇情緒，中央按鍵確認：</p>
+        <div class="cross-joystick">
+          <div class="cross-dir dir-up">↑ ㄍㄢˋ (憤怒)</div>
+          <div class="cross-dir dir-left">← ㄎㄠˋ (不爽)</div>
+          <div class="cross-center">按下 SW<br><span style="font-size:0.78em; opacity:0.8;">確認丟入</span></div>
+          <div class="cross-dir dir-right">→ ㄘㄠˋ (煩躁)</div>
+          <div class="cross-dir dir-down">↓ (無動作 / 緩衝)</div>
+        </div>
+      </div>
+
+      <!-- 10. LCD 螢幕模擬框 -->
+      <div class="visual-block" style="margin-top:0; display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <h3 style="margin-top:0; color:var(--primary);">10. LCD 螢幕模擬框 (LCD1602)</h3>
+          <p style="color:var(--text-soft); font-size:0.88em;">透過 I2C 雙線驅動，提供清晰的即時時間與當前狀態回饋：</p>
+          <div class="lcd-mockup">
+            <div>2026-10-10  14:35:22</div>
+            <div>狀態：垃圾車還沒來</div>
+            <div>上次收垃圾：13:52</div>
+          </div>
+        </div>
+        <p style="font-size:0.84em; color:var(--text-muted); margin-bottom:0; text-align:center;">
+          支援 8 組自訂表情點陣字元（如 😴 睡臉、🙂 微笑、😠 生氣、🗑 垃圾袋）
+        </p>
+      </div>
+    </div>
+
+    <!-- 9. 工作人員提示圓餅圖 & 退還流程 -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">9. 工作人員隨機提示機制</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        情緒不一定每次都能順利丟棄。模擬真實生活，25% 機率會遇到工作人員拒收並退回：
+      </p>
+
+      <div class="worker-prompt-grid">
+        <div class="pie-chart-mock">
+          <div class="pie-visual"></div>
+          <ul class="pie-legend">
+            <li><span class="pie-dot" style="background:#27ae60;"></span>「小心」 (50%) 順利收走</li>
+            <li><span class="pie-dot" style="background:#2ecc71;"></span>「謝謝」 (25%) 順利收走</li>
+            <li><span class="pie-dot" style="background:#e74c3c;"></span>「這是回收哦」 (25%) 退還</li>
+          </ul>
+        </div>
+
+        <div style="background:var(--bg-alt); padding:20px 24px; border-radius:12px; border:1px solid var(--border);">
+          <h4 style="margin:0 0 10px; color:#c0392b;">退還流程（結果 C）</h4>
+          <ol style="margin:0; padding-left:20px; font-size:0.88em; color:var(--text-soft); line-height:1.7;">
+            <li>垃圾袋動畫退回桌面</li>
+            <li>四腳 RGB LED 變紅並以 200ms/200ms 連續閃爍 5 次</li>
+            <li>螢幕顯示「不好意思，垃圾車不接回收垃圾」</li>
+            <li>使用者手動再次按下搖桿確認收回，回歸 IDLE</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 11. 硬體設計 (GPIO & LED 節奏) & 12. 音樂音量曲線 ===== -->
+<section class="bg-alt" id="hardware">
+  <div class="container">
+    <div class="section-label">Hardware & Sound</div>
+    <h2 class="section-title">硬體接線、LED 節奏與<span class="highlight">音效曲線</span>。</h2>
+    <p class="section-desc">
+      傳統四腳 RGB LED PWM 控光與無源蜂鳴器空間音場設計。
+    </p>
+
+    <!-- 11. 硬體設計 (9 GPIO) -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">11. 硬體設計（9 GPIO 資源配置表）</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        採用共陰極傳統四腳 RGB LED（R/G/B/GND），以 3 路 PWM 獨立調色，無須專用晶片函式庫：
+      </p>
+
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>硬體模組</th>
+            <th>腳位類型</th>
+            <th>GPIO 佔用</th>
+            <th>用途說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HW504 搖桿 X 軸 / Y 軸 / SW</td>
+            <td>ADC 輸入 &times; 2 + 數位輸入</td>
+            <td><strong>3 GPIO</strong> (GPIO 34, 35, 32)</td>
+            <td>讀取搖桿推動方向與按鍵觸發</td>
+          </tr>
+          <tr>
+            <td>LCD1602 螢幕</td>
+            <td>I2C (SDA / SCL)</td>
+            <td><strong>2 GPIO</strong> (GPIO 21, 22)</td>
+            <td>即時時間與狀態表情呈現</td>
+          </tr>
+          <tr>
+            <td>無源蜂鳴器</td>
+            <td>PWM</td>
+            <td><strong>1 GPIO</strong> (GPIO 25)</td>
+            <td>播放垃圾車主旋律與回饋音效</td>
+          </tr>
+          <tr>
+            <td>傳統四腳共陰極 RGB LED</td>
+            <td>PWM &times; 3</td>
+            <td><strong>3 GPIO</strong> (GPIO 26, 27, 33)</td>
+            <td>R、G、B 分色控制（GRD 接 GND）</td>
+          </tr>
+          <tr style="background:var(--cream); font-weight:700;">
+            <td>總計 GPIO 佔用</td>
+            <td>—</td>
+            <td><strong>9 個 GPIO</strong></td>
+            <td>保留足夠腳位供後續網路模組擴充</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin:24px 0 10px; color:var(--primary);">RGB LED 閃爍節奏圖解</h4>
+      <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px;">
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">常亮 (Solid)</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">待機 / 到達</span>
+        </div>
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">短閃 (100ms)</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">情緒累積選擇中</span>
+        </div>
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">雙短閃 (&times;2)</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">丟垃圾確認收走</span>
+        </div>
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">慢閃 (300ms)</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">垃圾車接近中</span>
+        </div>
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
+          <span style="font-size:0.85em; font-weight:700; color:#c0392b; display:block;">連續快閃 (&times;5)</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">退還提醒警告</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. 音樂設計 (音量曲線) -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">12. 音樂設計（《給愛麗絲》音量曲線圖）</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        模擬垃圾車在街道穿梭的空間聲學效果，以 PWM Duty 與播放密度模擬真實音量距離漸層：
+      </p>
+
+      <div class="curve-container">
+        <div class="curve-stage">
+          <div class="stage-title">接近 (APPROACHING)</div>
+          <div class="stage-val">0 &rarr; 80%</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">由遠及近、漸漸清晰</div>
+        </div>
+        <div class="curve-stage">
+          <div class="stage-title">到達 (ARRIVED)</div>
+          <div class="stage-val">100%</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">響亮穩定、等待互動</div>
+        </div>
+        <div class="curve-stage">
+          <div class="stage-title">倒垃圾 (THROWING)</div>
+          <div class="stage-val">100%</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">提示音與清脆反饋</div>
+        </div>
+        <div class="curve-stage">
+          <div class="stage-title">離開 (DEPARTING)</div>
+          <div class="stage-val">100 &rarr; 0%</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">逐漸模糊、遠去平息</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WOKWI HARDWARE ENTRY ===== -->
+<section id="wokwi">
+  <div class="container">
+    <div class="section-label">Live Hardware Preview</div>
+    <h2 class="section-title">在瀏覽器裡<span class="highlight">看見硬體</span>。</h2>
+    <p class="section-desc">
+      Web 端仍是主要的互動展示；如果想查看 ESP32、搖桿、LCD、LED 與蜂鳴器的硬體模擬，可以跳轉到 Wokwi 專案。
+    </p>
+    <div class="wokwi-entry">
+      <div class="wokwi-entry-copy">
+        <span class="wokwi-tag">WOKWI SIMULATION / EXTERNAL</span>
+        <h3>同一套硬體邏輯，另一個可操作的入口。</h3>
+        <p>
+          Wokwi 僅作為硬體接線與 ESP32 行為展示，不取代本頁的 3D 垃圾車與 Web 互動流程。點擊後會在新分頁開啟模擬器。
+        </p>
+        <a class="btn btn-primary" href="https://wokwi.com/projects/477775315279623169" target="_blank" rel="noopener noreferrer">
+          開啟 Wokwi 硬體模擬 ↗
+        </a>
+      </div>
+      <div class="wokwi-specs" aria-label="Wokwi 模擬硬體元件">
+        <div class="wokwi-spec"><strong>ESP32</strong><span>主控制器</span></div>
+        <div class="wokwi-spec"><strong>Joystick</strong><span>GPIO 34 / 35 / 32</span></div>
+        <div class="wokwi-spec"><strong>LCD1602</strong><span>I2C 0x27</span></div>
+        <div class="wokwi-spec"><strong>LED + Buzzer</strong><span>GPIO 27 / 25</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 13. Web 演示動畫時間軸 & 14. 實作準備甘特圖 & 15. 附錄 ===== -->
+<section id="implementation">
+  <div class="container">
+    <div class="section-label">Roadmap & Timeline</div>
+    <h2 class="section-title">動畫時間軸與<span class="highlight">實作排程</span>。</h2>
+    <p class="section-desc">
+      精確至 0.1 秒的動態演繹節奏，以及 4 天敏捷原型打造計畫。
+    </p>
+
+    <!-- 13. Web 演示 + 動畫時間軸 -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">13. Web 演示：垃圾袋動畫時間軸 (時長 5.5 秒)</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        每趟丟垃圾互動皆由關鍵幀驅動流暢視覺回饋：
+      </p>
+
+      <div class="timeline-bar" style="height:44px;">
+        <div class="timeline-seg" style="width:9.1%; background:#bf9b7a;" title="出現 0.5s">出現 0.5s</div>
+        <div class="timeline-seg" style="width:18.2%; background:#8c5b3e;" title="拋入 1.0s">拋入 1.0s</div>
+        <div class="timeline-seg" style="width:9.1%; background:#73482e;" title="壓縮 0.5s">壓縮 0.5s</div>
+        <div class="timeline-seg" style="width:9.1%; background:#555934;" title="銷毀 0.5s">銷毀 0.5s</div>
+        <div class="timeline-seg" style="width:54.5%; background:#593e2e;" title="音樂漸遠淡出 3.0s">音樂漸遠淡出 3.0s</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.8em; color:var(--text-muted); margin-top:6px;">
+        <span>0.0s 起始</span>
+        <span>2.5s 完成銷毀</span>
+        <span>5.5s 垃圾車離去回到待機</span>
+      </div>
+    </div>
+
+    <!-- 14. 實作準備 (4-Day Gantt-style Bar) -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">14. 實作準備：4 天原型衝刺計畫 (Gantt)</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        跨軟硬體分層架構，低耦合模組化推進：
+      </p>
+
+      <div class="gantt-grid">
+        <div class="gantt-day">
+          <div class="day-num">Day 1：ESP32 硬體層</div>
+          <div class="day-task">搖桿三向校準、無源蜂鳴器音符表、四腳 RGB LED R/G/B PWM 控制器。</div>
+        </div>
+        <div class="gantt-day">
+          <div class="day-num">Day 2：FastAPI 後端</div>
+          <div class="day-task">核心狀態機、排程 Scheduler、時鐘 API 與 10 分鐘冷卻檢查。</div>
+        </div>
+        <div class="gantt-day">
+          <div class="day-num">Day 3：Web 3D 動畫</div>
+          <div class="day-task">three.js 模型展演、垃圾袋拋入銷毀動畫、音樂淡入淡出、工作人員隨機提示。</div>
+        </div>
+        <div class="gantt-day">
+          <div class="day-num">Day 4：整合測試與彩排</div>
+          <div class="day-task">測試模式（支援一鍵重置）vs 正式鎖定模式驗證、全流程彩排。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15. 附錄：音效頻率表與 ESP32 PWM 推薦 -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">15. 附錄：音效頻率表與 ESP32 PWM 推薦腳位</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:16px;">
+        <div>
+          <h4 style="margin:0 0 10px; color:var(--primary);">A.1 蜂鳴器關鍵音符頻率 (Hz)</h4>
+          <table class="custom-table" style="margin:0;">
+            <thead><tr><th>音符</th><th>頻率 (Hz)</th><th>音符</th><th>頻率 (Hz)</th></tr></thead>
+            <tbody>
+              <tr><td>C4</td><td>262</td><td>A4</td><td>440</td></tr>
+              <tr><td>D4</td><td>294</td><td>B4</td><td>494</td></tr>
+              <tr><td>E4</td><td>330</td><td>C5</td><td>523</td></tr>
+              <tr><td>G4</td><td>392</td><td>E5</td><td>659</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h4 style="margin:0 0 10px; color:var(--primary);">A.2 ESP32 推薦 PWM 腳位</h4>
+          <table class="custom-table" style="margin:0;">
+            <thead><tr><th>GPIO</th><th>可用性</th><th>備註</th></tr></thead>
+            <tbody>
+              <tr><td>GPIO 25, 26</td><td><span style="color:#27ae60; font-weight:800;">&check; 推薦</span></td><td>DAC 腳位，PWM 極度穩定</td></tr>
+              <tr><td>GPIO 27, 32, 33</td><td><span style="color:#27ae60; font-weight:800;">&check; 推薦</span></td><td>通用 PWM 輸出，適合 RGB LED</td></tr>
+              <tr><td>GPIO 18, 19, 23</td><td><span style="color:#e74c3c; font-weight:800;">&cross; 避免</span></td><td>預留給 SPI 匯流排，避免衝突</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 16. FINAL CTA ===== -->
+<section class="cta-final">
+  <div class="container">
+    <h2>準備好把情緒倒掉了嗎？</h2>
+    <p>情緒垃圾車不是心理治療，而是一個可愛、有規則、有驚喜的互動儀式。推動搖桿，把今天的煩惱交給垃圾車吧。</p>
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+      <a href="#demo" class="btn btn-primary">觀看系統演示</a>
+      <a href="#hero" class="btn btn-outline">返回頂部 3D 垃圾車</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER (With Safety Disclaimer) ===== -->
+<footer>
+  <div class="container">
+    <p style="font-weight:700; color:var(--primary); margin-bottom:4px;">
+      情緒垃圾車 Emotion Garbage Truck — 專題展示系統
+    </p>
+    <p style="max-width:720px; margin:8px auto; color:#8c959f; font-size:0.85em; line-height:1.6;">
+      ⚠️ 能力邊界聲明：本裝置為情緒宣洩的象徵性互動，不是心理治療工具，不提供醫療建議。若情緒困擾持續，請尋求專業協助。
+    </p>
+    <p style="font-size:0.8em; color:#cbd5e1; margin-top:12px;">
+      &copy; 2026 Emotion Garbage Truck Project. Built with three.js r160, FastAPI & ESP32.
+    </p>
+  </div>
+</footer>
+
+<!-- ===== THREE.JS R160 MODULE ===== -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ============================================================
+// 1. 初始化 3D 畫布與場景
+// ============================================================
+const canvas = document.getElementById('truck-canvas');
+const loadingEl = document.getElementById('truck-loading');
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: true,
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+
+// 攝影機配置
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+camera.position.set(4.5, 3.2, 5.2);
+
+// OrbitControls (啟用緩衝、慢速自轉、禁用縮放與平移以保障頁面滾動體驗)
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.enableZoom = false;
+controls.enablePan = false;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1.0;
+controls.minPolarAngle = Math.PI / 6;
+controls.maxPolarAngle = Math.PI / 2.05;
+
+// ============================================================
+// 2. 燈光系統 (溫潤柔和環境光 + Apple 展演級三點照明)
+// ============================================================
+const hemiLight = new THREE.HemisphereLight(0xfffbf5, 0xe2ded4, 1.6);
+scene.add(hemiLight);
+
+const keyLight = new THREE.DirectionalLight(0xfff8ee, 2.0);
+keyLight.position.set(6, 9, 6);
+keyLight.castShadow = true;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0xf5eedc, 1.1);
+fillLight.position.set(-6, 5, -4);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xedf5f8, 0.85);
+rimLight.position.set(0, 6, -8);
+scene.add(rimLight);
+
+// 地板柔和陰影 (極細緻暖灰陰影)
+const shadowGround = new THREE.Mesh(
+  new THREE.CircleGeometry(5, 64),
+  new THREE.ShadowMaterial({ opacity: 0.08 })
+);
+shadowGround.rotation.x = -Math.PI / 2;
+shadowGround.position.y = -0.01;
+shadowGround.receiveShadow = true;
+scene.add(shadowGround);
+
+// ============================================================
+// 3. Fallback 材質映射 (融合大地色票與溫潤磨砂觸感)
+// ============================================================
+const fallbackMaterials = {
+  CreamBody: new THREE.MeshStandardMaterial({
+    color: 0xf2e6d8, // 象牙暖米白 (#F2E6D8)
+    roughness: 0.42,
+    metalness: 0.04
+  }),
+  MintBin: new THREE.MeshStandardMaterial({
+    color: 0x555934, // 苔蘚橄欖綠 (#555934)
+    roughness: 0.45,
+    metalness: 0.04
+  }),
+  SoftOrange: new THREE.MeshStandardMaterial({
+    color: 0x8c5b3e, // 赤陶暖棕 (#8C5B3E)
+    roughness: 0.42,
+    metalness: 0.06
+  }),
+  Dark: new THREE.MeshStandardMaterial({
+    color: 0x593e2e, // 深焙濃縮咖啡黑 (#593E2E)
+    roughness: 0.65,
+    metalness: 0.15
+  }),
+  Glass: new THREE.MeshStandardMaterial({
+    color: 0xbf9b7a, // 燕麥金屬駝色透光玻璃 (#BF9B7A)
+    transparent: true,
+    opacity: 0.38,
+    roughness: 0.12,
+    metalness: 0.15
+  }),
+  LCDScreen: new THREE.MeshStandardMaterial({
+    color: 0x1f1915, // 沉穩深炭黑
+    roughness: 0.28,
+    metalness: 0.4
+  }),
+  EyeGlow: new THREE.MeshStandardMaterial({
+    color: 0xf2e6d8, // 暖光柔白雙眼
+    emissive: 0xf2e6d8,
+    emissiveIntensity: 1.8,
+    roughness: 0.2
+  }),
+  Yellow: new THREE.MeshStandardMaterial({
+    color: 0xbf9b7a, // 燕麥駝金暖燈 (#BF9B7A)
+    emissive: 0xbf9b7a,
+    emissiveIntensity: 1.3,
+    roughness: 0.3
+  }),
+  Red: new THREE.MeshStandardMaterial({
+    color: 0x8c5b3e, // 赤陶警示光 (#8C5B3E)
+    emissive: 0x8c5b3e,
+    emissiveIntensity: 1.3,
+    roughness: 0.3
+  })
+};
+
+function applyMaterialTuning(obj) {
+  obj.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+
+      const matName = child.material?.name;
+      if (matName && fallbackMaterials[matName]) {
+        child.material = fallbackMaterials[matName].clone();
+      } else {
+        if (!child.material || child.material.color?.getHex() === 0xffffff) {
+          child.material = fallbackMaterials.CreamBody.clone();
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// 4. 載入 MTL + OBJ 模型
+// ============================================================
+let model = null;
+let basePosY = 0;
+
+function setupModel(obj) {
+  applyMaterialTuning(obj);
+
+  // 計算邊界、置中與縮放
+  const box = new THREE.Box3().setFromObject(obj);
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+
+  obj.position.sub(center);
+
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = 2.4 / maxDim;
+  obj.scale.setScalar(scale);
+
+  basePosY = (size.y * scale) / 2 - 0.45;
+  obj.position.y += basePosY;
+
+  model = obj;
+  scene.add(obj);
+
+  controls.target.set(0, 0, 0);
+  controls.update();
+
+  if (loadingEl) loadingEl.style.display = 'none';
+  console.log('3D Truck Loaded Successfully');
+}
+
+const mtlLoader = new MTLLoader();
+mtlLoader.load(
+  'truck3D.mtl',
+  (materials) => {
+    materials.preload();
+    const objLoader = new OBJLoader();
+    objLoader.setMaterials(materials);
+    objLoader.load(
+      'truck3D.obj',
+      (obj) => setupModel(obj),
+      (xhr) => {
+        if (xhr.total > 0 && loadingEl) {
+          const pct = Math.round((xhr.loaded / xhr.total) * 100);
+          loadingEl.textContent = `載入 3D 模型中… ${pct}%`;
+        }
+      },
+      (err) => loadObjFallback(err)
+    );
+  },
+  (xhr) => {},
+  (err) => {
+    console.warn('MTL 載入失敗，降級為純 OBJ 載入模式', err);
+    loadObjFallback(err);
+  }
+);
+
+function loadObjFallback(err) {
+  const objLoader = new OBJLoader();
+  objLoader.load(
+    'truck3D.obj',
+    (obj) => setupModel(obj),
+    (xhr) => {},
+    (objErr) => {
+      console.error('OBJ 載入失敗：', objErr);
+      if (loadingEl) {
+        loadingEl.innerHTML = `⚠️ 載入 <code>truck3D.obj</code> 失敗<br><small>請確認檔案路徑</small>`;
+      }
+    }
+  );
+}
+
+// ============================================================
+// 5. 畫布自適應 (ResizeObserver)
+// ============================================================
+function resize() {
+  const parent = canvas.parentElement;
+  if (!parent) return;
+  const rect = parent.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+  if (w === 0 || h === 0) return;
+
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+const resizeObserver = new ResizeObserver(resize);
+resizeObserver.observe(canvas.parentElement);
+window.addEventListener('resize', resize);
+resize();
+
+// ============================================================
+// 6. 動畫迴圈 (微幅正弦 Y 軸漂浮)
+// ============================================================
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const elapsedTime = clock.getElapsedTime();
+
+  if (model) {
+    model.position.y = basePosY + Math.sin(elapsedTime * 1.8) * 0.08;
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+animate();
+</script>
+
+</body>
+</html>

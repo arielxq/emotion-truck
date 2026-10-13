@@ -1,0 +1,344 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+}
+
+header {
+    background: #16213e;
+    padding: 1rem 2rem;
+    border-bottom: 2px solid #0f3460;
+}
+
+header h1 {
+    color: #e94560;
+    margin-bottom: 0.5rem;
+}
+
+nav a {
+    color: #eee;
+    text-decoration: none;
+    margin-right: 1.5rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+nav a:hover, nav a.active {
+    background: #e94560;
+}
+
+.sim-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #0f3460;
+}
+
+.panel h2 {
+    color: #e94560;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* 搖桿 */
+.joystick {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 1rem;
+}
+
+.dir-btn {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: #0f3460;
+    color: #eee;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dir-btn:hover, .dir-btn:active {
+    background: #e94560;
+}
+
+.dir-btn.up { top: 0; left: 70px; }
+.dir-btn.down { bottom: 0; left: 70px; }
+.dir-btn.left { top: 70px; left: 0; }
+.dir-btn.right { top: 70px; right: 0; }
+
+.center-circle {
+    position: absolute;
+    top: 70px;
+    left: 70px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #e94560;
+}
+
+.sw-btn {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.sw-btn:hover {
+    background: #c73e54;
+}
+
+/* LCD */
+.lcd-display {
+    background: #2d5016;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    min-height: 80px;
+}
+
+.lcd-line {
+    font-size: 1.2rem;
+    color: #90ee90;
+    letter-spacing: 1px;
+    line-height: 1.8;
+}
+
+.emoji {
+    font-size: 1.5rem;
+}
+
+/* LED */
+.led-display {
+    text-align: center;
+    padding: 1rem;
+}
+
+.led-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #333;
+    margin: 0 auto 1rem;
+    transition: all 0.1s;
+}
+
+.led-circle.on {
+    background: #ff4444;
+    box-shadow: 0 0 20px #ff4444;
+}
+
+/* 蜂鳴器 */
+.buzzer-display {
+    text-align: center;
+    padding: 1rem;
+}
+
+.buzzer-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+/* 狀態 */
+.status-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.status-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #0f3460;
+}
+
+.status-table td:first-child {
+    color: #888;
+    width: 40%;
+}
+
+.status-table td:last-child {
+    color: #e94560;
+    font-weight: bold;
+}
+
+/* 日誌 */
+.log-output {
+    background: #0a0a15;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 200px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.log-entry {
+    color: #90ee90;
+}
+
+.log-entry.error {
+    color: #ff6666;
+}
+
+/* 測試按鈕 */
+.test-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
+.test-buttons button {
+    padding: 0.6rem;
+    background: #0f3460;
+    color: #eee;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.test-buttons button:hover {
+    background: #e94560;
+}
+
+/* 篩選列 */
+.filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1.2rem;
+    background: #0f3460;
+    color: #eee;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.filter-btn:hover {
+    background: #1a4a80;
+}
+
+.filter-btn.active {
+    background: #e94560;
+    color: #fff;
+}
+
+/* 表格 */
+.table-wrapper {
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.data-table th {
+    background: #0f3460;
+    color: #e94560;
+    padding: 0.75rem;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.data-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #0f3460;
+    color: #ddd;
+}
+
+.data-table tbody tr:hover {
+    background: #1a2a4a;
+}
+
+.empty-row {
+    text-align: center;
+    color: #888;
+    padding: 2rem 1rem !important;
+}
+
+/* 摘要卡片 */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.summary-card {
+    background: #0f3460;
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: center;
+}
+
+.summary-label {
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    color: #e94560;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* 圖表 */
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    padding: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .chart-wrapper {
+        height: 240px;
+    }
+    .summary-value {
+        font-size: 1.4rem;
+    }
+}
+
+
+/* 響應式 */
+@media (max-width: 600px) {
+    .sim-container {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+}
