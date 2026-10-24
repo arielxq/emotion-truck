@@ -10,7 +10,7 @@
 - HW504 兩軸搖桿：情緒累積使用上／左／右，清運前使用 `atan2()` 累積 1080°（三圈）
 - LCD1602 I2C、單色 LED、無源蜂鳴器
 - 原硬體音符：累積、FULL、throw、工作人員回應與 Fur Elise 接近／離開音樂
-- bags 上限 5；`CAREFUL`／`THANKS` 收走最多 5 包，`RECYCLE` 收走 1–4 包並保留剩餘
+- bags 上限 5；`CAREFUL`／`THANKS` 收走最多 5 包，`RECYCLE` 隨機保留 1～原有 bags（原有 0 包時維持 0），收走數量為原有減保留
 - 每日清運上限 2 次；`reset day` 只清除每日次數，不清除剩餘 bags
 - `truck/simulator.html` Game Boy 風格 Web 模擬器、虛擬搖桿、操作說明、測試控制、Web Audio 與 Chart.js 統計
 - FastAPI simulation/device/stats API；API 不可用時，Web 頁面會使用明確標示的 demo fallback

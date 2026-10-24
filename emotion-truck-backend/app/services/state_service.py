@@ -12,16 +12,14 @@ def pick_worker_prompt() -> str:
         return "RECYCLE"
 
 def settle_bags(bags: int, worker_prompt: str) -> tuple[int, int]:
-    """清運結算：CAREFUL/THANKS 減 5，RECYCLE 隨機減 1-4（退回相應袋數）"""
+    """回傳 (剩餘 bags, 收走數量)，依 ESP32 規則結算。"""
     if worker_prompt in ["CAREFUL", "THANKS"]:
-        new_bags = max(0, bags - 5)
-        return new_bags, 0
+        return 0, bags
     elif worker_prompt == "RECYCLE":
         if bags <= 0:
             return 0, 0
-        removed = random.randint(1, 4)
-        removed = min(removed, bags)
-        return bags - removed, removed
+        retained = random.randint(1, bags)
+        return retained, bags - retained
     return bags, 0
 
 def update_device_state(device_id: str, state: str, bags: int, daily: int, source: str):

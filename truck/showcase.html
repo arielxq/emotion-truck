@@ -609,7 +609,7 @@
     background: var(--bg-alt); border-color: var(--border); color: var(--text-muted);
   }
 
-  /* 提示圓餅圖 & 退還流程 */
+  /* 提示圓餅圖 & bags 結算 */
   .worker-prompt-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -809,7 +809,7 @@
         <div class="hero-pill">🚚 趣味互動裝置 · 情緒設計專題 v2.5 / v3.0</div>
         <h1>丟掉壞情緒，<br>而不只是<span class="highlight">一個念頭</span>。</h1>
         <p class="subtitle">
-          情緒不是垃圾，是養分；但壞情緒需要被清運。這是一台只能倒「壞情緒」的垃圾車 — 結合時間規則、搖桿手動選擇、工作人員隨機提示到音樂漸遠，每一幀都為了「把壞情緒打包銷毀」而設計。
+          情緒不是垃圾，是養分；但壞情緒需要被清運。這是一台只能倒「壞情緒」的垃圾車 — 結合時間規則、搖桿手動選擇、工作人員隨機提示到旋律播放，每一幀都為了「把壞情緒打包銷毀」而設計。
         </p>
         <div class="hero-cta">
           <a href="#demo" class="btn btn-primary">觀看系統演示</a>
@@ -827,8 +827,8 @@
             <p>設計「ㄍㄢˋ」（憤怒）、「ㄎㄠˋ」（不爽）、「ㄘㄠˋ」（煩躁）三種直覺的壞情緒出口。透過 HW504 類比搖桿手動推動與確認 — 人做決策，機器做執行，給予踏實的心理宣洩與儀式感。</p>
           </div>
           <div class="block">
-            <h3>完整日常儀式：定時前來、音樂漸遠</h3>
-            <p>垃圾車依時段隨機到訪，播放經典《給愛麗絲》蜂鳴器旋律。倒完垃圾後，工作人員隨機給予「小心」、「謝謝」或「這是回收」回饋，伴隨音樂漸遠淡出，象徵壞情緒真正遠去。</p>
+            <h3>完整日常儀式：定時前來、旋律播放</h3>
+            <p>垃圾車依時段隨機到訪，播放經典《給愛麗絲》蜂鳴器旋律。倒完垃圾後，工作人員隨機給予「小心」、「謝謝」或「這是回收」回饋，伴隨完成提示與離開旋律，象徵壞情緒真正遠去。</p>
           </div>
           <div class="block">
             <h3>低多邊形 3D 萌化設計</h3>
@@ -856,7 +856,7 @@
     <div class="section-label">One Job</div>
     <h2 class="section-title">每一種壞情緒，<br>都能被<span class="highlight">找到並清運</span>。</h2>
     <p class="section-desc">
-      你只負責選出當下的壞情緒。情緒垃圾車接手整個執行系統 — 時間規則、搖桿方向、工作人員提示、LED 回饋到音樂漸變，完整承載你的情緒釋放。
+      你只負責選出當下的壞情緒。情緒垃圾車接手整個執行系統 — 時間規則、搖桿方向、工作人員提示、單色 LED 回饋到音樂播放，完整承載你的情緒釋放。
     </p>
 
     <div class="onejob-grid">
@@ -865,23 +865,23 @@
         <div class="emotion-card red">
           <div class="emotion-header">
             <span class="emotion-name">ㄍㄢˋ · 憤怒</span>
-            <span class="emotion-dir">↑ 推上</span>
+            <span class="emotion-dir">← 推左</span>
           </div>
-          <p class="emotion-desc">遇到鳥事、被無端惹毛。對應紅色燈效與警告紅色垃圾袋。</p>
+          <p class="emotion-desc">遇到鳥事、被無端惹毛。同方向推三次，再按 SW／A 確認；單色 LED 以短閃提示累積。</p>
         </div>
         <div class="emotion-card orange">
           <div class="emotion-header">
             <span class="emotion-name">ㄎㄠˋ · 不爽</span>
-            <span class="emotion-dir">← 推左</span>
+            <span class="emotion-dir">→ 推右</span>
           </div>
-          <p class="emotion-desc">被豬隊友雷到、滿心無言。對應橙色燈效與沉悶橙色垃圾袋。</p>
+          <p class="emotion-desc">被豬隊友雷到、滿心無言。切換方向會重新計數；燈色不區分情緒。</p>
         </div>
         <div class="emotion-card yellow">
           <div class="emotion-header">
             <span class="emotion-name">ㄘㄠˋ · 煩躁</span>
-            <span class="emotion-dir">→ 推右</span>
+            <span class="emotion-dir">↑ 推上</span>
           </div>
-          <p class="emotion-desc">事情多到炸開、思緒卡住。對應黃色燈效與浮躁黃色垃圾袋。</p>
+          <p class="emotion-desc">事情多到炸開、思緒卡住。下推可取消選擇；未確認前不增加 bags。</p>
         </div>
       </div>
 
@@ -893,16 +893,16 @@
         </div>
         <ul class="schedule-list">
           <li class="schedule-row">
-            <span class="schedule-key"><span class="dot" style="background:#8c5b3e;"></span>ㄍㄢˋ · 憤怒（紅）</span>
-            <span class="schedule-val">↑ 上</span>
-          </li>
-          <li class="schedule-row">
-            <span class="schedule-key"><span class="dot" style="background:#bf9b7a;"></span>ㄎㄠˋ · 不爽（橙）</span>
+            <span class="schedule-key"><span class="dot" style="background:#8c5b3e;"></span>ㄍㄢˋ · 憤怒</span>
             <span class="schedule-val">← 左</span>
           </li>
           <li class="schedule-row">
-            <span class="schedule-key"><span class="dot" style="background:#555934;"></span>ㄘㄠˋ · 煩躁（黃）</span>
+            <span class="schedule-key"><span class="dot" style="background:#bf9b7a;"></span>ㄎㄠˋ · 不爽</span>
             <span class="schedule-val">→ 右</span>
+          </li>
+          <li class="schedule-row">
+            <span class="schedule-key"><span class="dot" style="background:#555934;"></span>ㄘㄠˋ · 煩躁</span>
+            <span class="schedule-val">↑ 上</span>
           </li>
           <li class="schedule-row">
             <span class="schedule-key"><span class="dot" style="background:#555934;"></span>工作人員提示「小心」</span>
@@ -954,7 +954,7 @@
       <div class="info-card">
         <span class="card-emoji">🎲</span>
         <h3>喜歡驚喜的人</h3>
-        <p>工作人員有三種隨機提示：50% 收走、25% 收走、25% 退還。有時順利，有時被拒絕，模擬真實世界的隨機性。</p>
+        <p>「小心」50%、「謝謝」25% 會收走全部 bags；「這是回收哦」25% 則隨機留下 1～原有數量。留下的情緒可以下次再處理。</p>
       </div>
     </div>
   </div>
@@ -966,7 +966,7 @@
     <div class="section-label">Features</div>
     <h2 class="section-title">每一行，<br>都在每一趟車上。</h2>
     <p class="section-desc">
-      從時間規則到 LED 閃爍，從搖桿方向到音樂漸變 — 情緒垃圾車的每個部件，都是系統的一部分。
+      從時間規則到 LED 閃爍，從搖桿方向到音樂播放 — 情緒垃圾車的每個部件，都是系統的一部分。
     </p>
 
     <div class="features-grid">
@@ -976,23 +976,23 @@
       </div>
       <div class="feature-box">
         <h4>搖桿操作</h4>
-        <p>HW504 搖桿，三個方向對應三種注音情緒：↑ ㄍㄢˋ、← ㄎㄠˋ、→ ㄘㄠˋ。按下確認送出。</p>
+        <p>HW504 搖桿，三個方向對應三種注音情緒：← ㄍㄢˋ、→ ㄎㄠˋ、↑ ㄘㄠˋ。同方向推三次，再按 SW（Web A）才增加一包；下鍵取消。</p>
       </div>
       <div class="feature-box">
         <h4>工作人員隨機提示</h4>
-        <p>三種結果隨機：「小心」50% 收走、「謝謝」25% 收走、「這是回收哦」25% 退還。退還時紅燈連續閃爍。</p>
+        <p>「小心」50%、「謝謝」25%：bags 歸零。「這是回收哦」25%：隨機保留 1～原有 bags，單色 LED 以 200ms／200ms 閃爍 5 次；原有 bags 為 0 時維持 0。</p>
       </div>
       <div class="feature-box">
         <h4>收垃圾間隔</h4>
         <p>兩次收垃圾間隔至少 10 分鐘，從上次「確認收走」開始算。間隔內按搖桿顯示「垃圾車剛走，請稍等」。</p>
       </div>
       <div class="feature-box">
-        <h4>傳統四腳 RGB LED</h4>
-        <p>R/G/B 三腳 PWM 控制顏色與閃爍，GRD 接地。閃爍作為視覺回饋，不等同於實際震動。</p>
+        <h4>單色 LED 狀態提示</h4>
+        <p>GPIO27 驅動單顆 LED，以熄滅、長亮與閃爍節奏區分狀態。無需辨識燈光顏色，也不代表實際震動。</p>
       </div>
       <div class="feature-box">
         <h4>音樂與提示音</h4>
-        <p>無源蜂鳴器播放 Toelise 垃圾車旋律，接近時逐漸清晰，離開時逐漸模糊。三種提示音參考旋律重新編排。</p>
+        <p>無源蜂鳴器播放《給愛麗絲》與狀態提示音。韌體以 duty 控制約 10 秒的漸強／漸弱；Web 接近段固定音量，離開段為逐音符淡出。</p>
       </div>
       <div class="feature-box">
         <h4>3D 動畫</h4>
@@ -1058,23 +1058,24 @@
       </p>
 
       <div class="flow-nodes-wrapper">
-        <div class="flow-node">REST (休息)</div>
+        <div class="flow-node">REST_CLOSED (休息)</div>
         <span class="flow-arrow">→</span>
         <div class="flow-node highlight">IDLE (待機)</div>
         <span class="flow-arrow">→</span>
-        <div class="flow-node">APPROACHING (接近)</div>
+        <div class="flow-node">ACCUMULATING → A/SW 確認 → IDLE / FULL</div>
         <span class="flow-arrow">→</span>
-        <div class="flow-node">ARRIVED (到達)</div>
+        <div class="flow-node">APPROACHING → ARRIVED</div>
         <span class="flow-arrow">→</span>
-        <div class="flow-node decision">CHECK_INTERVAL (檢查 10m)</div>
+        <div class="flow-node decision">旋轉 1080° → THROW_READY → A/SW</div>
         <span class="flow-arrow">→</span>
-        <div class="flow-node decision">WORKER_PROMPT (工作人員提示)</div>
+        <div class="flow-node decision">THROWING → RESPONDING_*</div>
       </div>
 
       <div class="flow-nodes-wrapper" style="margin-top:10px; background:var(--bg-alt); padding:18px 24px; border-radius:12px;">
         <span style="font-weight:700; font-size:0.9em; color:var(--primary); margin-right:12px;">提示分支：</span>
-        <div class="flow-node success">結果 A/B：順利收走 (75%) → THROWING → DESTROYING → 回到 IDLE</div>
-        <div class="flow-node branch">結果 C：退還 (25%) → RETURNING (紅燈閃爍) → 等待確認 → 回到 IDLE</div>
+        <div class="flow-node success">CAREFUL / THANKS (75%)：bags = 0 → COLLECTED</div>
+        <div class="flow-node branch">RECYCLE (25%)：隨機保留 1～原有 bags（空袋維持 0）→ COLLECTED</div>
+        <div class="flow-node">COLLECTED：每日次數 +1 → IDLE；第 2 次 → REST_DAILY_LIMIT。reset day 保留 bags。</div>
       </div>
     </div>
 
@@ -1149,13 +1150,13 @@
       <!-- 8. 搖桿十字方向圖 -->
       <div class="visual-block" style="margin-top:0;">
         <h3 style="margin-top:0; color:var(--primary);">8. 搖桿十字方向圖</h3>
-        <p style="color:var(--text-soft); font-size:0.88em;">HW504 類比搖桿，推動選擇情緒，中央按鍵確認：</p>
+        <p style="color:var(--text-soft); font-size:0.88em;">同方向推三次，按 SW／Web A 確認後 bags +1；容量 5 包。ARRIVED 時旋轉三圈，再按 SW／A 開始清運：</p>
         <div class="cross-joystick">
-          <div class="cross-dir dir-up">↑ ㄍㄢˋ (憤怒)</div>
-          <div class="cross-dir dir-left">← ㄎㄠˋ (不爽)</div>
-          <div class="cross-center">按下 SW<br><span style="font-size:0.78em; opacity:0.8;">確認丟入</span></div>
-          <div class="cross-dir dir-right">→ ㄘㄠˋ (煩躁)</div>
-          <div class="cross-dir dir-down">↓ (無動作 / 緩衝)</div>
+          <div class="cross-dir dir-up">↑ ㄘㄠˋ (煩躁)</div>
+          <div class="cross-dir dir-left">← ㄍㄢˋ (憤怒)</div>
+          <div class="cross-center">按下 SW<br><span style="font-size:0.78em; opacity:0.8;">確認情緒／丟出</span></div>
+          <div class="cross-dir dir-right">→ ㄎㄠˋ (不爽)</div>
+          <div class="cross-dir dir-down">↓ 取消情緒選擇</div>
         </div>
       </div>
 
@@ -1176,11 +1177,11 @@
       </div>
     </div>
 
-    <!-- 9. 工作人員提示圓餅圖 & 退還流程 -->
+    <!-- 9. 工作人員提示圓餅圖 & bags 結算 -->
     <div class="visual-block">
       <h3 style="margin-top:0; color:var(--primary);">9. 工作人員隨機提示機制</h3>
       <p style="color:var(--text-soft); font-size:0.92em;">
-        情緒不一定每次都能順利丟棄。模擬真實生活，25% 機率會遇到工作人員拒收並退回：
+        先完成三圈旋轉並按 A／SW 丟出，再抽取工作人員回應；結算後自動進入 COLLECTED，不需再次確認：
       </p>
 
       <div class="worker-prompt-grid">
@@ -1189,17 +1190,17 @@
           <ul class="pie-legend">
             <li><span class="pie-dot" style="background:#27ae60;"></span>「小心」 (50%) 順利收走</li>
             <li><span class="pie-dot" style="background:#2ecc71;"></span>「謝謝」 (25%) 順利收走</li>
-            <li><span class="pie-dot" style="background:#e74c3c;"></span>「這是回收哦」 (25%) 退還</li>
+            <li><span class="pie-dot" style="background:#e74c3c;"></span>「這是回收哦」 (25%) 保留部分或全部 bags</li>
           </ul>
         </div>
 
         <div style="background:var(--bg-alt); padding:20px 24px; border-radius:12px; border:1px solid var(--border);">
-          <h4 style="margin:0 0 10px; color:#c0392b;">退還流程（結果 C）</h4>
+          <h4 style="margin:0 0 10px; color:var(--primary);">RECYCLE：保留 bags（結果 C）</h4>
           <ol style="margin:0; padding-left:20px; font-size:0.88em; color:var(--text-soft); line-height:1.7;">
-            <li>垃圾袋動畫退回桌面</li>
-            <li>四腳 RGB LED 變紅並以 200ms/200ms 連續閃爍 5 次</li>
-            <li>螢幕顯示「不好意思，垃圾車不接回收垃圾」</li>
-            <li>使用者手動再次按下搖桿確認收回，回歸 IDLE</li>
+            <li>原有 N 包時，隨機保留 1～N 包；N = 0 時保留 0 包。收走數量 = N − 保留數量。</li>
+            <li>單色 LED 以 200ms／200ms 閃爍 5 次，不使用紅色或其他顏色判斷。</li>
+            <li>LCD 顯示 Returned／Keep 與實際保留包數。</li>
+            <li>自動進入 COLLECTED，完成當趟計數。第一次回 IDLE；第二次進入 REST_DAILY_LIMIT。剩餘 bags 保留。</li>
           </ol>
         </div>
       </div>
@@ -1207,20 +1208,20 @@
   </div>
 </section>
 
-<!-- ===== 11. 硬體設計 (GPIO & LED 節奏) & 12. 音樂音量曲線 ===== -->
+<!-- ===== 11. 單色 LED 硬體與節奏 & 12. 音樂播放時序 ===== -->
 <section class="bg-alt" id="hardware">
   <div class="container">
     <div class="section-label">Hardware & Sound</div>
-    <h2 class="section-title">硬體接線、LED 節奏與<span class="highlight">音效曲線</span>。</h2>
+    <h2 class="section-title">硬體接線、單色 LED 節奏與<span class="highlight">音樂時序</span>。</h2>
     <p class="section-desc">
-      傳統四腳 RGB LED PWM 控光與無源蜂鳴器空間音場設計。
+      GPIO27 單色 LED 以亮滅節奏提示狀態，GPIO25 無源蜂鳴器播放旋律與提示音。
     </p>
 
-    <!-- 11. 硬體設計 (9 GPIO) -->
+    <!-- 11. 硬體設計 (7 GPIO) -->
     <div class="visual-block">
-      <h3 style="margin-top:0; color:var(--primary);">11. 硬體設計（9 GPIO 資源配置表）</h3>
+      <h3 style="margin-top:0; color:var(--primary);">11. 硬體設計（7 GPIO 資源配置表）</h3>
       <p style="color:var(--text-soft); font-size:0.92em;">
-        採用共陰極傳統四腳 RGB LED（R/G/B/GND），以 3 路 PWM 獨立調色，無須專用晶片函式庫：
+        目前採用單顆 LED，GPIO27 經 220Ω 電阻接 LED 正極，負極接 GND；各狀態以相同燈色的閃爍節奏區分。
       </p>
 
       <table class="custom-table">
@@ -1243,7 +1244,7 @@
             <td>LCD1602 螢幕</td>
             <td>I2C (SDA / SCL)</td>
             <td><strong>2 GPIO</strong> (GPIO 21, 22)</td>
-            <td>即時時間與狀態表情呈現</td>
+            <td>狀態、bags、旋轉進度與表情呈現</td>
           </tr>
           <tr>
             <td>無源蜂鳴器</td>
@@ -1252,72 +1253,75 @@
             <td>播放垃圾車主旋律與回饋音效</td>
           </tr>
           <tr>
-            <td>傳統四腳共陰極 RGB LED</td>
-            <td>PWM &times; 3</td>
-            <td><strong>3 GPIO</strong> (GPIO 26, 27, 33)</td>
-            <td>R、G、B 分色控制（GRD 接 GND）</td>
+            <td>單色 LED</td>
+            <td>1 路 PWM／亮滅輸出</td>
+            <td><strong>1 GPIO</strong> (GPIO 27)</td>
+            <td>GPIO27 → 220Ω → LED 正極，負極接 GND</td>
           </tr>
           <tr style="background:var(--cream); font-weight:700;">
             <td>總計 GPIO 佔用</td>
             <td>—</td>
-            <td><strong>9 個 GPIO</strong></td>
+            <td><strong>7 個 GPIO</strong></td>
             <td>保留足夠腳位供後續網路模組擴充</td>
           </tr>
         </tbody>
       </table>
 
-      <h4 style="margin:24px 0 10px; color:var(--primary);">RGB LED 閃爍節奏圖解</h4>
-      <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px;">
+      <p style="font-size:0.88em; color:var(--text-soft);"><strong>原設計附註：</strong>早期使用傳統四腳共陰極 RGB LED 分色表示狀態；因實際顯色未達預期，現改為單顆 LED。圖中只表示同色 LED 的亮滅，不代表 RGB 調色。</p>
+      <h4 style="margin:24px 0 10px; color:var(--primary);">單色 LED 閃爍節奏圖解（● 亮／○ 滅）</h4>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;">
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center;"><strong>○ ○ ○ 熄滅</strong><p>REST_CLOSED／IDLE／REST_DAILY_LIMIT</p></div>
+        <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center;"><strong>● ○ ● ○ 快閃</strong><p>FULL：200ms 亮／200ms 滅</p></div>
         <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">常亮 (Solid)</span>
-          <span style="font-size:0.75em; color:var(--text-muted);">待機 / 到達</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">● ● ● ARRIVED／COLLECTED</span>
         </div>
         <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">短閃 (100ms)</span>
-          <span style="font-size:0.75em; color:var(--text-muted);">情緒累積選擇中</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">● ○ ● ○ ACCUMULATING：100ms 亮／100ms 滅</span>
         </div>
         <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">雙短閃 (&times;2)</span>
-          <span style="font-size:0.75em; color:var(--text-muted);">丟垃圾確認收走</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">● ○ ● ○ THROW_READY／THROWING／CAREFUL／THANKS：100ms 亮／100ms 滅，共 2 次</span>
         </div>
         <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
           <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">慢閃 (300ms)</span>
-          <span style="font-size:0.75em; color:var(--text-muted);">垃圾車接近中</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">● ○ ● ○ APPROACHING：300ms 亮／300ms 滅</span>
         </div>
         <div style="background:var(--bg-alt); padding:12px; border-radius:10px; text-align:center; border:1px solid var(--border);">
-          <span style="font-size:0.85em; font-weight:700; color:#c0392b; display:block;">連續快閃 (&times;5)</span>
-          <span style="font-size:0.75em; color:var(--text-muted);">退還提醒警告</span>
+          <span style="font-size:0.85em; font-weight:700; color:var(--primary); display:block;">● ○ 連閃 (&times;5)</span>
+          <span style="font-size:0.75em; color:var(--text-muted);">RECYCLE：200ms 亮／200ms 滅，共 5 次</span>
         </div>
       </div>
     </div>
 
-    <!-- 12. 音樂設計 (音量曲線) -->
+    <!-- 12. 音樂設計 (播放時序) -->
     <div class="visual-block">
-      <h3 style="margin-top:0; color:var(--primary);">12. 音樂設計（《給愛麗絲》音量曲線圖）</h3>
+      <h3 style="margin-top:0; color:var(--primary);">12. 音樂設計（《給愛麗絲》播放時序）</h3>
       <p style="color:var(--text-soft); font-size:0.92em;">
-        模擬垃圾車在街道穿梭的空間聲學效果，以 PWM Duty 與播放密度模擬真實音量距離漸層：
+        韌體以整段 duty 變化近似音量漸強／漸弱，非實測聲壓曲線。Web 接近段為固定音量；離開段只對每個音符淡出，尚非整段漸弱。兩端的旋律時段如下：
       </p>
 
       <div class="curve-container">
         <div class="curve-stage">
           <div class="stage-title">接近 (APPROACHING)</div>
-          <div class="stage-val">0 &rarr; 80%</div>
-          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">由遠及近、漸漸清晰</div>
+          <div class="stage-val">約 10 秒</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">硬體 duty 10 → 80；Web 固定音量</div>
         </div>
         <div class="curve-stage">
           <div class="stage-title">到達 (ARRIVED)</div>
-          <div class="stage-val">100%</div>
-          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">響亮穩定、等待互動</div>
+          <div class="stage-val">停止旋律</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">等待三圈旋轉；THROW_READY 播放提示音</div>
         </div>
         <div class="curve-stage">
           <div class="stage-title">倒垃圾 (THROWING)</div>
-          <div class="stage-val">100%</div>
-          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">提示音與清脆反饋</div>
+          <div class="stage-val">約 1 秒</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">硬體不另播丟出音；Web 播放丟出提示音</div>
         </div>
         <div class="curve-stage">
-          <div class="stage-title">離開 (DEPARTING)</div>
-          <div class="stage-val">100 &rarr; 0%</div>
-          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">逐漸模糊、遠去平息</div>
+          <div class="stage-title">完成 (COLLECTED)</div>
+          <div class="stage-val">約 10 秒</div>
+          <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">硬體 duty 80 → 10 後停止；Web 每音符淡出</div>
         </div>
       </div>
     </div>
@@ -1348,96 +1352,6 @@
         <div class="wokwi-spec"><strong>Joystick</strong><span>GPIO 34 / 35 / 32</span></div>
         <div class="wokwi-spec"><strong>LCD1602</strong><span>I2C 0x27</span></div>
         <div class="wokwi-spec"><strong>LED + Buzzer</strong><span>GPIO 27 / 25</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 13. Web 演示動畫時間軸 & 14. 實作準備甘特圖 & 15. 附錄 ===== -->
-<section id="implementation">
-  <div class="container">
-    <div class="section-label">Roadmap & Timeline</div>
-    <h2 class="section-title">動畫時間軸與<span class="highlight">實作排程</span>。</h2>
-    <p class="section-desc">
-      精確至 0.1 秒的動態演繹節奏，以及 4 天敏捷原型打造計畫。
-    </p>
-
-    <!-- 13. Web 演示 + 動畫時間軸 -->
-    <div class="visual-block">
-      <h3 style="margin-top:0; color:var(--primary);">13. Web 演示：垃圾袋動畫時間軸 (時長 5.5 秒)</h3>
-      <p style="color:var(--text-soft); font-size:0.92em;">
-        每趟丟垃圾互動皆由關鍵幀驅動流暢視覺回饋：
-      </p>
-
-      <div class="timeline-bar" style="height:44px;">
-        <div class="timeline-seg" style="width:9.1%; background:#bf9b7a;" title="出現 0.5s">出現 0.5s</div>
-        <div class="timeline-seg" style="width:18.2%; background:#8c5b3e;" title="拋入 1.0s">拋入 1.0s</div>
-        <div class="timeline-seg" style="width:9.1%; background:#73482e;" title="壓縮 0.5s">壓縮 0.5s</div>
-        <div class="timeline-seg" style="width:9.1%; background:#555934;" title="銷毀 0.5s">銷毀 0.5s</div>
-        <div class="timeline-seg" style="width:54.5%; background:#593e2e;" title="音樂漸遠淡出 3.0s">音樂漸遠淡出 3.0s</div>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.8em; color:var(--text-muted); margin-top:6px;">
-        <span>0.0s 起始</span>
-        <span>2.5s 完成銷毀</span>
-        <span>5.5s 垃圾車離去回到待機</span>
-      </div>
-    </div>
-
-    <!-- 14. 實作準備 (4-Day Gantt-style Bar) -->
-    <div class="visual-block">
-      <h3 style="margin-top:0; color:var(--primary);">14. 實作準備：4 天原型衝刺計畫 (Gantt)</h3>
-      <p style="color:var(--text-soft); font-size:0.92em;">
-        跨軟硬體分層架構，低耦合模組化推進：
-      </p>
-
-      <div class="gantt-grid">
-        <div class="gantt-day">
-          <div class="day-num">Day 1：ESP32 硬體層</div>
-          <div class="day-task">搖桿三向校準、無源蜂鳴器音符表、四腳 RGB LED R/G/B PWM 控制器。</div>
-        </div>
-        <div class="gantt-day">
-          <div class="day-num">Day 2：FastAPI 後端</div>
-          <div class="day-task">核心狀態機、排程 Scheduler、時鐘 API 與 10 分鐘冷卻檢查。</div>
-        </div>
-        <div class="gantt-day">
-          <div class="day-num">Day 3：Web 3D 動畫</div>
-          <div class="day-task">three.js 模型展演、垃圾袋拋入銷毀動畫、音樂淡入淡出、工作人員隨機提示。</div>
-        </div>
-        <div class="gantt-day">
-          <div class="day-num">Day 4：整合測試與彩排</div>
-          <div class="day-task">測試模式（支援一鍵重置）vs 正式鎖定模式驗證、全流程彩排。</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 15. 附錄：音效頻率表與 ESP32 PWM 推薦 -->
-    <div class="visual-block">
-      <h3 style="margin-top:0; color:var(--primary);">15. 附錄：音效頻率表與 ESP32 PWM 推薦腳位</h3>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:16px;">
-        <div>
-          <h4 style="margin:0 0 10px; color:var(--primary);">A.1 蜂鳴器關鍵音符頻率 (Hz)</h4>
-          <table class="custom-table" style="margin:0;">
-            <thead><tr><th>音符</th><th>頻率 (Hz)</th><th>音符</th><th>頻率 (Hz)</th></tr></thead>
-            <tbody>
-              <tr><td>C4</td><td>262</td><td>A4</td><td>440</td></tr>
-              <tr><td>D4</td><td>294</td><td>B4</td><td>494</td></tr>
-              <tr><td>E4</td><td>330</td><td>C5</td><td>523</td></tr>
-              <tr><td>G4</td><td>392</td><td>E5</td><td>659</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <h4 style="margin:0 0 10px; color:var(--primary);">A.2 ESP32 推薦 PWM 腳位</h4>
-          <table class="custom-table" style="margin:0;">
-            <thead><tr><th>GPIO</th><th>可用性</th><th>備註</th></tr></thead>
-            <tbody>
-              <tr><td>GPIO 25, 26</td><td><span style="color:#27ae60; font-weight:800;">&check; 推薦</span></td><td>DAC 腳位，PWM 極度穩定</td></tr>
-              <tr><td>GPIO 27, 32, 33</td><td><span style="color:#27ae60; font-weight:800;">&check; 推薦</span></td><td>通用 PWM 輸出，適合 RGB LED</td></tr>
-              <tr><td>GPIO 18, 19, 23</td><td><span style="color:#e74c3c; font-weight:800;">&cross; 避免</span></td><td>預留給 SPI 匯流排，避免衝突</td></tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   </div>

@@ -72,7 +72,7 @@ REST_DAILY_LIMIT ──新的一天／reset day──> IDLE
 | `THROWING` | 丟垃圾執行；自動 → `RESPONDING_*` | 不結算 | 無效、不可取消 | 垃圾袋 |
 | `RESPONDING_CAREFUL` | 50% | `max(0, bags-5)` | 無效 | 開心 |
 | `RESPONDING_THANKS` | 25% | `max(0, bags-5)` | 無效 | 開心 |
-| `RESPONDING_RECYCLE` | 25% | 減少 1～4，剩餘保留 | 無效 | 生氣 |
+| `RESPONDING_RECYCLE` | 25% | 隨機保留 1～原有 bags；0 包維持 0 | 無效 | 第二行顯示 Keep 與保留量 |
 | `COLLECTED` | 回應完成；計數 +1 | 不再修改 | 無效 | 放鬆 |
 | `REST_DAILY_LIMIT` | `dailyCollectCount >= 2`；隔日才恢復 | 內部保留、不顯示、不使用 | 無效 | 睡臉 |
 
@@ -83,7 +83,8 @@ IDLE → 確認情緒 → bags += 1 → IDLE 或 FULL
 FULL → APPROACHING → ARRIVED → THROW_READY → THROWING
 THROWING → RESPONDING
   CAREFUL / THANKS: bags = max(0, bags - 5)
-  RECYCLE: bags -= min(random(1..4), bags)
+  RECYCLE: bags = bags > 0 ? random(1..bags) : 0
+  collected = bags_before - bags_after
 RESPONDING → COLLECTED（不再清零）
 COLLECTED: dailyCollectCount += 1
   count < 2  → IDLE，繼承剩餘 bags
@@ -114,7 +115,7 @@ COLLECTED: dailyCollectCount += 1
 | `ARRIVED` | 無效 | `atan2()` 判定順／逆時針，累積 360°／720°／1080° | 無效 |
 | `THROW_READY` | 無效 | 不再計數 | 確認丟垃圾 |
 
-每一段方向需經過中央。第一個方向可任意；第一次相鄰方向決定 CW 或 CCW。中途反向的步驟忽略，不會把另一方向混入計數。
+情緒累積時，每次同方向 push 後回到中央再推；切換方向重新計數。三次後按 SW（Web 按 A）才增加 bags。旋轉使用 atan2() 角度累積，不是逐段回中央的計數方式。
 
 ## 8. 音效對照表
 
@@ -147,7 +148,7 @@ COLLECTED: dailyCollectCount += 1
 | `THROWING` | `Throwing...` | 垃圾袋 |
 | `RESPONDING_CAREFUL` | `Be careful` | 開心 |
 | `RESPONDING_THANKS` | `Thank you` | 開心 |
-| `RESPONDING_RECYCLE` | `Remain: X bags` | 生氣 |
+| `RESPONDING_RECYCLE` | `Returned X bags` | 第二行 `Keep: X bags`，顯示保留量 |
 | `COLLECTED` | `Emotion cleared` | 放鬆 |
 | `REST_DAILY_LIMIT` | `2 trips done` | 睡臉 |
 
@@ -187,5 +188,9 @@ ARRIVED → THROW_READY → THROWING → RESPONDING_* → COLLECTED
 Wokwi 專案是外部硬體展示入口：<https://wokwi.com/projects/477775315279623169>。Wokwi 不會自動接收 Web 模擬器狀態。
 
 瀏覽器端 Web Audio 依照 `platformio/src/sounds.h` 與 `sounds/` 的音符、頻率和毫秒時長重現硬體聲音。因瀏覽器自動播放限制，使用者需先啟用音效；即使 AudioContext 失敗，狀態流程仍應可操作。
+
+音量控制依平台區分：ESP32 的 APPROACHING 約 10 秒內將 duty 從 10 調至 80，COLLECTED 從 80 調至 10 後停止，這是 PWM 近似音量而非實測聲壓。Web 接近音樂為固定音量，離開段為每個音符各自淡出，不表示整段音樂漸弱。
+
+方向映射以目前韌體為準：LEFT = GAN、RIGHT = KAO、UP = CAO。三次同方向 push 後按 SW（Web A）才寫入一次已確認情緒；取消不增加 bags。
 
 > SQL 仍保留 `returned_bags` 作為後端相容欄位；在產品語意與前端文件中稱為 collected bags（收走數量），不是「退回數量」。

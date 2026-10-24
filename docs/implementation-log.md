@@ -45,7 +45,7 @@ REST_CLOSED → IDLE → ACCUMULATING → FULL → APPROACHING
 
 - 情緒完成三次 push 並確認後，bags 增加 1，最高為 5。
 - CAREFUL 與 THANKS 收走最多 5 包。
-- RECYCLE 收走 1–4 包並保留剩餘數量。
+- RECYCLE 在原有 N > 0 時隨機保留 1～N 包，收走 N 減保留量；原有 0 包維持 0。
 - 清運完成後不無條件清空 bags。
 - 每日最多清運 2 次，第二次完成後進入 `REST_DAILY_LIMIT`。
 - `reset day` 只清除每日清運次數，保留 bags。
