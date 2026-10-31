@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情緒垃圾車 · 13-State 狀態機</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f2e6d8;
+      --color-ink:     #593e2e;
+      --color-muted:   #63554b;
+      --color-accent:  #8c5b3e;
+      --color-moss:    #555934;
+      --color-sand:    #bf9b7a;
+      --font-sans:     'Geist', 'Noto Sans TC', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif TC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .frame { max-width: 1360px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 1320px; display: block; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="eyebrow">System behavior · ESP32 firmware</div>
+    <h1>13-State 狀態機</h1>
+    <div class="diagram-container">
+      <svg viewBox="0 0 1320 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-state-title emotion-state-desc">
+        <title id="emotion-state-title">情緒垃圾車 13-State 狀態機</title>
+        <desc id="emotion-state-desc">ESP32 情緒垃圾車的 13 個狀態：休息、待機、累積、滿袋、車開來、到達、準備丟出、丟出、三種工作人員回應、收走，以及每日上限；含逾時回退與隔日重置路徑。</desc>
+        <defs>
+          <marker id="sm-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+          <marker id="sm-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
+          <marker id="sm-arrow-moss" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#555934"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <!-- ===== TRANSITIONS (drawn before nodes) ===== -->
+
+        <!-- start → REST_CLOSED -->
+        <circle cx="34" cy="124" r="5" fill="#593e2e"/>
+        <line x1="40" y1="124" x2="60" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- row 1: REST_CLOSED → IDLE → ACCUMULATING → FULL → APPROACHING -->
+        <line x1="240" y1="124" x2="280" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="460" y1="124" x2="500" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="680" y1="124" x2="720" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="900" y1="124" x2="940" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- APPROACHING ↓ ARRIVED -->
+        <line x1="1030" y1="168" x2="1030" y2="280" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- row 2: ARRIVED → THROW_READY → THROWING (right to left) -->
+        <line x1="940" y1="324" x2="900" y2="324" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="720" y1="324" x2="680" y2="324" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- THROWING ↓ outcome bus → RESPONDING_* -->
+        <path d="M 590,368 V 412 Q 590,420 582,420 H 218 Q 210,420 210,428 V 460" fill="none" stroke="#8c5b3e" stroke-width="1.4" marker-end="url(#sm-arrow-accent)"/>
+        <rect x="352" y="406" width="96" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="400" y="417" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">丟出後抽籤</text>
+
+        <!-- RESPONDING_* → COLLECTED -->
+        <line x1="360" y1="520" x2="500" y2="520" stroke="#555934" stroke-width="1.4" marker-end="url(#sm-arrow-moss)"/>
+        <rect x="392" y="506" width="72" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="428" y="517" fill="#555934" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">結算 bags</text>
+
+        <!-- COLLECTED → REST_DAILY_LIMIT (second trip) -->
+        <line x1="680" y1="520" x2="760" y2="520" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <rect x="690" y="506" width="60" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="720" y="517" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">第 2 次</text>
+
+        <!-- COLLECTED ↓ return bus → IDLE (first trip) -->
+        <path d="M 590,580 V 592 Q 590,600 582,600 H 398 Q 390,600 390,592 V 168" fill="none" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <rect x="438" y="592" width="112" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="494" y="603" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">第 1 次 → IDLE</text>
+
+        <!-- REST_DAILY_LIMIT → REST_CLOSED (reset day) -->
+        <path d="M 980,520 H 1188 Q 1196,520 1196,512 V 48 Q 1196,40 1188,40 H 158 Q 150,40 150,48 V 80" fill="none" stroke="#555934" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#sm-arrow-moss)"/>
+        <rect x="620" y="33" width="180" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="710" y="44" fill="#555934" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">reset day · 保留 bags</text>
+
+        <!-- ===== NODES ===== -->
+
+        <!-- REST_CLOSED -->
+        <rect x="60" y="80" width="180" height="88" rx="8" fill="rgba(89,62,46,0.05)" stroke="#593e2e" stroke-width="1"/>
+        <rect x="68" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="90" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="150" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">REST_CLOSED</text>
+        <text x="150" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">休息中 · 保留 bags</text>
+
+        <!-- IDLE -->
+        <rect x="280" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="288" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="310" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="370" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">IDLE</text>
+        <text x="370" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">等待選擇情緒</text>
+
+        <!-- ACCUMULATING -->
+        <rect x="500" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="508" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="530" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="590" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">ACCUMULATING</text>
+        <text x="590" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">搖桿 3 次 + 確認</text>
+
+        <!-- FULL -->
+        <rect x="720" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="728" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="750" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="810" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">FULL</text>
+        <text x="810" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">bags = 5 · 等車</text>
+
+        <!-- APPROACHING -->
+        <rect x="940" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="948" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="970" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="1030" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">APPROACHING</text>
+        <text x="1030" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">10 秒《給愛麗絲》</text>
+
+        <!-- ARRIVED -->
+        <rect x="940" y="280" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="948" y="288" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="970" y="298" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="1030" y="326" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">ARRIVED</text>
+        <text x="1030" y="344" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">旋轉三圈 · 等 SW / A</text>
+
+        <!-- THROW_READY -->
+        <rect x="720" y="280" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="728" y="288" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="750" y="298" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="810" y="326" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">THROW_READY</text>
+        <text x="810" y="344" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">不可取消</text>
+
+        <!-- THROWING -->
+        <rect x="500" y="280" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="508" y="288" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="530" y="298" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="590" y="326" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">THROWING</text>
+        <text x="590" y="344" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">約 1 秒 · 丟出</text>
+
+        <!-- RESPONDING_* (three mutually exclusive outcomes) -->
+        <rect x="60" y="460" width="300" height="120" rx="8" fill="rgba(140,91,62,0.08)" stroke="#8c5b3e" stroke-width="1.2"/>
+        <rect x="68" y="468" width="44" height="14" rx="2" fill="none" stroke="rgba(140,91,62,0.50)" stroke-width="0.8"/>
+        <text x="90" y="478" fill="#8c5b3e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="210" y="500" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">RESPONDING_*</text>
+        <circle cx="86" cy="516" r="4" fill="#555934"/>
+        <text x="98" y="520" fill="#593e2e" font-size="9" font-family="'Geist', 'Noto Sans TC', sans-serif">CAREFUL</text>
+        <text x="176" y="520" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">50% · bags = 0</text>
+        <circle cx="86" cy="538" r="4" fill="#bf9b7a"/>
+        <text x="98" y="542" fill="#593e2e" font-size="9" font-family="'Geist', 'Noto Sans TC', sans-serif">THANKS</text>
+        <text x="176" y="542" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · bags = 0</text>
+        <circle cx="86" cy="560" r="4" fill="#8c5b3e"/>
+        <text x="98" y="564" fill="#593e2e" font-size="9" font-family="'Geist', 'Noto Sans TC', sans-serif">RECYCLE</text>
+        <text x="176" y="564" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · 保留 1～N</text>
+
+        <!-- COLLECTED -->
+        <rect x="500" y="460" width="180" height="120" rx="8" fill="rgba(85,89,52,0.08)" stroke="#555934" stroke-width="1"/>
+        <rect x="508" y="468" width="44" height="14" rx="2" fill="none" stroke="rgba(85,89,52,0.50)" stroke-width="0.8"/>
+        <text x="530" y="478" fill="#555934" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="590" y="512" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">COLLECTED</text>
+        <text x="590" y="532" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">daily count + 1</text>
+        <text x="590" y="550" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">LED 閃爍 5 次</text>
+
+        <!-- REST_DAILY_LIMIT -->
+        <rect x="760" y="460" width="220" height="120" rx="8" fill="rgba(89,62,46,0.05)" stroke="#593e2e" stroke-width="1"/>
+        <rect x="768" y="468" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="790" y="478" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="870" y="508" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">REST_DAILY_LIMIT</text>
+        <text x="870" y="528" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">每日 2 次上限</text>
+        <text x="870" y="546" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">reset day 保留 bags</text>
+
+        <!-- footer note -->
+        <text x="60" y="640" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.08em">單向推進 · 逾時回退 · 每日 2 次上限 · reset day 僅清次數，不清 bags</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

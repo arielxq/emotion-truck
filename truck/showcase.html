@@ -336,6 +336,52 @@
     z-index: 10;
     pointer-events: none;
   }
+  /* 3D 模型操作按鈕 */
+.threejs-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.threejs-controls button {
+  border: 1px solid var(--border-light);
+  border-radius: 980px;
+  padding: 8px 15px;
+  font-size: 0.78em;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+#explode-btn {
+  color: white;
+  background: var(--primary);
+}
+
+#explode-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+#reassemble-btn {
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+#reassemble-btn:hover {
+  background: white;
+  transform: translateY(-2px);
+}
+
+.threejs-controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
   #truck-canvas {
     width: 100%;
     height: 100%;
@@ -521,6 +567,114 @@
     margin-top: 28px;
     box-shadow: var(--shadow-subtle);
   }
+
+  /* ===== 圖表容器：可拖曳 / 可橫向捲動 / 可點擊放大 ===== */
+  .diagram-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    min-width: 0;
+    margin: 24px 0;
+    cursor: grab;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--bg-alt);
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  .diagram-container:active { cursor: grabbing; }
+  .diagram-container svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    min-width: var(--diagram-min, 760px);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .diagram-container.is-dragging { cursor: grabbing; }
+  .diagram-container.is-dragging svg { pointer-events: none; }
+  .diagram-scroll-hint.is-hidden { display: none; }
+
+  /* Custom scrollbar for diagram containers */
+  .diagram-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--bg-alt);
+  }
+  .diagram-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  .diagram-container::-webkit-scrollbar-track {
+    background: var(--bg-alt);
+    border-radius: 4px;
+  }
+  .diagram-container::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  .diagram-container::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+
+  /* Scroll hint label */
+  .diagram-scroll-hint {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+    margin: -8px 0 14px;
+    pointer-events: none;
+    animation: scroll-pulse 2s infinite;
+  }
+  @keyframes scroll-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* Left/Right navigation buttons */
+  .diagram-nav-wrapper {
+    position: relative;
+    min-width: 0;
+  }
+  .diagram-nav-wrapper:not(.is-scrollable) .diagram-nav {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .diagram-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0 0;
+    padding: 0 12px;
+  }
+  .diagram-nav-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  .diagram-nav-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+  .diagram-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
   .warn-banner {
     background: var(--warn-bg);
     border-left: 4px solid var(--warn);
@@ -612,8 +766,9 @@
   /* 提示圓餅圖 & bags 結算 */
   .worker-prompt-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    min-width: 0;
+    grid-template-columns: 1fr;
+    gap: 24px;
     align-items: center;
   }
   .pie-chart-mock {
@@ -636,21 +791,439 @@
   .pie-legend li { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 0.92em; font-weight: 500; }
   .pie-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-  /* LCD 螢幕模擬框 (Apple Vintage LCD Style) */
-  .lcd-mockup {
-    background: #242922;
-    color: #8edc6e;
-    font-family: ui-monospace, "SF Mono", "Courier New", monospace;
-    font-weight: 600;
-    padding: 24px 30px;
+  /* ===== 8. 搖桿十字方向圖：橫向圖文 ===== */
+  .joystick-anatomy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 32px;
+    align-items: center;
+  }
+  .joystick-anatomy-copy h3 { margin-top: 0; }
+  .joystick-anatomy .cross-joystick { width: 380px; height: 380px; margin: 0 auto; }
+  .joystick-anatomy .cross-dir { padding: 7px 8px; font-size: .75em; }
+  .joystick-anatomy .cross-center { width: 80px; height: 80px; font-size: .8em; }
+
+  /* ===== 10. 硬體操作台：LCD1602 + 搖桿 + LED + 蜂鳴器 ===== */
+  .hw-console {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
+    padding: 24px;
+    margin-top: 22px;
+  }
+  .hw-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(190px, .7fr) minmax(240px, 1fr);
+    gap: 24px;
+    align-items: center;
+  }
+  .hw-lcd-wrap { min-width: 0; }
+
+  /* LCD1602：16×2 字元格 */
+  .lcd1602 {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #242922;
     border: 6px solid #1a1e18;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 10px 24px rgba(0,0,0,0.08);
-    font-size: 1.12em;
-    line-height: 1.8;
-    max-width: 480px;
-    margin: 10px auto;
-    letter-spacing: 0.06em;
+    border-radius: 14px;
+    padding: 12px 14px 8px;
+    box-shadow: inset 0 2px 12px rgba(0,0,0,.55), 0 12px 28px rgba(89,62,46,.14);
+  }
+  .lcd1602-screen {
+    position: relative;
+    overflow: hidden;
+    background: #1d241c;
+    border-radius: 6px;
+    padding: 8px 10px;
+    box-shadow: inset 0 0 18px rgba(0,0,0,.55);
+  }
+  .lcd1602-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.035) 0 1px, transparent 1px 3px);
+  }
+  .lcd-row {
+    display: grid;
+    grid-template-columns: repeat(16, 1ch);
+    font-family: ui-monospace, "SF Mono", "Courier New", monospace;
+    font-size: clamp(0.85rem, 2.4vw, 1.75rem);
+    line-height: 1.5;
+    color: #8edc6e;
+    text-shadow: 0 0 6px rgba(142,220,110,.35);
+  }
+  .lcd-cell {
+    width: 1ch;
+    height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(142,220,110,.10);
+    border-bottom: 1px solid rgba(142,220,110,.10);
+    overflow: hidden;
+  }
+  .lcd-cell:last-child { border-right: 0; }
+  .lcd-row:last-child .lcd-cell { border-bottom: 0; }
+  .lcd-face { display: flex; align-items: center; justify-content: center; }
+  .lcd-face svg { width: 1ch; height: 1.1em; display: block; fill: currentColor; }
+  .lcd1602-brand {
+    margin-top: 7px;
+    text-align: center;
+    font: 600 0.62em/1.4 ui-monospace, "SF Mono", "Courier New", monospace;
+    letter-spacing: .16em;
+    color: rgba(142,220,110,.5);
+  }
+  .lcd-time {
+    margin-top: 10px;
+    text-align: center;
+    font: 500 0.78em/1.5 ui-monospace, "SF Mono", "Courier New", monospace;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .lcd-time strong { color: var(--primary); font-weight: 700; }
+
+  /* 搖桿 */
+  .hw-joystick { min-width: 0; }
+  .joy-pad {
+    position: relative;
+    width: min(100%, 220px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+  }
+  .joy-ring {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    border: 1px dashed var(--border);
+    background: radial-gradient(circle at 35% 30%, #fffaf4 0%, #f3ece3 55%, #e8ded2 100%);
+    box-shadow: inset 0 4px 14px rgba(89,62,46,.10), 0 8px 22px rgba(89,62,46,.08);
+  }
+  .joy-knob {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 50%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #8c5b3e 0%, #593e2e 70%);
+    box-shadow: 0 6px 16px rgba(89,62,46,.32), inset 0 2px 4px rgba(255,255,255,.18);
+    transform: translate(-50%, -50%);
+    transition: transform .16s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .joy-rotor {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    transition: transform .55s cubic-bezier(.2,.7,.2,1);
+  }
+  .joy-rotor::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 6%;
+    width: 3px; height: 14%;
+    border-radius: 2px;
+    background: rgba(242,230,216,.72);
+    transform: translateX(-50%);
+  }
+  .joy-knob.tilt-up { transform: translate(-50%, -66%) scale(.98); }
+  .joy-knob.tilt-down { transform: translate(-50%, -34%) scale(.98); }
+  .joy-knob.tilt-left { transform: translate(-66%, -50%) scale(.98); }
+  .joy-knob.tilt-right { transform: translate(-34%, -50%) scale(.98); }
+  .joy-dir, .joy-sw {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--primary);
+    font-family: ui-monospace, "SF Mono", "Courier New", monospace;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(89,62,46,.10);
+    transition: background .15s ease, color .15s ease, transform .15s ease;
+  }
+  .joy-dir { width: 34px; height: 34px; font-size: 0.9em; }
+  .joy-dir:hover, .joy-dir:focus-visible { background: var(--accent-soft); color: var(--accent); }
+  .joy-dir:active { transform: scale(.92); }
+  .joy-dir.up { top: 0; left: 50%; transform: translateX(-50%); }
+  .joy-dir.up:active { transform: translateX(-50%) scale(.92); }
+  .joy-dir.down { bottom: 0; left: 50%; transform: translateX(-50%); }
+  .joy-dir.down:active { transform: translateX(-50%) scale(.92); }
+  .joy-dir.left { left: 0; top: 50%; transform: translateY(-50%); }
+  .joy-dir.left:active { transform: translateY(-50%) scale(.92); }
+  .joy-dir.right { right: 0; top: 50%; transform: translateY(-50%); }
+  .joy-dir.right:active { transform: translateY(-50%) scale(.92); }
+  .joy-sw {
+    left: 50%; top: 50%;
+    width: 32%; height: 32%;
+    transform: translate(-50%, -50%);
+    background: var(--cream);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-size: 0.72em;
+    letter-spacing: .06em;
+    z-index: 3;
+  }
+  .joy-sw:hover, .joy-sw:focus-visible { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .joy-sw:active { transform: translate(-50%, -50%) scale(.94); }
+  .joy-sw:disabled, .joy-dir:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .hw-joy-status {
+    margin-top: 8px;
+    text-align: center;
+    font: 600 0.74em/1.5 ui-monospace, "SF Mono", "Courier New", monospace;
+    color: var(--text-muted);
+    letter-spacing: .04em;
+    min-height: 1.5em;
+  }
+  .hw-rotation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 6px;
+    font: 600 0.7em/1.4 ui-monospace, "SF Mono", "Courier New", monospace;
+    color: var(--text-muted);
+  }
+  .hw-rot-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--sand);
+    background: transparent;
+  }
+  .hw-rot-dot.on { background: var(--accent); border-color: var(--accent); }
+
+  /* 狀態面板 */
+  .hw-status { display: grid; gap: 10px; min-width: 0; }
+  .hw-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hw-stat.state { grid-column: 1 / -1; }
+  .hw-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .hw-stat span {
+    display: block;
+    font: 600 0.6em/1.4 ui-monospace, "SF Mono", "Courier New", monospace;
+    letter-spacing: .14em;
+    color: var(--text-muted);
+  }
+  .hw-stat strong {
+    display: block;
+    font: 700 0.9em/1.5 ui-monospace, "SF Mono", "Courier New", monospace;
+    color: var(--primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hw-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.78em;
+    color: var(--text-soft);
+    min-width: 0;
+  }
+  .hw-indicator strong {
+    margin-left: auto;
+    color: var(--primary);
+    font-size: 0.92em;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .hw-led {
+    flex: 0 0 auto;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #8c5b3e;
+    box-shadow: 0 0 10px rgba(140,91,62,.65);
+    opacity: .16;
+  }
+  .hw-led.solid { opacity: 1; }
+  .hw-led.short { animation: hwLedShort .2s steps(1,end) infinite; }
+  .hw-led.fast { animation: hwLedFast .4s steps(1,end) infinite; }
+  .hw-led.slow { animation: hwLedSlow .6s steps(1,end) infinite; }
+  .hw-led.double { animation: hwLedDouble .8s steps(1,end) 1; }
+  .hw-led.blink5 { animation: hwLedBlink5 2s steps(1,end) 1; }
+  @keyframes hwLedShort {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: .16; }
+  }
+  @keyframes hwLedFast {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: .16; }
+  }
+  @keyframes hwLedSlow {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: .16; }
+  }
+  @keyframes hwLedDouble {
+    0%, 10% { opacity: 1; }
+    11%, 20% { opacity: .16; }
+    21%, 30% { opacity: 1; }
+    31%, 100% { opacity: .16; }
+  }
+  @keyframes hwLedBlink5 {
+    0%, 8% { opacity: 1; }
+    9%, 16% { opacity: .16; }
+    17%, 25% { opacity: 1; }
+    26%, 33% { opacity: .16; }
+    34%, 42% { opacity: 1; }
+    43%, 50% { opacity: .16; }
+    51%, 59% { opacity: 1; }
+    60%, 67% { opacity: .16; }
+    68%, 76% { opacity: 1; }
+    77%, 100% { opacity: .16; }
+  }
+  .hw-buzzer-icon {
+    flex: 0 0 auto;
+    font: 700 0.95em/1 ui-monospace, monospace;
+    color: var(--moss);
+  }
+  .hw-buzzer-icon.is-playing { animation: hwBuzz .6s ease-in-out infinite alternate; }
+  @keyframes hwBuzz {
+    from { opacity: .45; transform: scale(.92); }
+    to { opacity: 1; transform: scale(1.08); }
+  }
+  .hw-sound {
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-soft);
+    font-family: inherit;
+    font-size: 0.72em;
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .hw-sound:hover, .hw-sound:focus-visible { border-color: var(--accent); color: var(--accent); }
+  .hw-sound[aria-pressed="true"] {
+    background: var(--moss);
+    border-color: var(--moss);
+    color: #fff;
+  }
+
+  /* 提示、流程、按鈕 */
+  .hw-note {
+    margin: 18px 0 0;
+    min-height: 2.8em;
+    padding: 10px 14px;
+    border-left: 3px solid var(--sand);
+    background: rgba(255,255,255,.6);
+    border-radius: 0 8px 8px 0;
+    color: var(--text-soft);
+    font-size: 0.86em;
+    line-height: 1.6;
+  }
+  .hw-flow { margin-top: 14px; }
+  .hw-flow-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font: 600 0.7em/1.4 ui-monospace, "SF Mono", "Courier New", monospace;
+    color: var(--text-muted);
+    letter-spacing: .04em;
+  }
+  .hw-flow-head strong { color: var(--primary); }
+  .hw-flow-track {
+    height: 8px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background: var(--border-light);
+    overflow: hidden;
+  }
+  .hw-flow-bar {
+    width: 10%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--sand), var(--accent));
+    transition: width .35s ease;
+  }
+  .hw-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .hw-btn {
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--primary);
+    font-family: inherit;
+    font-size: 0.74em;
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+    white-space: nowrap;
+  }
+  .hw-btn:hover, .hw-btn:focus-visible {
+    background: var(--accent-soft);
+    border-color: var(--sand);
+    color: var(--accent);
+  }
+  .hw-btn:active { transform: translateY(1px); }
+  .hw-btn.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--cream);
+  }
+  .hw-btn.primary:hover, .hw-btn.primary:focus-visible {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .hw-btn.moss { border-color: var(--moss); color: var(--moss); }
+  .hw-btn.moss:hover, .hw-btn.moss:focus-visible {
+    background: var(--moss);
+    border-color: var(--moss);
+    color: #fff;
+  }
+  .hw-btn:disabled { opacity: .38; cursor: not-allowed; transform: none; }
+  .hw-count {
+    display: inline-block;
+    margin-left: 4px;
+    font-variant-numeric: tabular-nums;
+    opacity: .8;
+  }
+
+  @media (max-width: 1100px) {
+    .hw-top { grid-template-columns: 1fr 1fr; }
+    .hw-status { grid-column: 1 / -1; }
+  }
+  @media (max-width: 760px) {
+    .joystick-anatomy { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .joystick-anatomy .cross-joystick { width: 300px; height: 300px; }
+    .joystick-anatomy .cross-dir { padding: 5px 7px; font-size: .68em; }
+    .joystick-anatomy .cross-center { width: 68px; height: 68px; font-size: .68em; }
+  }
+  @media (max-width: 620px) {
+    .hw-top { grid-template-columns: 1fr; }
+    .hw-status { grid-column: auto; }
+    .hw-console { padding: 18px 14px; }
+    .hw-actions .hw-btn { flex: 1 1 calc(50% - 8px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-led.short, .hw-led.fast, .hw-led.slow, .hw-led.double, .hw-led.blink5 { animation: none; opacity: 1; }
+    .hw-buzzer-icon.is-playing { animation: none; }
+    .joy-knob, .joy-rotor { transition: none; }
+    .hw-flow-bar { transition: none; }
   }
 
   /* 甘特條 / 時間軸 */
@@ -746,6 +1319,137 @@
     border-top: 1px solid var(--border);
     background: var(--bg-white);
   }
+  /* ===== 圖表互動與放大檢視 (Pan & Zoom) ===== */
+.diagram-container {
+  cursor: grab;
+  user-select: none; /* 防止拖曳時選取到文字 */
+  position: relative;
+}
+.diagram-container:active {
+  cursor: grabbing;
+}
+.diagram-container.is-dragging svg {
+  pointer-events: none; /* 拖曳時避免 SVG 內部的 hover 效果干擾 */
+}
+
+/* 放大鏡按鈕 */
+.diagram-zoom-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: var(--text-soft);
+  backdrop-filter: blur(4px);
+  transition: all 0.2s;
+  font-size: 16px;
+}
+.diagram-zoom-btn:hover {
+  background: #ffffff;
+  color: var(--primary);
+  transform: scale(1.1);
+}
+
+/* ===== 全螢幕放大檢視器 (Modal) ===== */
+.diagram-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 21, 18, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.diagram-modal.active { opacity: 1; pointer-events: auto; }
+.diagram-modal-content {
+  background: #f2e6d8;
+  border-radius: 16px;
+  width: min(1400px, 94vw);
+  height: min(90vh, 900px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-white);
+}
+.modal-zoom-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+.diagram-modal-svg-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  touch-action: none;
+  background: #f2e6d8;
+}
+.diagram-modal-svg-wrapper:active { cursor: grabbing; }
+.diagram-modal-svg-wrapper svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  transition: none;
+}
+.modal-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-white);
+}
+.modal-controls button {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  padding: 7px 16px;
+  border-radius: 980px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.modal-controls button:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.modal-close {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+}
+.modal-close:hover { background: var(--primary); color: #fff; }
 
   /* ===== 響應式佈局 (Mobile < 860px) ===== */
   @media (max-width: 860px) {
@@ -841,9 +1545,17 @@
       <div class="hero-right-sticky">
         <div class="threejs-card">
           <div class="threejs-badge">3D TRUCK MODEL</div>
-          <div id="truck-loading">載入 <code>truck3D.obj</code> 與材質中…</div>
+          <div id="truck-loading">載入 3D 車體與電子零件中…</div>
           <canvas id="truck-canvas"></canvas>
-          <div class="threejs-hint">拖曳旋轉 · 自動浮動</div>
+          <div class="threejs-controls">
+            <button id="explode-btn" type="button" disabled>
+              Take Apart
+            </button>
+            <button id="reassemble-btn" type="button" disabled>
+              Reassemble
+            </button>
+          </div>
+          <div class="threejs-hint">拖曳旋轉 · 滾輪縮放</div>
         </div>
       </div>
     </div>
@@ -867,7 +1579,7 @@
             <span class="emotion-name">ㄍㄢˋ · 憤怒</span>
             <span class="emotion-dir">← 推左</span>
           </div>
-          <p class="emotion-desc">遇到鳥事、被無端惹毛。同方向推三次，再按 SW／A 確認；單色 LED 以短閃提示累積。</p>
+          <p class="emotion-desc">遇到鳥事、被無端惹毛。同方向推三次，再按 SW 確認；單色 LED 以短閃提示累積。</p>
         </div>
         <div class="emotion-card orange">
           <div class="emotion-header">
@@ -957,6 +1669,96 @@
         <p>「小心」50%、「謝謝」25% 會收走全部 bags；「這是回收哦」25% 則隨機留下 1～原有數量。留下的情緒可以下次再處理。</p>
       </div>
     </div>
+
+    <!-- User Journey 使用者旅程圖 -->
+    <div class="visual-block" style="margin-top:48px;">
+      <h3 style="margin-top:0; color:var(--primary);">使用者旅程圖</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        一位使用者從心情煩躁到將壞情緒丟進垃圾車，經過五個階段的情感變化：低谷在「遇見垃圾車」等待階段，隨後逐步回升至解脫。
+      </p>
+      <div class="diagram-nav-wrapper">
+        <div class="diagram-scroll-hint">&#8592; 左右拖曳查看完整旅程 · 點擊放大 &#8594;</div>
+        <div class="diagram-container" id="journey-container" data-min="940" style="margin:24px 0; overflow-x:auto; width:100%;">
+        <svg viewBox="0 0 1180 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-journey-title emotion-journey-desc">
+        <title id="emotion-journey-title">情緒垃圾車 · 使用者旅程圖</title>
+        <desc id="emotion-journey-desc">一位使用者從心情煩躁、遇見垃圾車、選擇情緒、丟出垃圾到心情輕鬆的五個階段，含情感曲線、動作、接觸點與等車痛點。</desc>
+        <defs>
+          <marker id="journey-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <!-- ===== STAGE HEADERS ===== -->
+        <text x="64" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 1</text>
+        <text x="288" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 2</text>
+        <text x="512" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 3</text>
+        <text x="736" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 4</text>
+        <text x="960" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 5</text>
+
+        <text x="164" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">心情煩躁</text>
+        <text x="388" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">遇見垃圾車</text>
+        <text x="612" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">選擇情緒</text>
+        <text x="836" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">丟出垃圾</text>
+        <text x="1060" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">心情輕鬆</text>
+
+        <!-- ===== EMOTION GRID ===== -->
+        <line x1="64" y1="110" x2="1060" y2="110" stroke="rgba(99,85,75,0.10)" stroke-width="1"/>
+        <line x1="64" y1="190" x2="1060" y2="190" stroke="rgba(99,85,75,0.10)" stroke-width="1"/>
+        <line x1="64" y1="270" x2="1060" y2="270" stroke="rgba(99,85,75,0.10)" stroke-width="1"/>
+        <text x="40" y="114" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">HIGH</text>
+        <text x="40" y="194" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">NEUTRAL</text>
+        <text x="40" y="274" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">LOW</text>
+
+        <!-- emotion curve -->
+        <polyline points="164,150 388,230 612,190 836,150 1060,110" fill="none" stroke="#63554b" stroke-width="1.5"/>
+        <path d="M 164,150 L 388,230" fill="none" stroke="#8c5b3e" stroke-width="2.5"/>
+        <circle cx="164" cy="150" r="5" fill="#63554b"/>
+        <circle cx="388" cy="230" r="5" fill="#8c5b3e"/>
+        <circle cx="612" cy="190" r="5" fill="#63554b"/>
+        <circle cx="836" cy="150" r="5" fill="#63554b"/>
+        <circle cx="1060" cy="110" r="5" fill="#63554b"/>
+
+        <!-- pain point -->
+        <rect x="352" y="242" width="72" height="16" rx="2" fill="none" stroke="rgba(140,91,62,0.55)" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="388" y="254" fill="#8c5b3e" font-size="7.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">等車太久</text>
+
+        <!-- ===== ACTIONS ===== -->
+        <line x1="64" y1="300" x2="1060" y2="300" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="40" y="292" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">ACTIONS</text>
+        <text x="164" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">遇到煩心事</text>
+        <text x="388" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">聽到《給愛麗絲》</text>
+        <text x="612" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">搖桿三次 · 按 SW 確認</text>
+        <text x="836" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">旋轉三圈 · 丟出</text>
+        <text x="1060" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">收走 / 保留 bags</text>
+
+        <!-- ===== TOUCHPOINTS ===== -->
+        <line x1="64" y1="360" x2="1060" y2="360" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="40" y="352" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">TOUCHPOINTS</text>
+        <text x="164" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">心中憶起</text>
+        <text x="388" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">蜂鳴器旋律</text>
+        <text x="612" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">HW504 搖桿 + SW</text>
+        <text x="836" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">垃圾車 LCD + LED</text>
+        <text x="1060" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">工作人員回應</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="64" y1="420" x2="1060" y2="420" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="64" y="438" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+        <line x1="78" y1="458" x2="102" y2="458" stroke="#63554b" stroke-width="1.5"/>
+        <text x="116" y="462" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">情感曲線</text>
+        <circle cx="198" cy="458" r="5" fill="#8c5b3e"/>
+        <text x="214" y="462" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">低谷階段</text>
+        <rect x="290" y="452" width="14" height="12" rx="2" fill="none" stroke="rgba(140,91,62,0.55)" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="312" y="462" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">痛點標記</text>
+        <text x="420" y="462" fill="#63554b" font-size="8.5" font-style="italic" font-family="'Geist', 'Noto Sans TC', sans-serif">五階段 · 情感從低點回升至解脫</text>
+        <text x="64" y="500" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">低谷發生在等待車次的階段；音樂響起後，儀式感把情緒轉為期待。</text>
+      </svg>
+      </div>
+        <div class="diagram-nav">
+          <button class="diagram-nav-btn" type="button" aria-label="向左捲動" disabled>&#8249;</button>
+          <button class="diagram-nav-btn" type="button" aria-label="向右捲動">&#8250;</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -976,7 +1778,7 @@
       </div>
       <div class="feature-box">
         <h4>搖桿操作</h4>
-        <p>HW504 搖桿，三個方向對應三種注音情緒：← ㄍㄢˋ、→ ㄎㄠˋ、↑ ㄘㄠˋ。同方向推三次，再按 SW（Web A）才增加一包；下鍵取消。</p>
+        <p>HW504 搖桿，三個方向對應三種注音情緒：← ㄍㄢˋ、→ ㄎㄠˋ、↑ ㄘㄠˋ。同方向推三次，再按 SW 才增加一包；下鍵取消。</p>
       </div>
       <div class="feature-box">
         <h4>工作人員隨機提示</h4>
@@ -1057,56 +1859,271 @@
         系統嚴格遵循單向推進與逾時回退機制，確保任何異常均能安全回到待機狀態：
       </p>
 
-      <div class="flow-nodes-wrapper">
-        <div class="flow-node">REST_CLOSED (休息)</div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-node highlight">IDLE (待機)</div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-node">ACCUMULATING → A/SW 確認 → IDLE / FULL</div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-node">APPROACHING → ARRIVED</div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-node decision">旋轉 1080° → THROW_READY → A/SW</div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-node decision">THROWING → RESPONDING_*</div>
-      </div>
+      <div class="diagram-nav-wrapper">
+        <div class="diagram-scroll-hint">&#8592; 左右滑動查看完整狀態機 &#8594;</div>
+        <div class="diagram-container" id="state-machine-container" data-min="950" style="margin:24px 0; overflow-x:auto; width:100%;">
+          <svg viewBox="0 0 1320 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-state-title emotion-state-desc">
+        <title id="emotion-state-title">情緒垃圾車 13-State 狀態機</title>
+        <desc id="emotion-state-desc">ESP32 情緒垃圾車的 13 個狀態：休息、待機、累積、滿袋、車開來、到達、準備丟出、丟出、三種工作人員回應、收走，以及每日上限；含逾時回退與隔日重置路徑。</desc>
+        <defs>
+          <marker id="sm-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+          <marker id="sm-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
+          <marker id="sm-arrow-moss" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#555934"/></marker>
+        </defs>
 
-      <div class="flow-nodes-wrapper" style="margin-top:10px; background:var(--bg-alt); padding:18px 24px; border-radius:12px;">
-        <span style="font-weight:700; font-size:0.9em; color:var(--primary); margin-right:12px;">提示分支：</span>
-        <div class="flow-node success">CAREFUL / THANKS (75%)：bags = 0 → COLLECTED</div>
-        <div class="flow-node branch">RECYCLE (25%)：隨機保留 1～原有 bags（空袋維持 0）→ COLLECTED</div>
-        <div class="flow-node">COLLECTED：每日次數 +1 → IDLE；第 2 次 → REST_DAILY_LIMIT。reset day 保留 bags。</div>
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <!-- ===== TRANSITIONS (drawn before nodes) ===== -->
+
+        <!-- start → REST_CLOSED -->
+        <circle cx="34" cy="124" r="5" fill="#593e2e"/>
+        <line x1="40" y1="124" x2="60" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- row 1: REST_CLOSED → IDLE → ACCUMULATING → FULL → APPROACHING -->
+        <line x1="240" y1="124" x2="280" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="460" y1="124" x2="500" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="680" y1="124" x2="720" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="900" y1="124" x2="940" y2="124" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- APPROACHING ↓ ARRIVED -->
+        <line x1="1030" y1="168" x2="1030" y2="280" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- row 2: ARRIVED → THROW_READY → THROWING (right to left) -->
+        <line x1="940" y1="324" x2="900" y2="324" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <line x1="720" y1="324" x2="680" y2="324" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+
+        <!-- THROWING ↓ outcome bus → RESPONDING_* -->
+        <path d="M 590,368 V 412 Q 590,420 582,420 H 218 Q 210,420 210,428 V 460" fill="none" stroke="#8c5b3e" stroke-width="1.4" marker-end="url(#sm-arrow-accent)"/>
+        <rect x="352" y="406" width="96" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="400" y="417" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">丟出後抽籤</text>
+
+        <!-- RESPONDING_* → COLLECTED -->
+        <line x1="360" y1="520" x2="500" y2="520" stroke="#555934" stroke-width="1.4" marker-end="url(#sm-arrow-moss)"/>
+        <rect x="392" y="506" width="72" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="428" y="517" fill="#555934" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">結算 bags</text>
+
+        <!-- COLLECTED → REST_DAILY_LIMIT (second trip) -->
+        <line x1="680" y1="520" x2="760" y2="520" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <rect x="690" y="506" width="60" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="720" y="517" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">第 2 次</text>
+
+        <!-- COLLECTED ↓ return bus → IDLE (first trip) -->
+        <path d="M 590,580 V 592 Q 590,600 582,600 H 398 Q 390,600 390,592 V 168" fill="none" stroke="#63554b" stroke-width="1.2" marker-end="url(#sm-arrow)"/>
+        <rect x="438" y="592" width="112" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="494" y="603" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">第 1 次 → IDLE</text>
+
+        <!-- REST_DAILY_LIMIT → REST_CLOSED (reset day) -->
+        <path d="M 980,520 H 1188 Q 1196,520 1196,512 V 48 Q 1196,40 1188,40 H 158 Q 150,40 150,48 V 80" fill="none" stroke="#555934" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#sm-arrow-moss)"/>
+        <rect x="620" y="33" width="180" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="710" y="44" fill="#555934" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">reset day · 保留 bags</text>
+
+        <!-- ===== NODES ===== -->
+
+        <!-- REST_CLOSED -->
+        <rect x="60" y="80" width="180" height="88" rx="8" fill="rgba(89,62,46,0.05)" stroke="#593e2e" stroke-width="1"/>
+        <rect x="68" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="90" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="150" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">REST_CLOSED</text>
+        <text x="150" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">休息中 · 保留 bags</text>
+
+        <!-- IDLE -->
+        <rect x="280" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="288" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="310" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="370" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">IDLE</text>
+        <text x="370" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">等待選擇情緒</text>
+
+        <!-- ACCUMULATING -->
+        <rect x="500" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="508" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="530" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="590" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">ACCUMULATING</text>
+        <text x="590" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">搖桿 3 次 + 確認</text>
+
+        <!-- FULL -->
+        <rect x="720" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="728" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="750" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="810" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">FULL</text>
+        <text x="810" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">bags = 5 · 等車</text>
+
+        <!-- APPROACHING -->
+        <rect x="940" y="80" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="948" y="88" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="970" y="98" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="1030" y="126" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">APPROACHING</text>
+        <text x="1030" y="144" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">10 秒《給愛麗絲》</text>
+
+        <!-- ARRIVED -->
+        <rect x="940" y="280" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="948" y="288" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="970" y="298" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="1030" y="326" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">ARRIVED</text>
+        <text x="1030" y="344" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">旋轉三圈 · 等 SW / A</text>
+
+        <!-- THROW_READY -->
+        <rect x="720" y="280" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="728" y="288" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="750" y="298" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="810" y="326" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">THROW_READY</text>
+        <text x="810" y="344" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">不可取消</text>
+
+        <!-- THROWING -->
+        <rect x="500" y="280" width="180" height="88" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="508" y="288" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="530" y="298" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="590" y="326" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">THROWING</text>
+        <text x="590" y="344" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">約 1 秒 · 丟出</text>
+
+        <!-- RESPONDING_* (three mutually exclusive outcomes) -->
+        <rect x="60" y="460" width="300" height="120" rx="8" fill="rgba(140,91,62,0.08)" stroke="#8c5b3e" stroke-width="1.2"/>
+        <rect x="68" y="468" width="44" height="14" rx="2" fill="none" stroke="rgba(140,91,62,0.50)" stroke-width="0.8"/>
+        <text x="90" y="478" fill="#8c5b3e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="210" y="500" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">RESPONDING_*</text>
+        <circle cx="86" cy="516" r="4" fill="#555934"/>
+        <text x="98" y="520" fill="#593e2e" font-size="9" font-family="'Geist', 'Noto Sans TC', sans-serif">CAREFUL</text>
+        <text x="176" y="520" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">50% · bags = 0</text>
+        <circle cx="86" cy="538" r="4" fill="#bf9b7a"/>
+        <text x="98" y="542" fill="#593e2e" font-size="9" font-family="'Geist', 'Noto Sans TC', sans-serif">THANKS</text>
+        <text x="176" y="542" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · bags = 0</text>
+        <circle cx="86" cy="560" r="4" fill="#8c5b3e"/>
+        <text x="98" y="564" fill="#593e2e" font-size="9" font-family="'Geist', 'Noto Sans TC', sans-serif">RECYCLE</text>
+        <text x="176" y="564" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · 保留 1～N</text>
+
+        <!-- COLLECTED -->
+        <rect x="500" y="460" width="180" height="120" rx="8" fill="rgba(85,89,52,0.08)" stroke="#555934" stroke-width="1"/>
+        <rect x="508" y="468" width="44" height="14" rx="2" fill="none" stroke="rgba(85,89,52,0.50)" stroke-width="0.8"/>
+        <text x="530" y="478" fill="#555934" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="590" y="512" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">COLLECTED</text>
+        <text x="590" y="532" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">daily count + 1</text>
+        <text x="590" y="550" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">LED 閃爍 5 次</text>
+
+        <!-- REST_DAILY_LIMIT -->
+        <rect x="760" y="460" width="220" height="120" rx="8" fill="rgba(89,62,46,0.05)" stroke="#593e2e" stroke-width="1"/>
+        <rect x="768" y="468" width="44" height="14" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="790" y="478" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+        <text x="870" y="508" fill="#593e2e" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">REST_DAILY_LIMIT</text>
+        <text x="870" y="528" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">每日 2 次上限</text>
+        <text x="870" y="546" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">reset day 保留 bags</text>
+
+        <!-- footer note -->
+        <text x="60" y="640" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.08em">單向推進 · 逾時回退 · 每日 2 次上限 · reset day 僅清次數，不清 bags</text>
+      </svg>
+      </div>
+        <div class="diagram-nav">
+          <button class="diagram-nav-btn" type="button" aria-label="向左捲動" disabled>&#8249;</button>
+          <button class="diagram-nav-btn" type="button" aria-label="向右捲動">&#8250;</button>
+        </div>
       </div>
     </div>
 
-    <!-- 7. 時間規則時序表 -->
+    <!-- 7. 時間規則時序表 — Diagram Design SVG -->
     <div class="visual-block">
       <h3 style="margin-top:0; color:var(--primary);">7. 時間規則時序表（09:00–20:00 排程）</h3>
       <p style="color:var(--text-soft); font-size:0.92em;">
-        每日隨機安排 2 次清運時段（間隔 &ge; 3 小時），週三與週日全天公休：
+        每日 00:00–24:00 排程：09:00–20:00 開放，兩次隨機車次（≥3 小時間隔），週三與週日全天公休。
       </p>
+      <div class="diagram-nav-wrapper">
+        <div class="diagram-scroll-hint">&#8592; 左右滑動查看每日時序 &#8594;</div>
+        <div class="diagram-container" id="timeline-container" data-min="900" style="margin:24px 0; overflow-x:auto; width:100%;">
+          <svg viewBox="0 0 1080 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-timeline-title emotion-timeline-desc">
+        <title id="emotion-timeline-title">情緒垃圾車 · 每日清運時序</title>
+        <desc id="emotion-timeline-desc">每日 00:00–24:00 排程：09:00–20:00 開放，兩次隨機車次且間隔至少 3 小時，每次包含 10 秒音樂與 3–5 分鐘互動；週三與週日全天公休。</desc>
+        <defs>
+          <marker id="tl-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+          <marker id="tl-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
+        </defs>
 
-      <!-- 24H 橫向時序示意 -->
-      <div style="margin:24px 0 10px;">
-        <div style="display:flex; justify-content:space-between; font-size:0.78em; color:var(--text-muted); margin-bottom:6px; font-family:monospace;">
-          <span>00:00</span>
-          <span>09:00 (開放)</span>
-          <span>13:00 (車次 1)</span>
-          <span>17:30 (車次 2)</span>
-          <span>20:00 (關閉)</span>
-          <span>24:00</span>
-        </div>
-        <div class="timeline-bar">
-          <div class="timeline-seg" style="width:37.5%; background:#593e2e;" title="00:00-09:00 休息">休息 REST</div>
-          <div class="timeline-seg" style="width:16.6%; background:#555934;" title="09:00-13:00 待機中">待機 IDLE</div>
-          <div class="timeline-seg" style="width:4.2%; background:#8c5b3e;" title="13:00 到達 (3-5m)">到達</div>
-          <div class="timeline-seg" style="width:14.6%; background:#555934;" title="間隔等待 & 待機">待機 (&ge;3h)</div>
-          <div class="timeline-seg" style="width:4.2%; background:#8c5b3e;" title="17:30 到達 (3-5m)">到達</div>
-          <div class="timeline-seg" style="width:6.2%; background:#555934;" title="傍晚待機">待機</div>
-          <div class="timeline-seg" style="width:16.7%; background:#593e2e;" title="20:00-24:00 休息">休息 REST</div>
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <!-- ===== TIME AXIS ===== -->
+        <line x1="60" y1="100" x2="1020" y2="100" stroke="rgba(99,85,75,0.45)" stroke-width="1"/>
+
+        <!-- ticks -->
+        <line x1="60" y1="94" x2="60" y2="106" stroke="#63554b" stroke-width="1"/>
+        <line x1="420" y1="94" x2="420" y2="106" stroke="#593e2e" stroke-width="1.2"/>
+        <line x1="580" y1="94" x2="580" y2="106" stroke="#8c5b3e" stroke-width="1.2"/>
+        <line x1="760" y1="94" x2="760" y2="106" stroke="#8c5b3e" stroke-width="1.2"/>
+        <line x1="860" y1="94" x2="860" y2="106" stroke="#593e2e" stroke-width="1.2"/>
+        <line x1="1020" y1="94" x2="1020" y2="106" stroke="#63554b" stroke-width="1"/>
+
+        <!-- time labels -->
+        <text x="60" y="84" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">00:00</text>
+        <text x="420" y="84" fill="#593e2e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">09:00 開放</text>
+        <text x="580" y="84" fill="#8c5b3e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">13:00 車次 1</text>
+        <text x="760" y="84" fill="#8c5b3e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">17:30 車次 2</text>
+        <text x="860" y="84" fill="#593e2e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">20:00 關閉</text>
+        <text x="1020" y="84" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">24:00</text>
+
+        <!-- ===== DAY BAR ===== -->
+        <rect x="60" y="112" width="360" height="36" rx="4" fill="#593e2e"/>
+        <text x="240" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">休息 REST</text>
+        <text x="240" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">00:00–09:00</text>
+
+        <rect x="420" y="112" width="160" height="36" rx="4" fill="#555934"/>
+        <text x="500" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">待機 IDLE</text>
+        <text x="500" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">09:00–13:00</text>
+
+        <rect x="580" y="112" width="40" height="36" rx="4" fill="#8c5b3e"/>
+        <rect x="620" y="112" width="140" height="36" rx="4" fill="#555934"/>
+        <text x="690" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">待機</text>
+        <text x="690" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">≥ 3 小時間隔</text>
+
+        <rect x="760" y="112" width="40" height="36" rx="4" fill="#8c5b3e"/>
+        <rect x="800" y="112" width="60" height="36" rx="4" fill="#555934"/>
+        <text x="830" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">待機</text>
+        <text x="830" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">至 20:00</text>
+
+        <rect x="860" y="112" width="160" height="36" rx="4" fill="#593e2e"/>
+        <text x="940" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">休息 REST</text>
+        <text x="940" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">20:00–24:00</text>
+
+        <!-- trip 1 callout -->
+        <line x1="600" y1="148" x2="600" y2="186" stroke="#8c5b3e" stroke-width="1" marker-end="url(#tl-arrow-accent)"/>
+        <rect x="480" y="190" width="250" height="76" rx="6" fill="#ffffff" stroke="rgba(140,91,62,0.55)" stroke-width="1"/>
+        <text x="496" y="210" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">TRIP 1 · 13:00</text>
+        <text x="496" y="230" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">10 秒《給愛麗絲》</text>
+        <text x="496" y="248" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">3–5 分鐘互動 → 結算 bags</text>
+        <text x="496" y="260" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">第一次 → IDLE</text>
+
+        <!-- trip 2 callout -->
+        <line x1="780" y1="148" x2="780" y2="186" stroke="#8c5b3e" stroke-width="1" marker-end="url(#tl-arrow-accent)"/>
+        <rect x="760" y="190" width="250" height="76" rx="6" fill="#ffffff" stroke="rgba(140,91,62,0.55)" stroke-width="1"/>
+        <text x="776" y="210" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">TRIP 2 · 17:30</text>
+        <text x="776" y="230" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">10 秒《給愛麗絲》</text>
+        <text x="776" y="248" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">3–5 分鐘互動 → 結算 bags</text>
+        <text x="776" y="260" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">第二次 → REST_DAILY_LIMIT</text>
+
+        <!-- interval note -->
+        <path d="M 620,170 H 760" fill="none" stroke="rgba(85,89,52,0.55)" stroke-width="1" stroke-dasharray="4,3"/>
+        <rect x="646" y="162" width="88" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="690" y="173" fill="#555934" font-size="7.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">間隔 ≥ 3 小時</text>
+
+        <!-- ===== WEEKLY CLOSED ===== -->
+        <line x1="60" y1="300" x2="1020" y2="300" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="288" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">WEEKLY CLOSED</text>
+        <rect x="60" y="306" width="960" height="20" rx="4" fill="rgba(99,85,75,0.12)"/>
+        <text x="240" y="320" fill="#593e2e" font-size="8.5" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">週三 · 全天公休</text>
+        <text x="780" y="320" fill="#593e2e" font-size="8.5" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">週日 · 全天公休</text>
+        <text x="540" y="320" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">reset day 僅清每日次數，不清 bags</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="60" y1="360" x2="1020" y2="360" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="378" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="78" y="392" width="24" height="12" rx="3" fill="#593e2e"/>
+        <text x="110" y="402" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">休息段</text>
+        <rect x="190" y="392" width="24" height="12" rx="3" fill="#555934"/>
+        <text x="222" y="402" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">待機段</text>
+        <rect x="300" y="392" width="24" height="12" rx="3" fill="#8c5b3e"/>
+        <text x="332" y="402" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">車次到達（10 秒音樂）</text>
+        <text x="60" y="424" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">每日最多 2 次 · 兩次間隔 ≥ 3 小時 · 週三與週日公休 · 非播放時間 LCD 顯示「垃圾車還沒來」。</text>
+      </svg>
+      </div>
+        <div class="diagram-nav">
+          <button class="diagram-nav-btn" type="button" aria-label="向左捲動" disabled>&#8249;</button>
+          <button class="diagram-nav-btn" type="button" aria-label="向右捲動">&#8250;</button>
         </div>
       </div>
-
       <table class="custom-table" style="margin-top:20px;">
         <thead>
           <tr>
@@ -1137,7 +2154,7 @@
   </div>
 </section>
 
-<!-- ===== 8. 搖桿十字圖、9. 提示圓餅圖、10. LCD 螢幕模擬框 ===== -->
+<!-- ===== 8. 搖桿十字圖、9. 提示圓餅圖、10. 硬體操作台 ===== -->
 <section id="controls">
   <div class="container">
     <div class="section-label">Interaction Mockups</div>
@@ -1146,34 +2163,19 @@
       硬體手感、隨機機率分配與終端液晶顯示的仿真還原。
     </p>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
-      <!-- 8. 搖桿十字方向圖 -->
-      <div class="visual-block" style="margin-top:0;">
+    <!-- 8. 搖桿十字方向圖 -->
+    <div class="visual-block joystick-anatomy" style="margin-top:0;">
+      <div class="joystick-anatomy-copy">
         <h3 style="margin-top:0; color:var(--primary);">8. 搖桿十字方向圖</h3>
-        <p style="color:var(--text-soft); font-size:0.88em;">同方向推三次，按 SW／Web A 確認後 bags +1；容量 5 包。ARRIVED 時旋轉三圈，再按 SW／A 開始清運：</p>
-        <div class="cross-joystick">
-          <div class="cross-dir dir-up">↑ ㄘㄠˋ (煩躁)</div>
-          <div class="cross-dir dir-left">← ㄍㄢˋ (憤怒)</div>
-          <div class="cross-center">按下 SW<br><span style="font-size:0.78em; opacity:0.8;">確認情緒／丟出</span></div>
-          <div class="cross-dir dir-right">→ ㄎㄠˋ (不爽)</div>
-          <div class="cross-dir dir-down">↓ 取消情緒選擇</div>
-        </div>
+        <p style="color:var(--text-soft); font-size:0.88em;">同方向推三次，按 SW 確認後 bags +1；容量 5 包。ARRIVED 時旋轉三圈，再按 SW 開始清運：</p>
+        <p style="color:var(--text-muted); font-size:0.84em; margin-bottom:0;">下方 10. 操作台可實際推搖桿、旋轉與按 SW，LED 與蜂鳴器會隨狀態變化。</p>
       </div>
-
-      <!-- 10. LCD 螢幕模擬框 -->
-      <div class="visual-block" style="margin-top:0; display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <h3 style="margin-top:0; color:var(--primary);">10. LCD 螢幕模擬框 (LCD1602)</h3>
-          <p style="color:var(--text-soft); font-size:0.88em;">透過 I2C 雙線驅動，提供清晰的即時時間與當前狀態回饋：</p>
-          <div class="lcd-mockup">
-            <div>2026-10-10  14:35:22</div>
-            <div>狀態：垃圾車還沒來</div>
-            <div>上次收垃圾：13:52</div>
-          </div>
-        </div>
-        <p style="font-size:0.84em; color:var(--text-muted); margin-bottom:0; text-align:center;">
-          支援 8 組自訂表情點陣字元（如 😴 睡臉、🙂 微笑、😠 生氣、🗑 垃圾袋）
-        </p>
+      <div class="cross-joystick">
+        <div class="cross-dir dir-up">↑ ㄘㄠˋ (煩躁)</div>
+        <div class="cross-dir dir-left">← ㄍㄢˋ (憤怒)</div>
+        <div class="cross-center">按下 SW<br><span style="font-size:0.78em; opacity:0.8;">確認情緒／丟出</span></div>
+        <div class="cross-dir dir-right">→ ㄎㄠˋ (不爽)</div>
+        <div class="cross-dir dir-down">↓ 取消情緒選擇</div>
       </div>
     </div>
 
@@ -1181,20 +2183,91 @@
     <div class="visual-block">
       <h3 style="margin-top:0; color:var(--primary);">9. 工作人員隨機提示機制</h3>
       <p style="color:var(--text-soft); font-size:0.92em;">
-        先完成三圈旋轉並按 A／SW 丟出，再抽取工作人員回應；結算後自動進入 COLLECTED，不需再次確認：
+        先完成三圈旋轉並按 SW 丟出，再抽取工作人員回應；結算後自動進入 COLLECTED，不需再次確認：
       </p>
 
       <div class="worker-prompt-grid">
-        <div class="pie-chart-mock">
-          <div class="pie-visual"></div>
-          <ul class="pie-legend">
-            <li><span class="pie-dot" style="background:#27ae60;"></span>「小心」 (50%) 順利收走</li>
-            <li><span class="pie-dot" style="background:#2ecc71;"></span>「謝謝」 (25%) 順利收走</li>
-            <li><span class="pie-dot" style="background:#e74c3c;"></span>「這是回收哦」 (25%) 保留部分或全部 bags</li>
-          </ul>
+        <div class="diagram-nav-wrapper">
+          <div class="diagram-scroll-hint">&#8592; 左右拖曳查看完整圖表 · 點擊放大 &#8594;</div>
+          <div class="diagram-container" id="pie-container" data-min="820" style="margin:0; overflow-x:auto; width:100%;">
+          <svg viewBox="0 0 960 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-pie-title emotion-pie-desc">
+        <title id="emotion-pie-title">工作人員隨機提示機率</title>
+        <desc id="emotion-pie-desc">丟出後工作人員回應機率：「小心」50% 收走全部 bags、「謝謝」25% 收走全部 bags、「這是回收哦」25% 隨機保留 1 至原有數量；結算後自動進入 COLLECTED。</desc>
+        <defs>
+          <marker id="pie-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <text x="60" y="52" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">WORKER RESPONSE · 3 OUTCOMES</text>
+
+        <!-- ===== PIE (center 380,240 r=150) ===== -->
+        <!-- CAREFUL 50% · moss · bottom half -->
+        <path d="M 380,240 L 530,240 A 150,150 0 0,1 230,240 Z" fill="#555934"/>
+        <!-- THANKS 25% · sand · upper left -->
+        <path d="M 380,240 L 230,240 A 150,150 0 0,1 380,90 Z" fill="#bf9b7a"/>
+        <!-- RECYCLE 25% · accent · upper right -->
+        <path d="M 380,240 L 380,90 A 150,150 0 0,1 530,240 Z" fill="#8c5b3e"/>
+
+        <!-- slice labels -->
+        <text x="380" y="330" fill="#ffffff" font-size="24" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">50%</text>
+        <text x="380" y="352" fill="rgba(255,255,255,0.88)" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">「小心」</text>
+
+        <text x="296" y="168" fill="#593e2e" font-size="18" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">25%</text>
+        <text x="296" y="186" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">「謝謝」</text>
+
+        <text x="464" y="168" fill="#ffffff" font-size="18" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">25%</text>
+        <text x="464" y="186" fill="rgba(255,255,255,0.92)" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">「這是回收哦」</text>
+
+        <!-- donut hole -->
+        <circle cx="380" cy="240" r="52" fill="#f2e6d8"/>
+        <text x="380" y="234" fill="#593e2e" font-size="14" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">bags 結算</text>
+        <text x="380" y="252" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">3 種互斥結果</text>
+
+        <!-- ===== RIGHT SIDE NOTE ===== -->
+        <rect x="590" y="120" width="310" height="200" rx="6" fill="#ffffff" stroke="rgba(89,62,46,0.20)" stroke-width="1"/>
+        <text x="608" y="144" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">HOW IT ROLLS</text>
+        <text x="608" y="170" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">丟出後抽一次，三種結果互斥</text>
+        <line x1="608" y1="184" x2="882" y2="184" stroke="rgba(89,62,46,0.12)" stroke-width="0.8"/>
+
+        <circle cx="616" cy="204" r="4" fill="#555934"/>
+        <text x="628" y="208" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">CAREFUL · 50%</text>
+        <text x="628" y="222" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">bags = 0 → COLLECTED</text>
+
+        <circle cx="616" cy="246" r="4" fill="#bf9b7a"/>
+        <text x="628" y="250" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">THANKS · 25%</text>
+        <text x="628" y="264" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">bags = 0 → COLLECTED</text>
+
+        <circle cx="616" cy="288" r="4" fill="#8c5b3e"/>
+        <text x="628" y="292" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">RECYCLE · 25%</text>
+        <text x="628" y="306" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">保留 1～N → 剩餘 bags</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="60" y1="390" x2="900" y2="390" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="408" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="78" y="420" width="14" height="14" rx="3" fill="#555934"/>
+        <text x="100" y="432" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">「小心」</text>
+        <text x="156" y="432" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">50% · 收走全部 · LED 閃 5 次</text>
+
+        <rect x="360" y="420" width="14" height="14" rx="3" fill="#bf9b7a"/>
+        <text x="382" y="432" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">「謝謝」</text>
+        <text x="438" y="432" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · 收走全部 · LED 閃 5 次</text>
+
+        <rect x="642" y="420" width="14" height="14" rx="3" fill="#8c5b3e"/>
+        <text x="664" y="432" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">「這是回收哦」</text>
+        <text x="748" y="432" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · 保留 1～N</text>
+
+        <text x="60" y="470" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">N = 原有 bags；N = 0 時保留 0 包，收走數量 = N − 保留數量。三種結果都自動進入 COLLECTED。</text>
+      </svg>
+        </div>
+          <div class="diagram-nav">
+            <button class="diagram-nav-btn" type="button" aria-label="向左捲動" disabled>&#8249;</button>
+            <button class="diagram-nav-btn" type="button" aria-label="向右捲動">&#8250;</button>
+          </div>
         </div>
 
-        <div style="background:var(--bg-alt); padding:20px 24px; border-radius:12px; border:1px solid var(--border);">
+        <div style="background:var(--bg-alt); padding:20px 24px; border-radius:12px; border:1px solid var(--border); margin-top:0; max-width:860px;">
           <h4 style="margin:0 0 10px; color:var(--primary);">RECYCLE：保留 bags（結果 C）</h4>
           <ol style="margin:0; padding-left:20px; font-size:0.88em; color:var(--text-soft); line-height:1.7;">
             <li>原有 N 包時，隨機保留 1～N 包；N = 0 時保留 0 包。收走數量 = N − 保留數量。</li>
@@ -1202,6 +2275,182 @@
             <li>LCD 顯示 Returned／Keep 與實際保留包數。</li>
             <li>自動進入 COLLECTED，完成當趟計數。第一次回 IDLE；第二次進入 REST_DAILY_LIMIT。剩餘 bags 保留。</li>
           </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sankey: bags 結算流向 -->
+    <div class="visual-block">
+      <h3 style="margin-top:0; color:var(--primary);">9b. bags 結算流向（Sankey）</h3>
+      <p style="color:var(--text-soft); font-size:0.92em;">
+        單趟 100 bags 從累積階段分流：75% 順利收走（CAREFUL + THANKS），25% 進入回收保留（RECYCLE）；最終 90 bags 進入 COLLECTED，10 bags 保留於車上。
+      </p>
+      <div class="diagram-nav-wrapper">
+        <div class="diagram-scroll-hint">&#8592; 左右滑動查看 bags 結算流向 &#8594;</div>
+        <div class="diagram-container" id="sankey-container" data-min="860" style="margin:24px 0; overflow-x:auto; width:100%;">
+          <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-sankey-title emotion-sankey-desc">
+        <title id="emotion-sankey-title">bags 結算流向</title>
+        <desc id="emotion-sankey-desc">單趟 100 包示例：75 包由 CAREFUL 與 THANKS 直接收走，25 包進入 RECYCLE；其中 15 包收走、10 包保留，最終 COLLECTED 90 包、剩餘 10 包。</desc>
+        <defs>
+          <marker id="sankey-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <text x="60" y="36" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">ONE TRIP · 100 BAGS EXAMPLE · k = 2 px / bag</text>
+
+        <!-- column headers -->
+        <text x="180" y="64" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 1</text>
+        <text x="480" y="64" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 2</text>
+        <text x="840" y="64" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 3</text>
+
+        <!-- ===== COLUMN 1: ACCUMULATING 100 ===== -->
+        <rect x="160" y="200" width="12" height="200" fill="#593e2e"/>
+        <text x="152" y="292" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="end">ACCUMULATING</text>
+        <text x="152" y="308" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">累積 bags</text>
+        <text x="152" y="324" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">100 包</text>
+
+        <!-- ===== RIBBONS ===== -->
+        <!-- 100 → 75 順利收走 -->
+        <path d="M 172,200 C 300,200 300,80 450,80 L 462,230 C 300,230 300,350 172,350 Z" fill="#555934" opacity="0.18"/>
+        <!-- 100 → 25 回收保留 -->
+        <path d="M 172,350 C 300,350 300,370 450,370 L 462,420 C 300,420 300,400 172,400 Z" fill="#bf9b7a" opacity="0.18"/>
+        <!-- 75 → COLLECTED -->
+        <path d="M 462,80 C 635,80 635,60 820,60 L 832,210 C 635,210 635,230 462,230 Z" fill="#555934" opacity="0.18"/>
+        <!-- 25 RECYCLE → 15 COLLECTED (focal) -->
+        <path d="M 462,370 C 635,370 635,210 820,210 L 832,240 C 635,240 635,400 462,400 Z" fill="#8c5b3e" opacity="0.28"/>
+        <!-- 25 RECYCLE → 10 剩餘 -->
+        <path d="M 462,400 C 635,400 635,390 820,390 L 832,410 C 635,410 635,420 462,420 Z" fill="#bf9b7a" opacity="0.18"/>
+
+        <!-- flow labels -->
+        <rect x="250" y="122" width="64" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="282" y="133" fill="#555934" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">75 包</text>
+        <rect x="250" y="330" width="64" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="282" y="374" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">25 包</text>
+        <rect x="620" y="288" width="64" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="652" y="299" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">15 包</text>
+        <rect x="620" y="398" width="64" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="652" y="409" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">10 包</text>
+
+        <!-- ===== COLUMN 2 ===== -->
+        <rect x="450" y="80" width="12" height="150" fill="#555934"/>
+        <text x="480" y="146" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">順利收走</text>
+        <text x="480" y="162" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">CAREFUL + THANKS</text>
+        <text x="480" y="178" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">75 包</text>
+
+        <rect x="450" y="370" width="12" height="50" fill="#bf9b7a"/>
+        <text x="480" y="386" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">回收保留</text>
+        <text x="480" y="402" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">RECYCLE</text>
+        <text x="480" y="418" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">25 包</text>
+
+        <!-- ===== COLUMN 3 ===== -->
+        <rect x="820" y="60" width="12" height="180" fill="#555934"/>
+        <text x="850" y="140" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">COLLECTED</text>
+        <text x="850" y="156" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">收走總數</text>
+        <text x="850" y="172" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">90 包</text>
+
+        <rect x="820" y="390" width="12" height="20" fill="#bf9b7a"/>
+        <text x="850" y="392" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">剩餘 bags</text>
+        <text x="850" y="408" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">RECYCLE 保留</text>
+        <text x="850" y="424" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">10 包</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="60" y1="500" x2="900" y2="500" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="518" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="78" y="532" width="16" height="10" rx="2" fill="#555934" opacity="0.18"/>
+        <text x="102" y="541" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">普通流向</text>
+
+        <rect x="200" y="532" width="16" height="10" rx="2" fill="#8c5b3e" opacity="0.28"/>
+        <text x="224" y="541" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">編輯焦點：RECYCLE → COLLECTED</text>
+
+        <text x="78" y="566" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">N = 原有 bags；N = 0 時保留 0 包。15 / 10 為 25 包回收後的示例拆分，實際保留量隨機。</text>
+      </svg>
+      </div>
+        <div class="diagram-nav">
+          <button class="diagram-nav-btn" type="button" aria-label="向左捲動" disabled>&#8249;</button>
+          <button class="diagram-nav-btn" type="button" aria-label="向右捲動">&#8250;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. 硬體操作台：LCD1602 + 搖桿 + LED + 蜂鳴器 -->
+    <div class="visual-block" style="margin-top:28px;">
+      <h3 style="margin-top:0; color:var(--primary);">10. 硬體操作台（LCD1602 + 搖桿 + LED + 蜂鳴器）</h3>
+      <p style="color:var(--text-soft); font-size:0.88em; margin-bottom:0;">
+        16×2 字元、第一行狀態、第二行第 7 欄 5×8 表情；下方可實際操作搖桿、旋轉與 SW。展示節奏為 3 秒（實機 10 秒）。
+      </p>
+
+      <div class="hw-console">
+        <div class="hw-top">
+          <div class="hw-lcd-wrap">
+            <div class="lcd1602" id="hw-lcd" role="img" aria-label="LCD1602 顯示 Bags: 0/5 與微笑表情">
+              <div class="lcd1602-screen" aria-hidden="true">
+                <div class="lcd-row" data-row="0"></div>
+                <div class="lcd-row" data-row="1"></div>
+              </div>
+              <div class="lcd1602-brand">LCD1602 · 16×2 · I2C 0x27</div>
+            </div>
+            <div class="lcd-time"><strong>系統時間</strong> <time id="hw-clock">--</time></div>
+          </div>
+
+          <div class="hw-joystick">
+            <div class="joy-pad" role="group" aria-label="虛擬搖桿：方向與 SW 確認">
+              <div class="joy-ring" aria-hidden="true"></div>
+              <div class="joy-knob" aria-hidden="true"><span class="joy-rotor"></span></div>
+              <button class="joy-dir up" type="button" data-dir="UP" aria-label="向上推：ㄘㄠˋ 煩躁">↑</button>
+              <button class="joy-dir left" type="button" data-dir="LEFT" aria-label="向左推：ㄍㄢˋ 憤怒">←</button>
+              <button class="joy-dir right" type="button" data-dir="RIGHT" aria-label="向右推：ㄎㄠˋ 不爽">→</button>
+              <button class="joy-dir down" type="button" data-dir="DOWN" aria-label="向下推：取消情緒選擇">↓</button>
+              <button class="joy-sw" type="button" data-action="confirm" aria-label="SW 確認">SW</button>
+            </div>
+            <div class="hw-joy-status" id="hw-joy-status">方向：-- · 0/3</div>
+            <div class="hw-rotation" aria-label="旋轉進度">
+              <span>旋轉</span>
+              <span class="hw-rot-dot" data-rot="0"></span>
+              <span class="hw-rot-dot" data-rot="1"></span>
+              <span class="hw-rot-dot" data-rot="2"></span>
+              <span id="hw-rot-label">0/3</span>
+            </div>
+          </div>
+
+          <div class="hw-status">
+            <div class="hw-stats">
+              <div class="hw-stat state"><span>STATE</span><strong id="hw-state">IDLE</strong></div>
+              <div class="hw-stat"><span>BAGS</span><strong id="hw-bags">0/5</strong></div>
+              <div class="hw-stat"><span>TODAY</span><strong id="hw-daily">0/2</strong></div>
+              <div class="hw-stat"><span>ROTATION</span><strong id="hw-rotation">0/3</strong></div>
+            </div>
+            <div class="hw-indicator">
+              <span class="hw-led" id="hw-led" role="img" aria-label="LED 熄滅"></span>
+              <span>LED</span>
+              <strong id="hw-led-label">熄滅</strong>
+            </div>
+            <div class="hw-indicator">
+              <span class="hw-buzzer-icon" id="hw-buzzer-icon" aria-hidden="true">♪</span>
+              <span>蜂鳴器</span>
+              <strong id="hw-buzzer-label">靜音</strong>
+            </div>
+            <button class="hw-sound" id="hw-sound-toggle" type="button" aria-pressed="false">啟用音效</button>
+          </div>
+        </div>
+
+        <p class="hw-note" id="hw-note" aria-live="polite">目前等待情緒，請用上、左或右開始選擇。</p>
+
+        <div class="hw-flow">
+          <div class="hw-flow-head"><strong id="hw-flow-label">流程：IDLE</strong><span id="hw-flow-pct">10%</span></div>
+          <div class="hw-flow-track"><div class="hw-flow-bar" id="hw-flow-bar"></div></div>
+        </div>
+
+        <div class="hw-actions">
+          <button class="hw-btn" type="button" data-action="rest">REST_CLOSED</button>
+          <button class="hw-btn" type="button" data-action="idle">進入 IDLE</button>
+          <button class="hw-btn primary" type="button" data-action="approach">垃圾車前來</button>
+          <button class="hw-btn" type="button" data-action="arrive">直接到 ARRIVED</button>
+          <button class="hw-btn moss" type="button" data-action="rotate">旋轉一圈 <span class="hw-count" id="hw-rotate-count">0/3</span></button>
+          <button class="hw-btn" type="button" data-action="reset-day">reset day</button>
+          <button class="hw-btn primary" type="button" data-action="confirm">SW 確認</button>
+          <button class="hw-btn" type="button" data-action="reset">重設</button>
         </div>
       </div>
     </div>
@@ -1266,6 +2515,140 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Architecture 系統架構圖 -->
+      <div class="visual-block" style="margin-top:32px;">
+        <h3 style="margin-top:0; color:var(--primary);">系統架構圖</h3>
+        <p style="color:var(--text-soft); font-size:0.92em;">
+          ESP32 與 Web 模擬器透過 FastAPI 與 SQL 串接；API 不可用時降級為 demo fallback；Wokwi 作為外部硬體展示。
+        </p>
+        <div class="diagram-nav-wrapper">
+        <div class="diagram-scroll-hint">&#8592; 左右滑動查看系統架構 &#8594;</div>
+        <div class="diagram-container" id="architecture-container" data-min="850" style="margin:24px 0; overflow-x:auto; width:100%;">
+          <svg viewBox="0 0 1080 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-arch-title emotion-arch-desc">
+        <title id="emotion-arch-title">情緒垃圾車系統架構</title>
+        <desc id="emotion-arch-desc">ESP32 硬體與 Web 模擬器透過 FastAPI 與 SQL 串接；API 不可用時降級為 demo fallback，Wokwi 作為硬體模擬展示。</desc>
+        <defs>
+          <marker id="arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+          <marker id="arch-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
+          <marker id="arch-arrow-moss" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#555934"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <text x="60" y="48" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">ONE SYSTEM · THREE LAYERS</text>
+
+        <!-- ===== ZONES ===== -->
+        <rect x="60" y="100" width="440" height="340" rx="8" fill="rgba(85,89,52,0.03)" stroke="rgba(89,62,46,0.12)" stroke-width="0.8"/>
+        <rect x="68" y="104" width="128" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="132" y="115" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">USER · HARDWARE</text>
+
+        <rect x="580" y="100" width="440" height="340" rx="8" fill="rgba(89,62,46,0.03)" stroke="rgba(89,62,46,0.12)" stroke-width="0.8"/>
+        <rect x="588" y="104" width="112" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="644" y="115" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">BACKEND · DATA</text>
+
+        <!-- ===== ARROWS (before nodes) ===== -->
+        <!-- ESP32 → Wokwi -->
+        <line x1="250" y1="216" x2="320" y2="216" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
+        <rect x="258" y="204" width="56" height="12" rx="2" fill="#f2e6d8"/>
+        <text x="286" y="214" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">硬體模擬</text>
+
+        <!-- ESP32 → Web 模擬器 -->
+        <line x1="175" y1="252" x2="175" y2="300" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+        <rect x="150" y="262" width="52" height="12" rx="2" fill="#f2e6d8"/>
+        <text x="176" y="272" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">狀態同步</text>
+
+        <!-- Web 模擬器 → FastAPI -->
+        <line x1="250" y1="336" x2="640" y2="336" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+        <rect x="398" y="322" width="96" height="12" rx="2" fill="#f2e6d8"/>
+        <text x="446" y="332" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.04em">POST /api/sim/*</text>
+
+        <!-- FastAPI → SQL -->
+        <line x1="715" y1="252" x2="715" y2="300" stroke="#555934" stroke-width="1.2" marker-end="url(#arch-arrow-moss)"/>
+        <rect x="695" y="262" width="40" height="12" rx="2" fill="#f2e6d8"/>
+        <text x="715" y="272" fill="#555934" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">寫入</text>
+
+        <!-- FastAPI → Demo fallback -->
+        <path d="M 790,216 V 276 H 840" fill="none" stroke="#8c5b3e" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arch-arrow-accent)"/>
+        <rect x="792" y="226" width="60" height="12" rx="2" fill="#f2e6d8"/>
+        <text x="822" y="236" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">API 不可用</text>
+
+        <!-- SQL → Web 模擬器 (return) -->
+        <path d="M 715,372 V 400 H 175 V 372" fill="none" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
+        <rect x="386" y="388" width="96" height="12" rx="2" fill="#f2e6d8"/>
+        <text x="434" y="398" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.04em">GET /api/stats/*</text>
+
+        <!-- ===== NODES ===== -->
+        <!-- ESP32 -->
+        <rect x="100" y="180" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="108" y="188" width="40" height="12" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="128" y="197" fill="#593e2e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">DEVICE</text>
+        <text x="175" y="220" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">ESP32</text>
+        <text x="175" y="236" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">搖桿 · LCD · LED · 蜂鳴器</text>
+
+        <!-- Wokwi -->
+        <rect x="320" y="180" width="150" height="72" rx="8" fill="rgba(89,62,46,0.02)" stroke="#593e2e" stroke-width="1" stroke-dasharray="4,4"/>
+        <rect x="328" y="188" width="48" height="12" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="352" y="197" fill="#593e2e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">EXTERNAL</text>
+        <text x="395" y="220" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Wokwi</text>
+        <text x="395" y="236" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">硬體模擬展示</text>
+
+        <!-- Web 模擬器 -->
+        <rect x="100" y="300" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="108" y="308" width="40" height="12" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="128" y="317" fill="#593e2e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
+        <text x="175" y="340" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Web 模擬器</text>
+        <text x="175" y="356" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Game Boy 風格</text>
+
+        <!-- FastAPI -->
+        <rect x="640" y="180" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <rect x="648" y="188" width="40" height="12" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
+        <text x="668" y="197" fill="#593e2e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">SERVICE</text>
+        <text x="715" y="220" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">FastAPI</text>
+        <text x="715" y="236" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">REST + WebSocket</text>
+
+        <!-- SQL -->
+        <rect x="640" y="300" width="150" height="72" rx="8" fill="#ffffff" stroke="#555934" stroke-width="1"/>
+        <rect x="648" y="308" width="40" height="12" rx="2" fill="none" stroke="rgba(85,89,52,0.40)" stroke-width="0.8"/>
+        <text x="668" y="317" fill="#555934" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+        <text x="715" y="340" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">SQL</text>
+        <text x="715" y="356" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">情緒 · 清運 · 統計</text>
+
+        <!-- Demo fallback -->
+        <rect x="840" y="240" width="150" height="72" rx="8" fill="rgba(140,91,62,0.08)" stroke="#8c5b3e" stroke-width="1.2"/>
+        <rect x="848" y="248" width="48" height="12" rx="2" fill="none" stroke="rgba(140,91,62,0.50)" stroke-width="0.8"/>
+        <text x="872" y="257" fill="#8c5b3e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">FALLBACK</text>
+        <text x="915" y="280" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Demo fallback</text>
+        <text x="915" y="296" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">API 不可用時啟用</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="60" y1="470" x2="1020" y2="470" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="488" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="78" y="502" width="14" height="14" rx="2" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
+        <text x="100" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">實體元件</text>
+
+        <rect x="200" y="502" width="14" height="14" rx="2" fill="rgba(89,62,46,0.02)" stroke="#593e2e" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="222" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">外部展示（Wokwi）</text>
+
+        <rect x="370" y="502" width="14" height="14" rx="2" fill="rgba(140,91,62,0.08)" stroke="#8c5b3e" stroke-width="1"/>
+        <text x="392" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">編輯焦點：Demo fallback</text>
+
+        <line x1="560" y1="509" x2="578" y2="509" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+        <text x="586" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">正向呼叫</text>
+
+        <line x1="680" y1="509" x2="698" y2="509" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
+        <text x="706" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">回傳 / 降級</text>
+
+        <text x="60" y="542" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">API 正常時以 FastAPI + SQL 為單一資料來源；不可用時前端降級為本機 demo，不阻塞互動。</text>
+      </svg>
+      </div>
+        <div class="diagram-nav">
+          <button class="diagram-nav-btn" type="button" aria-label="向左捲動" disabled>&#8249;</button>
+          <button class="diagram-nav-btn" type="button" aria-label="向右捲動">&#8250;</button>
+        </div>
+      </div>
+      </div>
 
       <p style="font-size:0.88em; color:var(--text-soft);"><strong>原設計附註：</strong>早期使用傳統四腳共陰極 RGB LED 分色表示狀態；因實際顯色未達預期，現改為單顆 LED。圖中只表示同色 LED 的亮滅，不代表 RGB 調色。</p>
       <h4 style="margin:24px 0 10px; color:var(--primary);">單色 LED 閃爍節奏圖解（● 亮／○ 滅）</h4>
@@ -1396,8 +2779,9 @@
 
 <script type="module">
 import * as THREE from 'three';
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+// import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+// import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // ============================================================
@@ -1423,16 +2807,18 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 camera.position.set(4.5, 3.2, 5.2);
 
-// OrbitControls (啟用緩衝、慢速自轉、禁用縮放與平移以保障頁面滾動體驗)
+// OrbitControls：手動旋轉與縮放，關閉自動旋轉
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.enableZoom = false;
+controls.enableRotate = true;
+controls.enableZoom = true;
 controls.enablePan = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 1.0;
+controls.autoRotate = false;
 controls.minPolarAngle = Math.PI / 6;
 controls.maxPolarAngle = Math.PI / 2.05;
+controls.minDistance = 3;
+controls.maxDistance = 10;
 
 // ============================================================
 // 2. 燈光系統 (溫潤柔和環境光 + Apple 展演級三點照明)
@@ -1538,80 +2924,165 @@ function applyMaterialTuning(obj) {
 }
 
 // ============================================================
-// 4. 載入 MTL + OBJ 模型
+// 4. 載入 GLB 車體與電子零件
 // ============================================================
 let model = null;
 let basePosY = 0;
 
-function setupModel(obj) {
-  applyMaterialTuning(obj);
+// 爆炸視圖資料
+let explosionParts = {};
+let isExploded = false; // 記錄當前狀態
+let explodeTargetProgress = 0; // 0 = 組合狀態, 1 = 完全拆解狀態
 
-  // 計算邊界、置中與縮放
-  const box = new THREE.Box3().setFromObject(obj);
+// 你測試出來的完美位移量 (注意：Three.js 的 Y 是上下，Z 是前後)
+const explosionOffsets = {
+  Wheel_F_root:  [0, 0, 0.50],
+  Wheel_B_root:  [0, 0, -0.45],
+
+  Cabins_root:   [0, 0.70, 0],
+  Signal_root:   [0, 1.00, 0],
+  LED_root:      [0, 1.35, 0],
+  Speaker_root:  [0, 1.00, 0],
+  Buzzer_root:   [0, 1.35, 0],
+
+  Body_base_root:  [0, 0.43, 0],
+  Body_Cover_root: [0, -0.43, 0],
+
+  LCD_root:      [0, 0, 0.25],
+  ESP32_root:    [1.00, 1.30, 0],
+
+  OpenBin_root:  [0, 0.15, -1.00],
+  Joystick_root: [0, 0.90, -1.00]
+};
+
+function setupModel(group) {
+  applyMaterialTuning(group);
+
+  // 計算兩個模型組合後的整體邊界
+  const box = new THREE.Box3().setFromObject(group);
   const center = new THREE.Vector3();
   box.getCenter(center);
+
   const size = new THREE.Vector3();
   box.getSize(size);
 
-  obj.position.sub(center);
+  // 統一置中
+  group.position.sub(center);
 
+  // 依整體最大尺寸縮放
   const maxDim = Math.max(size.x, size.y, size.z);
   const scale = 2.4 / maxDim;
-  obj.scale.setScalar(scale);
+  group.scale.setScalar(scale);
 
+  // 保留原本車體的垂直位置校正
   basePosY = (size.y * scale) / 2 - 0.45;
-  obj.position.y += basePosY;
+  group.position.y += basePosY;
 
-  model = obj;
-  scene.add(obj);
+  model = group;
+  scene.add(group);
 
   controls.target.set(0, 0, 0);
   controls.update();
 
   if (loadingEl) loadingEl.style.display = 'none';
-  console.log('3D Truck Loaded Successfully');
+  console.log('3D Truck and Electronics Loaded Successfully');
 }
 
-const mtlLoader = new MTLLoader();
-mtlLoader.load(
-  'truck3D.mtl',
-  (materials) => {
-    materials.preload();
-    const objLoader = new OBJLoader();
-    objLoader.setMaterials(materials);
-    objLoader.load(
-      'truck3D.obj',
-      (obj) => setupModel(obj),
-      (xhr) => {
-        if (xhr.total > 0 && loadingEl) {
-          const pct = Math.round((xhr.loaded / xhr.total) * 100);
-          loadingEl.textContent = `載入 3D 模型中… ${pct}%`;
-        }
-      },
-      (err) => loadObjFallback(err)
-    );
-  },
-  (xhr) => {},
-  (err) => {
-    console.warn('MTL 載入失敗，降級為純 OBJ 載入模式', err);
-    loadObjFallback(err);
-  }
-);
+async function loadTruckModels() {
+  const loader = new GLTFLoader();
 
-function loadObjFallback(err) {
-  const objLoader = new OBJLoader();
-  objLoader.load(
-    'truck3D.obj',
-    (obj) => setupModel(obj),
-    (xhr) => {},
-    (objErr) => {
-      console.error('OBJ 載入失敗：', objErr);
-      if (loadingEl) {
-        loadingEl.innerHTML = `⚠️ 載入 <code>truck3D.obj</code> 失敗<br><small>請確認檔案路徑</small>`;
+  try {
+    if (loadingEl) loadingEl.textContent = '載入車體與電子零件中…';
+
+    const [bodyGltf, electronicsGltf] = await Promise.all([
+      loader.loadAsync('./models/01_Truck_Body.glb'),
+      loader.loadAsync('./models/02_Electronics.glb')
+    ]);
+
+    const truckGroup = new THREE.Group();
+    truckGroup.name = 'Truck_Assembly';
+
+    const body = bodyGltf.scene;
+    body.name = 'Truck_Body';
+
+    const electronics = electronicsGltf.scene;
+    electronics.name = 'Truck_Electronics';
+
+    truckGroup.add(body);
+    truckGroup.add(electronics);
+
+    setupModel(truckGroup);
+
+    // ============================================================
+    // 初始化爆炸系統
+    // ============================================================
+    explosionParts = {};
+
+    for (const [rootName, offsets] of Object.entries(explosionOffsets)) {
+      const root = truckGroup.getObjectByName(rootName);
+      if (!root) {
+        console.error(`[MISSING ROOT] ${rootName}`);
+        continue;
       }
+
+      const parent = root.parent;
+      parent.updateWorldMatrix(true, false);
+
+      // 取得初始世界座標
+      const worldPosition = root.getWorldPosition(new THREE.Vector3());
+
+      // 計算目標世界座標 (加上位移量)
+      const end = worldPosition.clone().add(new THREE.Vector3(...offsets));
+
+      // 將世界座標轉換回父物件的局部座標
+      const localStart = parent.worldToLocal(worldPosition.clone());
+      const localEnd = parent.worldToLocal(end.clone());
+
+      // 儲存每個零件的資料
+      explosionParts[rootName] = {
+        root,
+        originalPosition: localStart,
+        explodedPosition: localEnd
+      };
     }
-  );
+
+    console.log('========== EXPLOSION SYSTEM READY ==========');
+    console.log(`Initialized: ${Object.keys(explosionParts).length}/${Object.keys(explosionOffsets).length}`);
+
+    // 解除按鈕禁用狀態
+    const explodeBtn = document.getElementById('explode-btn');
+    const reassembleBtn = document.getElementById('reassemble-btn');
+    if (explodeBtn) explodeBtn.disabled = false;
+    if (reassembleBtn) reassembleBtn.disabled = false;
+
+    // 綁定按鈕事件
+    if (explodeBtn) {
+      explodeBtn.addEventListener('click', () => {
+        isExploded = true;
+        explodeTargetProgress = 1;
+        explodeBtn.disabled = true;
+        reassembleBtn.disabled = false;
+      });
+    }
+
+    if (reassembleBtn) {
+      reassembleBtn.addEventListener('click', () => {
+        isExploded = false;
+        explodeTargetProgress = 0;
+        explodeBtn.disabled = false;
+        reassembleBtn.disabled = true;
+      });
+    }
+
+  } catch (err) {
+    console.error('GLB 模型載入失敗：', err);
+    if (loadingEl) {
+      loadingEl.innerHTML = '⚠️ GLB 模型載入失敗<br><small>請確認 models 資料夾中的檔案及路徑</small>';
+    }
+  }
 }
+
+loadTruckModels();
 
 // ============================================================
 // 5. 畫布自適應 (ResizeObserver)
@@ -1635,17 +3106,32 @@ window.addEventListener('resize', resize);
 resize();
 
 // ============================================================
-// 6. 動畫迴圈 (微幅正弦 Y 軸漂浮)
+// 6. 動畫迴圈 (平滑爆炸動畫)
 // ============================================================
 const clock = new THREE.Clock();
+let currentProgress = 0; // 當前實際進度
 
 function animate() {
   requestAnimationFrame(animate);
 
-  const elapsedTime = clock.getElapsedTime();
+  // 使用 Lerp 讓進度條平滑地逼近目標 (0.08 是動畫速度，數字越大越快)
+  currentProgress = THREE.MathUtils.lerp(currentProgress, explodeTargetProgress, 0.08);
 
-  if (model) {
-    model.position.y = basePosY + Math.sin(elapsedTime * 1.8) * 0.08;
+  // 如果距離目標極近，直接吸附到目標值
+  if (Math.abs(currentProgress - explodeTargetProgress) < 0.001) {
+    currentProgress = explodeTargetProgress;
+  }
+
+  // 只有在有爆炸零件且有進度時才更新位置
+  if (Object.keys(explosionParts).length > 0) {
+    for (const part of Object.values(explosionParts)) {
+      // 根據進度插值位置
+      part.root.position.lerpVectors(
+        part.originalPosition,
+        part.explodedPosition,
+        currentProgress
+      );
+    }
   }
 
   controls.update();
@@ -1653,6 +3139,834 @@ function animate() {
 }
 
 animate();
+
+</script>
+
+
+<!-- ===== 圖表互動：拖曳平移 + 點擊放大（獨立於 Three.js module） ===== -->
+<script>
+(function () {
+  'use strict';
+
+  var MIN_DRAG = 8;
+
+  /* ---------- Lightbox ---------- */
+  var modal = document.createElement('div');
+  modal.className = 'diagram-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', '圖表放大檢視');
+  modal.innerHTML =
+    '<div class="diagram-modal-content">' +
+      '<div class="modal-head">' +
+        '<span class="modal-zoom-label">100%</span>' +
+        '<button class="modal-close" type="button" aria-label="關閉">×</button>' +
+      '</div>' +
+      '<div class="diagram-modal-svg-wrapper"></div>' +
+      '<div class="modal-controls">' +
+        '<button type="button" data-act="zoom-out" aria-label="縮小">－</button>' +
+        '<button type="button" data-act="zoom-in" aria-label="放大">＋</button>' +
+        '<button type="button" data-act="fit">適合畫面</button>' +
+        '<button type="button" data-act="reset">重設</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+
+  var svgWrap = modal.querySelector('.diagram-modal-svg-wrapper');
+  var zoomLabel = modal.querySelector('.modal-zoom-label');
+  var modalSvg = null;
+  var scale = 1, tx = 0, ty = 0;
+  var panning = false, panX = 0, panY = 0, startTx = 0, startTy = 0;
+  var lastFocus = null;
+
+  function applyTransform() {
+    if (!modalSvg) return;
+    modalSvg.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + scale + ')';
+    zoomLabel.textContent = Math.round(scale * 100) + '%';
+  }
+
+  function openModal(sourceSvg) {
+    if (!sourceSvg) return;
+    lastFocus = document.activeElement;
+    svgWrap.innerHTML = '';
+    modalSvg = sourceSvg.cloneNode(true);
+    modalSvg.removeAttribute('style');
+    modalSvg.style.width = '100%';
+    modalSvg.style.height = '100%';
+    svgWrap.appendChild(modalSvg);
+    scale = 1; tx = 0; ty = 0;
+    applyTransform();
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.modal-close').focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    svgWrap.innerHTML = '';
+    modalSvg = null;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  modal.querySelector('.modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  });
+
+  svgWrap.addEventListener('wheel', function (e) {
+    if (!modalSvg) return;
+    e.preventDefault();
+    var delta = e.deltaY > 0 ? 0.9 : 1.1;
+    scale = Math.min(5, Math.max(0.4, scale * delta));
+    applyTransform();
+  }, { passive: false });
+
+  svgWrap.addEventListener('pointerdown', function (e) {
+    if (!modalSvg || e.button !== 0) return;
+    panning = true;
+    panX = e.clientX; panY = e.clientY;
+    startTx = tx; startTy = ty;
+    if (svgWrap.setPointerCapture) { try { svgWrap.setPointerCapture(e.pointerId); } catch (_) {} }
+    svgWrap.style.cursor = 'grabbing';
+  });
+  svgWrap.addEventListener('pointermove', function (e) {
+    if (!panning) return;
+    tx = startTx + (e.clientX - panX);
+    ty = startTy + (e.clientY - panY);
+    applyTransform();
+  });
+  function endPan(e) {
+    panning = false;
+    svgWrap.style.cursor = 'grab';
+    if (e && e.pointerId !== undefined && svgWrap.releasePointerCapture) {
+      try { svgWrap.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+  }
+  svgWrap.addEventListener('pointerup', endPan);
+  svgWrap.addEventListener('pointercancel', endPan);
+
+  svgWrap.addEventListener('dblclick', function () {
+    scale = scale > 1.05 ? 1 : 2;
+    if (scale === 1) { tx = 0; ty = 0; }
+    applyTransform();
+  });
+
+  modal.querySelector('[data-act="zoom-in"]').addEventListener('click', function () {
+    scale = Math.min(5, scale * 1.25); applyTransform();
+  });
+  modal.querySelector('[data-act="zoom-out"]').addEventListener('click', function () {
+    scale = Math.max(0.4, scale / 1.25); applyTransform();
+  });
+  modal.querySelector('[data-act="fit"]').addEventListener('click', function () {
+    scale = 1; tx = 0; ty = 0; applyTransform();
+  });
+  modal.querySelector('[data-act="reset"]').addEventListener('click', function () {
+    scale = 1; tx = 0; ty = 0; applyTransform();
+  });
+
+  /* ---------- Inline pan + click-to-zoom ---------- */
+  document.querySelectorAll('.diagram-container').forEach(function (container) {
+    var svg = container.querySelector('svg');
+    if (!svg) return;
+
+    var minWidth = parseInt(container.getAttribute('data-min') || '760', 10);
+    container.style.setProperty('--diagram-min', minWidth + 'px');
+    container.tabIndex = 0;
+    container.setAttribute('role', 'group');
+    var titleEl = svg.querySelector('title');
+    var title = titleEl ? titleEl.textContent : '圖表';
+    container.setAttribute('aria-label', title + '，可左右拖曳或點擊放大');
+
+    var down = false, startX = 0, startScroll = 0, moved = 0;
+
+    container.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.target.closest('button')) return;
+      down = true; moved = 0;
+      startX = e.clientX;
+      startScroll = container.scrollLeft;
+      container.classList.add('is-dragging');
+      if (container.setPointerCapture) { try { container.setPointerCapture(e.pointerId); } catch (_) {} }
+    });
+
+    container.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      if (moved > MIN_DRAG) {
+        container.scrollLeft = startScroll - dx;
+        e.preventDefault();
+      }
+    });
+
+    function finish(e) {
+      if (!down) return;
+      down = false;
+      container.classList.remove('is-dragging');
+      if (e && e.pointerId !== undefined && container.releasePointerCapture) {
+        try { container.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+      if (moved <= MIN_DRAG) openModal(svg);
+    }
+    container.addEventListener('pointerup', finish);
+    container.addEventListener('pointercancel', finish);
+
+    container.addEventListener('keydown', function (e) {
+      var step = Math.max(140, container.clientWidth * 0.6);
+      if (e.key === 'ArrowLeft') { container.scrollBy({ left: -step, behavior: 'smooth' }); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { container.scrollBy({ left: step, behavior: 'smooth' }); e.preventDefault(); }
+      if (e.key === 'Enter' || e.key === ' ') { openModal(svg); e.preventDefault(); }
+    });
+
+    var wrapperEl = container.closest('.diagram-nav-wrapper');
+    var host = wrapperEl || container;
+
+    var zoomBtn = document.createElement('button');
+    zoomBtn.type = 'button';
+    zoomBtn.className = 'diagram-zoom-btn';
+    zoomBtn.setAttribute('aria-label', '放大檢視');
+    zoomBtn.innerHTML = '⤢';
+    zoomBtn.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+    zoomBtn.addEventListener('click', function (e) { e.stopPropagation(); openModal(svg); });
+    host.appendChild(zoomBtn);
+
+    if (wrapperEl) {
+      var navButtons = wrapperEl.querySelectorAll('.diagram-nav-btn');
+      var left = navButtons[0];
+      var right = navButtons[1];
+      var hint = wrapperEl.querySelector('.diagram-scroll-hint');
+
+      var update = function () {
+        var max = container.scrollWidth - container.clientWidth;
+        var overflow = max > 4;
+        if (hint) hint.classList.toggle('is-hidden', !overflow);
+        wrapperEl.classList.toggle('is-scrollable', overflow);
+        if (left) left.disabled = !overflow || container.scrollLeft <= 2;
+        if (right) right.disabled = !overflow || container.scrollLeft >= max - 2;
+      };
+      var step = function () { return Math.max(160, container.clientWidth * 0.7); };
+      if (left) left.addEventListener('click', function () { container.scrollBy({ left: -step(), behavior: 'smooth' }); });
+      if (right) right.addEventListener('click', function () { container.scrollBy({ left: step(), behavior: 'smooth' }); });
+      container.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    }
+  });
+})();
+</script>
+
+<!-- ===== 10. 硬體操作台：LCD1602 + 搖桿 + LED + 蜂鳴器 ===== -->
+<script>
+(function () {
+  'use strict';
+
+  var HARDWARE_SOUNDS = {
+    accumulating: [[784, 109], [1175, 196], [0, 40]],
+    full: [[349, 20], [1319, 100], [330, 200], [494, 200], [1976, 80]],
+    throwPrompt: [[698, 400], [2794, 70], [0, 30], [880, 400], [1397, 300]],
+    careful: [[523, 120], [659, 120], [0, 50]],
+    thanks: [[659, 150], [659, 150], [0, 50]],
+    recycle: [[659, 150], [523, 150], [440, 300], [0, 50]],
+    furElise: [[659, 200], [622, 200], [659, 200], [622, 200], [659, 200], [494, 200], [587, 200], [523, 200], [440, 400], [262, 200], [330, 200], [440, 200], [494, 400], [330, 200], [415, 200], [494, 200], [523, 400], [330, 200], [659, 200], [622, 200], [659, 200], [622, 200], [659, 200], [494, 200], [587, 200], [523, 200], [440, 400], [262, 200], [330, 200], [440, 200], [494, 600], [294, 600], [523, 200], [494, 200], [440, 400], [262, 400]]
+  };
+
+  var hwAudio = {
+    context: null,
+    master: null,
+    nodes: [],
+    enabled: false,
+    iconTimer: null,
+    unlock: function () {
+      try {
+        var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!this.context) {
+          this.context = new AudioContextClass();
+          this.master = this.context.createGain();
+          this.master.gain.value = 0.16;
+          this.master.connect(this.context.destination);
+        }
+        this.context.resume();
+        this.enabled = true;
+        var btn = document.getElementById('hw-sound-toggle');
+        if (btn) {
+          btn.textContent = '關閉音效';
+          btn.setAttribute('aria-pressed', 'true');
+        }
+      } catch (error) {
+        console.warn('AudioContext unavailable:', error);
+      }
+    },
+    disable: function () {
+      this.enabled = false;
+      this.stop();
+      var btn = document.getElementById('hw-sound-toggle');
+      if (btn) {
+        btn.textContent = '啟用音效';
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    },
+    stop: function () {
+      this.nodes.forEach(function (n) {
+        try { n.stop(); } catch (_) {}
+      });
+      this.nodes = [];
+      if (this.iconTimer) {
+        clearTimeout(this.iconTimer);
+        this.iconTimer = null;
+      }
+      var icon = document.getElementById('hw-buzzer-icon');
+      if (icon) icon.classList.remove('is-playing');
+    },
+    map: function (f) {
+      if (!f) return 0;
+      while (f > 800) f = Math.floor(f / 2);
+      while (f < 400) f *= 2;
+      return f;
+    },
+    play: function (name, opts) {
+      if (!this.enabled || !this.context) return;
+      opts = opts || {};
+      try {
+        this.stop();
+        var notes = HARDWARE_SOUNDS[name];
+        if (!notes) return;
+        var now = this.context.currentTime + 0.02;
+        var duration = opts.duration || notes.reduce(function (a, n) { return a + n[1]; }, 0);
+        if (this.master) {
+          this.master.gain.cancelScheduledValues(now);
+          this.master.gain.setValueAtTime(opts.fadeIn ? 0.02 : 0.16, now);
+          if (opts.fadeIn) this.master.gain.linearRampToValueAtTime(0.16, now + Math.min(4, duration / 1000));
+          if (opts.fadeOut) this.master.gain.linearRampToValueAtTime(0, now + duration / 1000);
+        }
+        var elapsed = 0;
+        var icon = document.getElementById('hw-buzzer-icon');
+        if (icon) icon.classList.add('is-playing');
+        var self = this;
+        this.iconTimer = setTimeout(function () {
+          if (icon) icon.classList.remove('is-playing');
+          self.iconTimer = null;
+        }, duration + 80);
+        while (elapsed < duration) {
+          for (var i = 0; i < notes.length; i++) {
+            if (elapsed >= duration) break;
+            var raw = notes[i][0];
+            var ms = notes[i][1];
+            var start = now + elapsed / 1000;
+            var end = Math.min(duration, elapsed + ms);
+            if (raw > 0) {
+              var gain = this.context.createGain();
+              var osc = this.context.createOscillator();
+              osc.type = 'square';
+              osc.frequency.value = this.map(raw);
+              gain.gain.setValueAtTime(0.42, start);
+              if (opts.fadeOut) {
+                gain.gain.linearRampToValueAtTime(0, start + Math.max(0.02, (end - elapsed) / 1000));
+              }
+              osc.connect(gain);
+              gain.connect(this.master);
+              osc.start(start);
+              osc.stop(now + end / 1000 + 0.01);
+              this.nodes.push(osc);
+            }
+            elapsed += ms;
+          }
+        }
+      } catch (error) {
+        console.warn('Hardware audio unavailable:', error);
+      }
+    },
+    playFur: function (fadeIn) {
+      this.play('furElise', { duration: 10000, fadeIn: fadeIn, fadeOut: !fadeIn });
+    }
+  };
+
+  var demo = {
+    state: 'IDLE',
+    bags: 0,
+    daily: 0,
+    pushes: 0,
+    selected: null,
+    rotation: 0
+  };
+
+  var emotionByDirection = { LEFT: 'GAN', RIGHT: 'KAO', UP: 'CAO' };
+
+  var FACE_BITS = {
+    sleep: ['00000', '00100', '01010', '00000', '11111', '00000', '00000', '00000'],
+    smile: ['00000', '01010', '01010', '00000', '10001', '01110', '00000', '00000'],
+    angry: ['00000', '10001', '01010', '00000', '11111', '10001', '00000', '00000'],
+    full: ['00000', '01010', '01010', '00000', '11111', '10101', '00000', '00000'],
+    surprise: ['00000', '01110', '10001', '10001', '01110', '00000', '00000', '00000'],
+    happy: ['00000', '01010', '01010', '00000', '10001', '01110', '00000', '00000'],
+    trash: ['00000', '01110', '11111', '11111', '11111', '01110', '00000', '00000'],
+    relax: ['00000', '00000', '01010', '00000', '11111', '00000', '00000', '00000']
+  };
+
+  var faces = {
+    REST_CLOSED: 'sleep',
+    IDLE: 'smile',
+    ACCUMULATING: 'angry',
+    FULL: 'full',
+    APPROACHING: 'surprise',
+    ARRIVED: 'happy',
+    THROW_READY: 'trash',
+    THROWING: 'trash',
+    RESPONDING_CAREFUL: 'happy',
+    RESPONDING_THANKS: 'happy',
+    RESPONDING_RECYCLE: null,
+    COLLECTED: 'relax',
+    REST_DAILY_LIMIT: 'sleep'
+  };
+
+  var notes = {
+    REST_CLOSED: '目前休息，搖桿與確認鍵暫停。',
+    IDLE: '目前等待情緒，請用上、左或右開始選擇。',
+    ACCUMULATING: '同方向推三次後，按 SW 確認增加一袋；下鍵取消。',
+    FULL: '情緒袋已滿，請讓垃圾車前來。',
+    APPROACHING: '垃圾車正在前來，請稍候。',
+    ARRIVED: '垃圾車已抵達，請旋轉三圈。',
+    THROW_READY: '旋轉完成，按 SW 交出情緒。',
+    THROWING: '正在清運，這段流程不能取消。',
+    RESPONDING_CAREFUL: '工作人員提醒：請小心照顧自己。',
+    RESPONDING_THANKS: '工作人員回應：謝謝你願意交出來。',
+    RESPONDING_RECYCLE: '工作人員回應：還有一些情緒留下。',
+    COLLECTED: '清運完成，正在更新今日次數。',
+    REST_DAILY_LIMIT: '今日已完成兩次清運，請使用 reset day 測試跨日。'
+  };
+
+  var progress = {
+    REST_CLOSED: 0,
+    IDLE: 10,
+    ACCUMULATING: 20,
+    FULL: 30,
+    APPROACHING: 40,
+    ARRIVED: 50,
+    THROW_READY: 60,
+    THROWING: 70,
+    RESPONDING_CAREFUL: 80,
+    RESPONDING_THANKS: 80,
+    RESPONDING_RECYCLE: 80,
+    COLLECTED: 90,
+    REST_DAILY_LIMIT: 100
+  };
+
+  var LED = {
+    REST_CLOSED: { cls: '', label: '熄滅' },
+    IDLE: { cls: '', label: '熄滅' },
+    ACCUMULATING: { cls: 'short', label: '短閃 100ms' },
+    FULL: { cls: 'fast', label: '快閃 200ms' },
+    APPROACHING: { cls: 'slow', label: '慢閃 300ms' },
+    ARRIVED: { cls: 'solid', label: '常亮' },
+    THROW_READY: { cls: 'double', label: '雙短閃 ×2' },
+    THROWING: { cls: 'double', label: '雙短閃 ×2' },
+    RESPONDING_CAREFUL: { cls: 'double', label: '雙短閃 ×2' },
+    RESPONDING_THANKS: { cls: 'double', label: '雙短閃 ×2' },
+    RESPONDING_RECYCLE: { cls: 'blink5', label: '連閃 ×5' },
+    COLLECTED: { cls: 'solid', label: '常亮' },
+    REST_DAILY_LIMIT: { cls: '', label: '熄滅' }
+  };
+
+  var BUZZER = {
+    REST_CLOSED: '靜音',
+    IDLE: '靜音',
+    ACCUMULATING: '累積提示音',
+    FULL: '飽足提示音',
+    APPROACHING: '給愛麗絲 · 漸強',
+    ARRIVED: '靜音',
+    THROW_READY: '丟出提示音',
+    THROWING: '丟出提示音',
+    RESPONDING_CAREFUL: '小心提示音',
+    RESPONDING_THANKS: '謝謝提示音',
+    RESPONDING_RECYCLE: '回收提示音',
+    COLLECTED: '給愛麗絲 · 漸弱',
+    REST_DAILY_LIMIT: '靜音'
+  };
+
+  var els = {
+    lcd: document.getElementById('hw-lcd'),
+    rows: document.querySelectorAll('#hw-lcd .lcd-row'),
+    clock: document.getElementById('hw-clock'),
+    state: document.getElementById('hw-state'),
+    bags: document.getElementById('hw-bags'),
+    daily: document.getElementById('hw-daily'),
+    rotation: document.getElementById('hw-rotation'),
+    led: document.getElementById('hw-led'),
+    ledLabel: document.getElementById('hw-led-label'),
+    buzzerLabel: document.getElementById('hw-buzzer-label'),
+    sound: document.getElementById('hw-sound-toggle'),
+    note: document.getElementById('hw-note'),
+    flowLabel: document.getElementById('hw-flow-label'),
+    flowPct: document.getElementById('hw-flow-pct'),
+    flowBar: document.getElementById('hw-flow-bar'),
+    joyStatus: document.getElementById('hw-joy-status'),
+    rotLabel: document.getElementById('hw-rot-label'),
+    rotateCount: document.getElementById('hw-rotate-count'),
+    knob: document.querySelector('.joy-knob'),
+    rotor: document.querySelector('.joy-rotor'),
+    rotDots: document.querySelectorAll('.hw-rot-dot')
+  };
+
+  var approachTimer = null;
+  var collectedTimer = null;
+  var throwTimer = null;
+  var responseTimer = null;
+  var tiltTimer = null;
+  var rotationDeg = 0;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tickClock() {
+    if (!els.clock) return;
+    var d = new Date();
+    els.clock.textContent = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+
+  function clearTimers() {
+    if (approachTimer) { clearInterval(approachTimer); approachTimer = null; }
+    if (collectedTimer) { clearInterval(collectedTimer); collectedTimer = null; }
+    if (throwTimer) { clearTimeout(throwTimer); throwTimer = null; }
+    if (responseTimer) { clearTimeout(responseTimer); responseTimer = null; }
+  }
+
+  function initLcd() {
+    els.rows.forEach(function (row) {
+      for (var i = 0; i < 16; i++) {
+        var cell = document.createElement('span');
+        cell.className = 'lcd-cell';
+        row.appendChild(cell);
+      }
+    });
+  }
+
+  function faceSvg(name) {
+    var rows = FACE_BITS[name];
+    if (!rows) return '';
+    var rects = '';
+    for (var y = 0; y < rows.length; y++) {
+      for (var x = 0; x < rows[y].length; x++) {
+        if (rows[y].charAt(x) === '1') {
+          rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1"></rect>';
+        }
+      }
+    }
+    return '<svg viewBox="0 0 5 8" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" shape-rendering="crispEdges">' + rects + '</svg>';
+  }
+
+  function setLcd(line1, line2, faceName) {
+    if (!els.rows || els.rows.length < 2) return;
+    for (var r = 0; r < 2; r++) {
+      var cells = els.rows[r].children;
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].textContent = '';
+        cells[i].classList.remove('lcd-face');
+      }
+    }
+    var text1 = (line1 || '').slice(0, 16);
+    for (var a = 0; a < text1.length; a++) {
+      els.rows[0].children[a].textContent = text1.charAt(a);
+    }
+    if (faceName) {
+      var faceCell = els.rows[1].children[7];
+      faceCell.classList.add('lcd-face');
+      faceCell.innerHTML = faceSvg(faceName);
+    } else {
+      var text2 = (line2 || '').slice(0, 16);
+      for (var b = 0; b < text2.length; b++) {
+        els.rows[1].children[b].textContent = text2.charAt(b);
+      }
+    }
+    var aria = text1;
+    if (faceName) aria += '，第二行表情';
+    else if (line2) aria += '，' + line2;
+    els.lcd.setAttribute('aria-label', 'LCD1602 顯示：' + aria);
+  }
+
+  function rotationCount() {
+    return Math.min(3, Math.floor(demo.rotation / 360));
+  }
+
+  function render() {
+    var st = demo.state;
+    var line1 = '';
+    var line2 = '';
+    var face = faces[st];
+    if (st === 'REST_CLOSED') line1 = 'Truck resting';
+    else if (st === 'IDLE') line1 = 'Bags: ' + demo.bags + '/5';
+    else if (st === 'ACCUMULATING') line1 = (emotionByDirection[demo.selected] || '--') + ' ' + demo.pushes + '/3';
+    else if (st === 'FULL') line1 = 'Emotion is full';
+    else if (st === 'APPROACHING') line1 = 'Truck coming';
+    else if (st === 'ARRIVED') line1 = 'Truck is here';
+    else if (st === 'THROW_READY') line1 = 'Press to throw';
+    else if (st === 'THROWING') line1 = 'Throwing...';
+    else if (st === 'RESPONDING_CAREFUL') line1 = 'Be careful';
+    else if (st === 'RESPONDING_THANKS') line1 = 'Thank you';
+    else if (st === 'RESPONDING_RECYCLE') {
+      line1 = 'Returned ' + demo.bags + ' bags';
+      line2 = 'Keep: ' + demo.bags + ' bags';
+      face = null;
+    } else if (st === 'COLLECTED') line1 = 'Emotion cleared';
+    else if (st === 'REST_DAILY_LIMIT') line1 = '2 trips done';
+
+    setLcd(line1, line2, face);
+
+    els.state.textContent = st;
+    els.bags.textContent = demo.bags + '/5';
+    els.daily.textContent = demo.daily + '/2';
+    var rc = rotationCount();
+    els.rotation.textContent = rc + '/3';
+    els.rotLabel.textContent = rc + '/3';
+    els.rotateCount.textContent = rc + '/3';
+    els.rotDots.forEach(function (dot, index) {
+      dot.classList.toggle('on', index < rc);
+    });
+
+    var led = LED[st] || LED.IDLE;
+    els.led.className = 'hw-led';
+    void els.led.offsetWidth;
+    if (led.cls) els.led.classList.add(led.cls);
+    els.led.setAttribute('aria-label', 'LED ' + led.label);
+    els.ledLabel.textContent = led.label;
+    els.buzzerLabel.textContent = BUZZER[st] || '靜音';
+
+    if (st === 'ACCUMULATING') {
+      els.joyStatus.textContent = '方向：' + (emotionByDirection[demo.selected] || '--') + ' · ' + demo.pushes + '/3';
+    } else if (st === 'ARRIVED') {
+      els.joyStatus.textContent = '旋轉：' + rc + '/3';
+    } else if (st === 'THROW_READY') {
+      els.joyStatus.textContent = 'SW 交出情緒';
+    } else {
+      els.joyStatus.textContent = '方向：-- · 0/3';
+    }
+
+    var note = notes[st] || '';
+    if (st === 'ACCUMULATING') {
+      note = demo.pushes >= 3
+        ? '已完成三次，按 SW 確認增加一袋；下鍵取消。'
+        : '同方向進度 ' + demo.pushes + '/3；換方向重新計數。';
+    }
+    els.note.textContent = note;
+
+    var p = progress[st] == null ? 0 : progress[st];
+    els.flowLabel.textContent = '流程：' + st;
+    els.flowPct.textContent = p + '%';
+    els.flowBar.style.width = p + '%';
+
+    updateButtons();
+  }
+
+  function updateButtons() {
+    var st = demo.state;
+    var canChoose = (st === 'IDLE' || st === 'ACCUMULATING') && demo.daily < 2 && demo.bags < 5;
+    document.querySelectorAll('.joy-dir').forEach(function (b) {
+      b.disabled = !canChoose;
+    });
+    var canConfirm = (st === 'ACCUMULATING' && demo.pushes >= 3 && !!demo.selected) || st === 'THROW_READY';
+    document.querySelectorAll('[data-action="confirm"]').forEach(function (b) {
+      b.disabled = !canConfirm;
+    });
+    document.querySelectorAll('[data-action="rotate"]').forEach(function (b) {
+      b.disabled = st !== 'ARRIVED';
+    });
+    document.querySelectorAll('[data-action="approach"]').forEach(function (b) {
+      b.disabled = st !== 'IDLE' && st !== 'FULL';
+    });
+  }
+
+  function playStateSound(st) {
+    if (!hwAudio.enabled) return;
+    if (st === 'ACCUMULATING') { hwAudio.play('accumulating'); return; }
+    if (st === 'REST_CLOSED' || st === 'IDLE' || st === 'ARRIVED' || st === 'REST_DAILY_LIMIT') { hwAudio.stop(); return; }
+    if (st === 'APPROACHING') { hwAudio.playFur(true); return; }
+    if (st === 'THROW_READY' || st === 'THROWING') { hwAudio.play('throwPrompt'); return; }
+    if (st === 'RESPONDING_CAREFUL') { hwAudio.play('careful'); return; }
+    if (st === 'RESPONDING_THANKS') { hwAudio.play('thanks'); return; }
+    if (st === 'RESPONDING_RECYCLE') { hwAudio.play('recycle'); return; }
+    if (st === 'COLLECTED') { hwAudio.playFur(false); return; }
+    if (st === 'FULL') { hwAudio.play('full'); return; }
+  }
+
+  function enter(next) {
+    clearTimers();
+    demo.state = next;
+    playStateSound(next);
+    render();
+  }
+
+  function tiltKnob(dir) {
+    if (!els.knob) return;
+    els.knob.classList.remove('tilt-up', 'tilt-down', 'tilt-left', 'tilt-right');
+    void els.knob.offsetWidth;
+    els.knob.classList.add('tilt-' + dir.toLowerCase());
+    if (tiltTimer) clearTimeout(tiltTimer);
+    tiltTimer = setTimeout(function () {
+      els.knob.classList.remove('tilt-up', 'tilt-down', 'tilt-left', 'tilt-right');
+      tiltTimer = null;
+    }, 180);
+  }
+
+  function choose(dir) {
+    if (demo.state !== 'IDLE' && demo.state !== 'ACCUMULATING') return;
+    if (demo.daily >= 2 || demo.bags >= 5) return;
+    if (dir === 'DOWN') {
+      demo.pushes = 0;
+      demo.selected = null;
+      enter('IDLE');
+      return;
+    }
+    if (!emotionByDirection[dir]) return;
+    if (demo.selected !== dir) demo.pushes = 0;
+    demo.selected = dir;
+    demo.pushes = Math.min(3, demo.pushes + 1);
+    enter('ACCUMULATING');
+    tiltKnob(dir);
+  }
+
+  function confirmEmotion() {
+    if (demo.state !== 'ACCUMULATING' || demo.pushes < 3 || !demo.selected || demo.bags >= 5 || demo.daily >= 2) return;
+    demo.bags += 1;
+    demo.pushes = 0;
+    demo.selected = null;
+    enter(demo.bags === 5 ? 'FULL' : 'IDLE');
+  }
+
+  function startApproach() {
+    if (demo.daily >= 2) { enter('REST_DAILY_LIMIT'); return; }
+    if (demo.state !== 'IDLE' && demo.state !== 'FULL') return;
+    enter('APPROACHING');
+    var remaining = 3;
+    els.note.textContent = '垃圾車正在前來（約 ' + remaining + ' 秒，展示加速）…';
+    approachTimer = setInterval(function () {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(approachTimer);
+        approachTimer = null;
+        enter('ARRIVED');
+      } else {
+        els.note.textContent = '垃圾車正在前來（約 ' + remaining + ' 秒，展示加速）…';
+      }
+    }, 1000);
+  }
+
+  function rotate() {
+    if (demo.state !== 'ARRIVED') return;
+    demo.rotation += 360;
+    rotationDeg += 360;
+    if (els.rotor) els.rotor.style.transform = 'rotate(' + rotationDeg + 'deg)';
+    if (demo.rotation >= 1080) {
+      enter('THROW_READY');
+    } else {
+      render();
+    }
+  }
+
+  function resetRotor() {
+    rotationDeg = 0;
+    if (els.rotor) {
+      els.rotor.style.transition = 'none';
+      els.rotor.style.transform = 'rotate(0deg)';
+      void els.rotor.offsetWidth;
+      els.rotor.style.transition = '';
+    }
+  }
+
+  function confirmThrow() {
+    if (demo.state !== 'THROW_READY' || demo.daily >= 2) return;
+    enter('THROWING');
+    throwTimer = setTimeout(function () {
+      throwTimer = null;
+      var roll = Math.random();
+      var response = roll < 0.5 ? 'RESPONDING_CAREFUL' : roll < 0.75 ? 'RESPONDING_THANKS' : 'RESPONDING_RECYCLE';
+      var before = demo.bags;
+      demo.bags = response === 'RESPONDING_RECYCLE' && before > 0 ? 1 + Math.floor(Math.random() * before) : 0;
+      enter(response);
+      responseTimer = setTimeout(function () {
+        responseTimer = null;
+        demo.daily = Math.min(2, demo.daily + 1);
+        demo.rotation = 0;
+        demo.pushes = 0;
+        demo.selected = null;
+        resetRotor();
+        enter('COLLECTED');
+        var remaining = 3;
+        var nextState = demo.daily >= 2 ? 'REST_DAILY_LIMIT' : 'IDLE';
+        els.note.textContent = '清運完成，' + remaining + ' 秒後回到 ' + nextState + '（展示加速）。';
+        collectedTimer = setInterval(function () {
+          remaining -= 1;
+          if (remaining <= 0) {
+            clearInterval(collectedTimer);
+            collectedTimer = null;
+            enter(demo.daily >= 2 ? 'REST_DAILY_LIMIT' : 'IDLE');
+          } else {
+            els.note.textContent = '清運完成，' + remaining + ' 秒後回到 ' + (demo.daily >= 2 ? 'REST_DAILY_LIMIT' : 'IDLE') + '（展示加速）。';
+          }
+        }, 1000);
+      }, 1500);
+    }, 1000);
+  }
+
+  function confirmAction() {
+    if (demo.state === 'ACCUMULATING') { confirmEmotion(); return; }
+    if (demo.state === 'THROW_READY') { confirmThrow(); }
+  }
+
+  function resetDay() {
+    demo.daily = 0;
+    demo.pushes = 0;
+    demo.selected = null;
+    demo.rotation = 0;
+    resetRotor();
+    enter(demo.bags >= 5 ? 'FULL' : 'IDLE');
+  }
+
+  function resetAll() {
+    demo.bags = 0;
+    demo.daily = 0;
+    demo.pushes = 0;
+    demo.selected = null;
+    demo.rotation = 0;
+    resetRotor();
+    hwAudio.stop();
+    enter('IDLE');
+  }
+
+  function handleAction(action) {
+    if (action === 'confirm') { confirmAction(); return; }
+    if (action === 'rotate') { rotate(); return; }
+    if (action === 'approach') { startApproach(); return; }
+    if (action === 'arrive') { enter('ARRIVED'); return; }
+    if (action === 'rest') { enter('REST_CLOSED'); return; }
+    if (action === 'idle') { enter('IDLE'); return; }
+    if (action === 'reset-day') { resetDay(); return; }
+    if (action === 'reset') { resetAll(); return; }
+  }
+
+  document.querySelectorAll('.joy-dir').forEach(function (btn) {
+    btn.addEventListener('click', function () { choose(btn.dataset.dir); });
+  });
+
+  document.querySelectorAll('[data-action]').forEach(function (btn) {
+    btn.addEventListener('click', function () { handleAction(btn.dataset.action); });
+  });
+
+  if (els.sound) {
+    els.sound.addEventListener('click', function () {
+      if (hwAudio.enabled) {
+        hwAudio.disable();
+      } else {
+        hwAudio.unlock();
+        if (hwAudio.enabled) playStateSound(demo.state);
+      }
+    });
+  }
+
+  initLcd();
+  tickClock();
+  setInterval(tickClock, 1000);
+  render();
+})();
 </script>
 
 </body>

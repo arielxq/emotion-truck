@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情緒垃圾車 · 工作人員隨機提示機率</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f2e6d8;
+      --color-ink:     #593e2e;
+      --color-muted:   #63554b;
+      --color-accent:  #8c5b3e;
+      --color-moss:    #555934;
+      --color-sand:    #bf9b7a;
+      --font-sans:     'Geist', 'Noto Sans TC', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif TC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .frame { max-width: 1000px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 960px; display: block; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="eyebrow">Probability · worker response</div>
+    <h1>工作人員隨機提示機率</h1>
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-pie-title emotion-pie-desc">
+        <title id="emotion-pie-title">工作人員隨機提示機率</title>
+        <desc id="emotion-pie-desc">丟出後工作人員回應機率：「小心」50% 收走全部 bags、「謝謝」25% 收走全部 bags、「這是回收哦」25% 隨機保留 1 至原有數量；結算後自動進入 COLLECTED。</desc>
+        <defs>
+          <marker id="pie-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <text x="60" y="52" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">WORKER RESPONSE · 3 OUTCOMES</text>
+
+        <!-- ===== PIE (center 380,240 r=150) ===== -->
+        <!-- CAREFUL 50% · moss · bottom half -->
+        <path d="M 380,240 L 530,240 A 150,150 0 0,1 230,240 Z" fill="#555934"/>
+        <!-- THANKS 25% · sand · upper left -->
+        <path d="M 380,240 L 230,240 A 150,150 0 0,1 380,90 Z" fill="#bf9b7a"/>
+        <!-- RECYCLE 25% · accent · upper right -->
+        <path d="M 380,240 L 380,90 A 150,150 0 0,1 530,240 Z" fill="#8c5b3e"/>
+
+        <!-- slice labels -->
+        <text x="380" y="330" fill="#ffffff" font-size="24" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">50%</text>
+        <text x="380" y="352" fill="rgba(255,255,255,0.88)" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">「小心」</text>
+
+        <text x="296" y="168" fill="#593e2e" font-size="18" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">25%</text>
+        <text x="296" y="186" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">「謝謝」</text>
+
+        <text x="464" y="168" fill="#ffffff" font-size="18" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">25%</text>
+        <text x="464" y="186" fill="rgba(255,255,255,0.92)" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">「這是回收哦」</text>
+
+        <!-- donut hole -->
+        <circle cx="380" cy="240" r="52" fill="#f2e6d8"/>
+        <text x="380" y="234" fill="#593e2e" font-size="14" font-weight="700" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">bags 結算</text>
+        <text x="380" y="252" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">3 種互斥結果</text>
+
+        <!-- ===== RIGHT SIDE NOTE ===== -->
+        <rect x="590" y="120" width="310" height="200" rx="6" fill="#ffffff" stroke="rgba(89,62,46,0.20)" stroke-width="1"/>
+        <text x="608" y="144" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">HOW IT ROLLS</text>
+        <text x="608" y="170" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">丟出後抽一次，三種結果互斥</text>
+        <line x1="608" y1="184" x2="882" y2="184" stroke="rgba(89,62,46,0.12)" stroke-width="0.8"/>
+
+        <circle cx="616" cy="204" r="4" fill="#555934"/>
+        <text x="628" y="208" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">CAREFUL · 50%</text>
+        <text x="628" y="222" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">bags = 0 → COLLECTED</text>
+
+        <circle cx="616" cy="246" r="4" fill="#bf9b7a"/>
+        <text x="628" y="250" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">THANKS · 25%</text>
+        <text x="628" y="264" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">bags = 0 → COLLECTED</text>
+
+        <circle cx="616" cy="288" r="4" fill="#8c5b3e"/>
+        <text x="628" y="292" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">RECYCLE · 25%</text>
+        <text x="628" y="306" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">保留 1～N → 剩餘 bags</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="60" y1="390" x2="900" y2="390" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="408" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="78" y="420" width="14" height="14" rx="3" fill="#555934"/>
+        <text x="100" y="432" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">「小心」</text>
+        <text x="156" y="432" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">50% · 收走全部 · LED 閃 5 次</text>
+
+        <rect x="360" y="420" width="14" height="14" rx="3" fill="#bf9b7a"/>
+        <text x="382" y="432" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">「謝謝」</text>
+        <text x="438" y="432" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · 收走全部 · LED 閃 5 次</text>
+
+        <rect x="642" y="420" width="14" height="14" rx="3" fill="#8c5b3e"/>
+        <text x="664" y="432" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">「這是回收哦」</text>
+        <text x="748" y="432" fill="#63554b" font-size="8.5" font-family="'Geist Mono', ui-monospace, monospace">25% · 保留 1～N</text>
+
+        <text x="60" y="470" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">N = 原有 bags；N = 0 時保留 0 包，收走數量 = N − 保留數量。三種結果都自動進入 COLLECTED。</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情緒垃圾車 · 每日清運時序</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f2e6d8;
+      --color-ink:     #593e2e;
+      --color-muted:   #63554b;
+      --color-accent:  #8c5b3e;
+      --color-moss:    #555934;
+      --color-sand:    #bf9b7a;
+      --font-sans:     'Geist', 'Noto Sans TC', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif TC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .frame { max-width: 1120px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 1080px; display: block; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="eyebrow">Schedule · 09:00–20:00</div>
+    <h1>每日清運時序</h1>
+    <div class="diagram-container">
+      <svg viewBox="0 0 1080 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-timeline-title emotion-timeline-desc">
+        <title id="emotion-timeline-title">情緒垃圾車 · 每日清運時序</title>
+        <desc id="emotion-timeline-desc">每日 00:00–24:00 排程：09:00–20:00 開放，兩次隨機車次且間隔至少 3 小時，每次包含 10 秒音樂與 3–5 分鐘互動；週三與週日全天公休。</desc>
+        <defs>
+          <marker id="tl-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+          <marker id="tl-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <!-- ===== TIME AXIS ===== -->
+        <line x1="60" y1="100" x2="1020" y2="100" stroke="rgba(99,85,75,0.45)" stroke-width="1"/>
+
+        <!-- ticks -->
+        <line x1="60" y1="94" x2="60" y2="106" stroke="#63554b" stroke-width="1"/>
+        <line x1="420" y1="94" x2="420" y2="106" stroke="#593e2e" stroke-width="1.2"/>
+        <line x1="580" y1="94" x2="580" y2="106" stroke="#8c5b3e" stroke-width="1.2"/>
+        <line x1="760" y1="94" x2="760" y2="106" stroke="#8c5b3e" stroke-width="1.2"/>
+        <line x1="860" y1="94" x2="860" y2="106" stroke="#593e2e" stroke-width="1.2"/>
+        <line x1="1020" y1="94" x2="1020" y2="106" stroke="#63554b" stroke-width="1"/>
+
+        <!-- time labels -->
+        <text x="60" y="84" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">00:00</text>
+        <text x="420" y="84" fill="#593e2e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">09:00 開放</text>
+        <text x="580" y="84" fill="#8c5b3e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">13:00 車次 1</text>
+        <text x="760" y="84" fill="#8c5b3e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">17:30 車次 2</text>
+        <text x="860" y="84" fill="#593e2e" font-size="8" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">20:00 關閉</text>
+        <text x="1020" y="84" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">24:00</text>
+
+        <!-- ===== DAY BAR ===== -->
+        <rect x="60" y="112" width="360" height="36" rx="4" fill="#593e2e"/>
+        <text x="240" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">休息 REST</text>
+        <text x="240" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">00:00–09:00</text>
+
+        <rect x="420" y="112" width="160" height="36" rx="4" fill="#555934"/>
+        <text x="500" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">待機 IDLE</text>
+        <text x="500" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">09:00–13:00</text>
+
+        <rect x="580" y="112" width="40" height="36" rx="4" fill="#8c5b3e"/>
+        <rect x="620" y="112" width="140" height="36" rx="4" fill="#555934"/>
+        <text x="690" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">待機</text>
+        <text x="690" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">≥ 3 小時間隔</text>
+
+        <rect x="760" y="112" width="40" height="36" rx="4" fill="#8c5b3e"/>
+        <rect x="800" y="112" width="60" height="36" rx="4" fill="#555934"/>
+        <text x="830" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">待機</text>
+        <text x="830" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">至 20:00</text>
+
+        <rect x="860" y="112" width="160" height="36" rx="4" fill="#593e2e"/>
+        <text x="940" y="135" fill="#ffffff" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">休息 REST</text>
+        <text x="940" y="148" fill="rgba(255,255,255,0.78)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">20:00–24:00</text>
+
+        <!-- trip 1 callout -->
+        <line x1="600" y1="148" x2="600" y2="186" stroke="#8c5b3e" stroke-width="1" marker-end="url(#tl-arrow-accent)"/>
+        <rect x="480" y="190" width="250" height="76" rx="6" fill="#ffffff" stroke="rgba(140,91,62,0.55)" stroke-width="1"/>
+        <text x="496" y="210" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">TRIP 1 · 13:00</text>
+        <text x="496" y="230" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">10 秒《給愛麗絲》</text>
+        <text x="496" y="248" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">3–5 分鐘互動 → 結算 bags</text>
+        <text x="496" y="260" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">第一次 → IDLE</text>
+
+        <!-- trip 2 callout -->
+        <line x1="780" y1="148" x2="780" y2="186" stroke="#8c5b3e" stroke-width="1" marker-end="url(#tl-arrow-accent)"/>
+        <rect x="760" y="190" width="250" height="76" rx="6" fill="#ffffff" stroke="rgba(140,91,62,0.55)" stroke-width="1"/>
+        <text x="776" y="210" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">TRIP 2 · 17:30</text>
+        <text x="776" y="230" fill="#593e2e" font-size="9" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">10 秒《給愛麗絲》</text>
+        <text x="776" y="248" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">3–5 分鐘互動 → 結算 bags</text>
+        <text x="776" y="260" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">第二次 → REST_DAILY_LIMIT</text>
+
+        <!-- interval note -->
+        <path d="M 620,170 H 760" fill="none" stroke="rgba(85,89,52,0.55)" stroke-width="1" stroke-dasharray="4,3"/>
+        <rect x="646" y="162" width="88" height="14" rx="2" fill="#f2e6d8"/>
+        <text x="690" y="173" fill="#555934" font-size="7.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">間隔 ≥ 3 小時</text>
+
+        <!-- ===== WEEKLY CLOSED ===== -->
+        <line x1="60" y1="300" x2="1020" y2="300" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="288" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">WEEKLY CLOSED</text>
+        <rect x="60" y="306" width="960" height="20" rx="4" fill="rgba(99,85,75,0.12)"/>
+        <text x="240" y="320" fill="#593e2e" font-size="8.5" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">週三 · 全天公休</text>
+        <text x="780" y="320" fill="#593e2e" font-size="8.5" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">週日 · 全天公休</text>
+        <text x="540" y="320" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">reset day 僅清每日次數，不清 bags</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="60" y1="360" x2="1020" y2="360" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="60" y="378" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="78" y="392" width="24" height="12" rx="3" fill="#593e2e"/>
+        <text x="110" y="402" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">休息段</text>
+        <rect x="190" y="392" width="24" height="12" rx="3" fill="#555934"/>
+        <text x="222" y="402" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">待機段</text>
+        <rect x="300" y="392" width="24" height="12" rx="3" fill="#8c5b3e"/>
+        <text x="332" y="402" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">車次到達（10 秒音樂）</text>
+        <text x="60" y="424" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">每日最多 2 次 · 兩次間隔 ≥ 3 小時 · 週三與週日公休 · 非播放時間 LCD 顯示「垃圾車還沒來」。</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情緒垃圾車 · 使用者旅程圖</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f2e6d8;
+      --color-ink:     #593e2e;
+      --color-muted:   #63554b;
+      --color-accent:  #8c5b3e;
+      --color-moss:    #555934;
+      --color-sand:    #bf9b7a;
+      --font-sans:     'Geist', 'Noto Sans TC', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif TC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .frame { max-width: 1220px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 1180px; display: block; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="eyebrow">Experience · five stages</div>
+    <h1>使用者旅程圖</h1>
+    <div class="diagram-container">
+      <svg viewBox="0 0 1180 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-journey-title emotion-journey-desc">
+        <title id="emotion-journey-title">情緒垃圾車 · 使用者旅程圖</title>
+        <desc id="emotion-journey-desc">一位使用者從心情煩躁、遇見垃圾車、選擇情緒、丟出垃圾到心情輕鬆的五個階段，含情感曲線、動作、接觸點與等車痛點。</desc>
+        <defs>
+          <marker id="journey-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f2e6d8"/>
+
+        <!-- ===== STAGE HEADERS ===== -->
+        <text x="64" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 1</text>
+        <text x="288" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 2</text>
+        <text x="512" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 3</text>
+        <text x="736" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 4</text>
+        <text x="960" y="56" fill="#63554b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.18em">STAGE 5</text>
+
+        <text x="164" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">心情煩躁</text>
+        <text x="388" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">遇見垃圾車</text>
+        <text x="612" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">選擇情緒</text>
+        <text x="836" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">丟出垃圾</text>
+        <text x="1060" y="82" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">心情輕鬆</text>
+
+        <!-- ===== EMOTION GRID ===== -->
+        <line x1="64" y1="110" x2="1060" y2="110" stroke="rgba(99,85,75,0.10)" stroke-width="1"/>
+        <line x1="64" y1="190" x2="1060" y2="190" stroke="rgba(99,85,75,0.10)" stroke-width="1"/>
+        <line x1="64" y1="270" x2="1060" y2="270" stroke="rgba(99,85,75,0.10)" stroke-width="1"/>
+        <text x="40" y="114" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">HIGH</text>
+        <text x="40" y="194" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">NEUTRAL</text>
+        <text x="40" y="274" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">LOW</text>
+
+        <!-- emotion curve -->
+        <polyline points="164,150 388,230 612,190 836,150 1060,110" fill="none" stroke="#63554b" stroke-width="1.5"/>
+        <path d="M 164,150 L 388,230" fill="none" stroke="#8c5b3e" stroke-width="2.5"/>
+        <circle cx="164" cy="150" r="5" fill="#63554b"/>
+        <circle cx="388" cy="230" r="5" fill="#8c5b3e"/>
+        <circle cx="612" cy="190" r="5" fill="#63554b"/>
+        <circle cx="836" cy="150" r="5" fill="#63554b"/>
+        <circle cx="1060" cy="110" r="5" fill="#63554b"/>
+
+        <!-- pain point -->
+        <rect x="352" y="242" width="72" height="16" rx="2" fill="none" stroke="rgba(140,91,62,0.55)" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="388" y="254" fill="#8c5b3e" font-size="7.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">等車太久</text>
+
+        <!-- ===== ACTIONS ===== -->
+        <line x1="64" y1="300" x2="1060" y2="300" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="40" y="292" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">ACTIONS</text>
+        <text x="164" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">遇到煩心事</text>
+        <text x="388" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">聽到《給愛麗絲》</text>
+        <text x="612" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">搖桿三次 · 按 SW 確認</text>
+        <text x="836" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">旋轉三圈 · 丟出</text>
+        <text x="1060" y="322" fill="#593e2e" font-size="10" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">收走 / 保留 bags</text>
+
+        <!-- ===== TOUCHPOINTS ===== -->
+        <line x1="64" y1="360" x2="1060" y2="360" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="40" y="352" fill="#593e2e" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">TOUCHPOINTS</text>
+        <text x="164" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">心中憶起</text>
+        <text x="388" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">蜂鳴器旋律</text>
+        <text x="612" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">HW504 搖桿 + SW</text>
+        <text x="836" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">垃圾車 LCD + LED</text>
+        <text x="1060" y="386" fill="#63554b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">工作人員回應</text>
+
+        <!-- ===== LEGEND ===== -->
+        <line x1="64" y1="420" x2="1060" y2="420" stroke="rgba(89,62,46,0.10)" stroke-width="0.8"/>
+        <text x="64" y="438" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+        <line x1="78" y1="458" x2="102" y2="458" stroke="#63554b" stroke-width="1.5"/>
+        <text x="116" y="462" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">情感曲線</text>
+        <circle cx="198" cy="458" r="5" fill="#8c5b3e"/>
+        <text x="214" y="462" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">低谷階段</text>
+        <rect x="290" y="452" width="14" height="12" rx="2" fill="none" stroke="rgba(140,91,62,0.55)" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="312" y="462" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">痛點標記</text>
+        <text x="420" y="462" fill="#63554b" font-size="8.5" font-style="italic" font-family="'Geist', 'Noto Sans TC', sans-serif">五階段 · 情感從低點回升至解脫</text>
+        <text x="64" y="500" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">低谷發生在等待車次的階段；音樂響起後，儀式感把情緒轉為期待。</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>
