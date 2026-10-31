@@ -60,18 +60,26 @@ REST_CLOSED → IDLE → ACCUMULATING → FULL → APPROACHING
 
 ## 2026-10-14｜Web、後端與展示成果
 
-- `truck/simulator.html` 完成 Game Boy 風格虛擬搖桿、A/B 按鍵與 13-state 流程。
-- Web simulator 完成 Web Audio、Fur Elise、Chart.js 統計與測試控制。
-- FastAPI simulation/device/stats API 已接入，API 不可用時使用 demo-data fallback。
+- 舊版 simulator（後續整合至 showcase）完成 Game Boy 風格虛擬搖桿、A/B 按鍵與 13-state 流程。
+- 該版完成 Web Audio、Fur Elise、Chart.js 統計與測試控制。
+- FastAPI simulation/device/stats API 已建立；前端保留 demo-data fallback。
 - `SIM-001` 與 `source=SIMULATION` 用於模擬事件。
 - `truck/showcase.html` 提供 3D 展示與 Wokwi 外部硬體入口。
-- Web simulator、ESP32 與 Wokwi 的功能驗證已分開完成記錄。
+- Web、ESP32 與 Wokwi 的功能驗證已分開完成記錄。
+
+## 2026-10-31｜Showcase 整合與統計補強
+
+- 刪除舊的獨立入口頁與 Game Boy 模擬器，確認無頁面依賴。
+- 將 simulator 的統計與操作說明整合至 `truck/showcase.html` Section 10b；Section 10 樣式、輸入與 3 秒展示節奏保持不變。
+- Section 10b 提供三張 Chart.js 示範圖表、今日狀態同步、操作說明與 API 預留端點；不即時呼叫 FastAPI。
+- 新增 `GET /api/stats/responses`，後端 `/stats` 頁新增工作人員回應分布圖。
+- 系統架構圖與文件改以 showcase 為前端入口；FastAPI／SQL 標示為預留架構。
 
 ## 專案完成結論
 
 ```text
 ESP32 實機：✅ 全部完成並確認
-Web simulator：✅ 完成並確認
+Web showcase：✅ 完成並確認
 Backend／SQL：✅ 完成並確認
 文件與規格：✅ 已同步
 ```

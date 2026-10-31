@@ -39,3 +39,18 @@ def get_emotion_stats(source: str = "HARDWARE") -> list[dict]:
     """
     return execute_query(sql, {"source": source})
 
+
+def get_response_stats(source: str = "HARDWARE") -> list[dict]:
+    """取得工作人員回應分布（CAREFUL / THANKS / RECYCLE）"""
+    sql = """
+        SELECT
+            worker_prompt,
+            COUNT(*) as count
+        FROM collection_log
+        WHERE (:source = 'ALL' OR source = :source)
+          AND worker_prompt IS NOT NULL
+        GROUP BY worker_prompt
+        ORDER BY count DESC, worker_prompt ASC
+    """
+    return execute_query(sql, {"source": source})
+

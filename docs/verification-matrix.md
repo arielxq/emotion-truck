@@ -35,18 +35,20 @@
 | `REST_DAILY_LIMIT` | ✅ | ✅ | ✅ | bags 保留且輸入無效 |
 | `reset day` | ✅ | ✅ | ✅ | 清除每日次數、保留 bags |
 
-## Web simulator
+## Web showcase
 
 | 項目 | 狀態 | 備註 |
 |---|---:|---|
-| `truck/simulator.html` 載入 | ✅ | 獨立靜態頁 |
-| Game Boy 虛擬搖桿與 A/B | ✅ | 方向、確認、重設正常 |
+| `truck/showcase.html` Section 10 載入 | ✅ | 硬體操作台 |
+| 搖桿／SW／重設 | ✅ | 方向、確認、重設正常 |
 | 13-state 流程 | ✅ | 含三種 `RESPONDING_*` |
 | 固定 LCD／控制區尺寸 | ✅ | 狀態文字變化不造成跳動 |
 | 三次旋轉展示 | ✅ | 三次「旋轉一圈」後進入 `THROW_READY` |
 | Web Audio 硬體音符 | ✅ | 依硬體音符重現 |
-| Fur Elise 接近／離開 | ✅ | 約 10 秒，需先啟用瀏覽器音效 |
+| Fur Elise 接近／離開 | ✅ | 實機約 10 秒；showcase 以 3 秒展示 |
 | 音效錯誤隔離 | ✅ | 音效失敗不阻斷狀態機 |
+| Section 10b 圖表 | ✅ | 三張示範＋今日狀態同步；Chart.js fallback |
+| API 預留 | ⚠️ | showcase 不即時呼叫；後端可獨立測試 |
 | Wokwi 外部連結 | ✅ | 外部硬體展示入口 |
 
 ## Backend / SQL
@@ -60,12 +62,13 @@
 | `/api/stats/emotion` | ✅ | 情緒分布 |
 | `/api/stats/weekly` | ✅ | 每週清運 |
 | `/api/stats/summary` | ✅ | 摘要資料 |
-| demo-data fallback | ✅ | API 不可用時維持展示 |
+| `/api/stats/responses` | ✅ | 工作人員回應分布 |
+| 10b 示範資料 | ✅ | showcase 圖表不依賴 API |
 
 ## 完成結論
 
 ```text
 ESP32 實機驗證：✅ 全部完成
-Web simulator 驗證：✅ 完成
+Web showcase 驗證：✅ 完成
 Backend／SQL API 驗證：✅ 完成
 ```

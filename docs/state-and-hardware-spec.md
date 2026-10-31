@@ -115,7 +115,7 @@ COLLECTED: dailyCollectCount += 1
 | `ARRIVED` | 無效 | `atan2()` 判定順／逆時針，累積 360°／720°／1080° | 無效 |
 | `THROW_READY` | 無效 | 不再計數 | 確認丟垃圾 |
 
-情緒累積時，每次同方向 push 後回到中央再推；切換方向重新計數。三次後按 SW（Web 按 A）才增加 bags。旋轉使用 atan2() 角度累積，不是逐段回中央的計數方式。
+情緒累積時，每次同方向 push 後回到中央再推；切換方向重新計數。三次後按 SW 才增加 bags。旋轉使用 atan2() 角度累積，不是逐段回中央的計數方式。
 
 ## 8. 音效對照表
 
@@ -179,18 +179,18 @@ ARRIVED → THROW_READY → THROWING → RESPONDING_* → COLLECTED
 
 測試指令：`status`、`throw reset`、`reset day`、`state daily limit`。
 
-## 11. Web 模擬器與後端邊界
+## 11. Web Showcase 與後端邊界
 
-`truck/simulator.html` 是與 ESP32 共用狀態命名、bags 結算、每日上限與音效規格的獨立展示頁。其主要輸入是虛擬搖桿、A/B 按鍵與展示用測試控制；旋轉流程以三次「旋轉一圈」按鈕代表硬體的 360°、720°、1080°。
+`truck/showcase.html` Section 10 是與 ESP32 共用狀態命名、bags 結算、每日上限與音效規格的硬體操作台；Section 10b 是 Chart.js 互動紀錄與 API 預留說明。Section 10 的主要輸入是搖桿方向、SW 與展示用流程按鈕；旋轉流程以三次「旋轉一圈」按鈕代表硬體的 360°、720°、1080°。展示節奏為 3 秒，實機 APPROACHING 約 10 秒。
 
-模擬器會以 `SIM-001`、`source=SIMULATION` 呼叫 FastAPI。API 可用時寫入模擬事件並讀取統計；請求失敗時使用頁面標示的 demo-data fallback。這不代表 ESP32 已與後端完成雙向即時同步。
+Section 10b 的三張統計圖表與狀態卡使用前端示範資料，不即時呼叫 FastAPI；「今日即時狀態」只同步 Section 10 的 DOM 狀態。後端已提供 `/api/sim/*`、`/api/device/status` 與 `/api/stats/*`（含 `/api/stats/responses`），可獨立測試。這不代表 ESP32 已與後端完成雙向即時同步。
 
-Wokwi 專案是外部硬體展示入口：<https://wokwi.com/projects/477775315279623169>。Wokwi 不會自動接收 Web 模擬器狀態。
+Wokwi 專案是外部硬體展示入口：<https://wokwi.com/projects/477775315279623169>。Wokwi 不會自動接收 showcase 狀態。
 
 瀏覽器端 Web Audio 依照 `platformio/src/sounds.h` 與 `sounds/` 的音符、頻率和毫秒時長重現硬體聲音。因瀏覽器自動播放限制，使用者需先啟用音效；即使 AudioContext 失敗，狀態流程仍應可操作。
 
 音量控制依平台區分：ESP32 的 APPROACHING 約 10 秒內將 duty 從 10 調至 80，COLLECTED 從 80 調至 10 後停止，這是 PWM 近似音量而非實測聲壓。Web 接近音樂為固定音量，離開段為每個音符各自淡出，不表示整段音樂漸弱。
 
-方向映射以目前韌體為準：LEFT = GAN、RIGHT = KAO、UP = CAO。三次同方向 push 後按 SW（Web A）才寫入一次已確認情緒；取消不增加 bags。
+方向映射以目前韌體為準：LEFT = GAN、RIGHT = KAO、UP = CAO。三次同方向 push 後按 SW 才寫入一次已確認情緒；取消不增加 bags。
 
 > SQL 仍保留 `returned_bags` 作為後端相容欄位；在產品語意與前端文件中稱為 collected bags（收走數量），不是「退回數量」。

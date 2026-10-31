@@ -8,7 +8,7 @@
 
 | 入口 | 檔案 | 你會看到 |
 |---|---|---|
-| 3D 互動展示 | [`truck/showcase.html`](truck/showcase.html) | Three.js 車體、爆炸視圖、互動圖表、Section 10 硬體操作台 |
+| 3D 互動展示 | [`truck/showcase.html`](truck/showcase.html) | Three.js 車體、爆炸視圖、互動圖表、Section 10 硬體操作台與 10b 互動紀錄 |
 | 實驗性 3D 簡報 | [`web/`](web/) | Vite＋Three.js、3D hero、互動狀態展示、簡報模式 |
 | 硬體預覽 | [Wokwi](https://wokwi.com/projects/477775315279623169) | ESP32 接線與硬體互動展示 |
 
@@ -16,8 +16,8 @@
 
 - **13-state 互動狀態機**：從休息、待機、累積、滿袋、垃圾車前來、抵達、丟出，到三種工作人員回應、清運完成與每日上限。
 - **3D 車體展示**：GLB 車體＋電子零件、OrbitControls、三點照明、爆炸／組回視圖與響應式畫布。
-- **互動模擬**：showcase Section 10 的 LCD1602／搖桿／LED／蜂鳴器操作台，以及 `web/` 的 Vite 3D 互動簡報。
-- **資料層**：FastAPI＋SQLAlchemy／SQL，提供模擬流程、裝置狀態與統計 API。
+- **互動模擬**：showcase Section 10 的 LCD1602／搖桿／LED／蜂鳴器操作台、Section 10b 的 Chart.js 互動紀錄，以及 `web/` 的 Vite 3D 互動簡報。
+- **資料層**：FastAPI＋SQLAlchemy／SQL，提供模擬流程、裝置狀態、情緒／清運／工作人員回應統計 API。
 - **實機硬體**：ESP32、HW504 搖桿、LCD1602、單色 LED、無源蜂鳴器，共 7 個 GPIO。
 
 ## 技術架構
@@ -26,11 +26,11 @@
 |---|---|---|
 | 互動硬體 | ESP32、PlatformIO、HW504、LCD1602、LED、蜂鳴器 | 13-state 狀態機、GPIO 輸入輸出、實機音效 |
 | 3D 展示 | Three.js r160、GLTFLoader、GLB、OrbitControls | 車體與電子零件、爆炸視圖、互動圖表 |
-| 互動模擬 | Vanilla JS、Web Audio、Vite＋Three.js | Section 10 操作台、`web/` 3D 互動簡報 |
+| 互動模擬 | Vanilla JS、Web Audio、Chart.js、Vite＋Three.js | Section 10 操作台、Section 10b 互動紀錄、`web/` 3D 互動簡報 |
 | 資料層 | FastAPI、SQLAlchemy、SQL | 模擬流程、裝置狀態、統計 API |
 | 硬體預覽 | Wokwi | 外部電路與硬體展示 |
 
-`showcase.html` 的 Section 10 與 `web/` 目前都是純前端 demo；FastAPI／SQL 後端保留模擬流程、裝置狀態與統計 API，尚未與前端做即時同步。
+`showcase.html` 的 Section 10、Section 10b 與 `web/` 目前都是純前端 demo；FastAPI／SQL 後端保留模擬流程、裝置狀態與統計 API，尚未與前端做即時同步。
 
 ## 3D 展示
 
@@ -48,6 +48,7 @@ Showcase 其他展示：
 
 - 6 張品牌化 SVG 圖表：狀態機、時間時序、工作人員回應機率、bags Sankey、使用者旅程、系統架構；支援拖曳、滾輪縮放與 Lightbox。
 - Section 10 全寬硬體操作台：LCD1602 16×2、搖桿方向／SW、LED、蜂鳴器、8 個流程按鈕；展示節奏 3 秒（實機 10 秒），1100px 以下兩欄、620px 以下單欄。
+- Section 10b 互動紀錄：四張 Chart.js 圖表（三張示範、一張同步 Section 10）、今日狀態卡、操作說明與 API 預留端點；圖表不即時呼叫 FastAPI。
 
 > 3D 頁面需用 HTTP server 開啟；直接雙擊 `file://` 可能無法載入 GLB。Three.js 由 CDN 載入，首次開啟需連網。
 
@@ -69,6 +70,13 @@ Showcase 其他展示：
 - LED 節奏與蜂鳴器狀態同步；「啟用音效」預設關閉。
 - 8 個流程按鈕：`REST_CLOSED`、`進入 IDLE`、`垃圾車前來`、`直接到 ARRIVED`、`旋轉一圈`、`reset day`、`SW 確認`、`重設`。
 - 展示節奏 3 秒（實機 10 秒）；手機版自動換行、單欄排列。
+
+### Showcase Section 10b：互動紀錄
+
+- 四張 Chart.js 圖表：情緒分布、本週每日清運、工作人員回應（示範資料）與今日即時狀態（同步 Section 10）。
+- 今日狀態卡與「今日即時狀態」會同步 Section 10 的狀態與 bags。
+- 操作說明與 API 預留端點：`/api/sim/*`、`/api/device/status`、`/api/stats/*`（含 `/api/stats/responses`）。
+- 目前為前端示範資料，不即時呼叫 FastAPI；後端 `/stats` 頁可看實際統計。
 
 ### Showcase vs Web
 
@@ -143,10 +151,10 @@ uvicorn app.main:app --reload
 |---|---|
 | 模擬流程 | `POST /api/sim/state`、`POST /api/sim/emotion`、`POST /api/sim/collection`、`POST /api/sim/reset` |
 | 裝置狀態 | `GET /api/device/status?device_id=SIM-001` |
-| 統計 | `GET /api/stats/emotion`、`GET /api/stats/weekly`、`GET /api/stats/summary` |
+| 統計 | `GET /api/stats/emotion`、`GET /api/stats/weekly`、`GET /api/stats/summary`、`GET /api/stats/responses` |
 | 即時狀態 | `WS /ws/status` |
 
-目前前端 demo 不即時呼叫這些 API；API 與 SQL 仍可獨立測試。
+目前 showcase Section 10b 與 `web/` 不即時呼叫這些 API；API 與 SQL 仍可獨立測試，後端 `/stats` 頁可看實際統計。
 
 ### ESP32 韌體
 
@@ -155,12 +163,12 @@ pio run -d platformio
 pio run -d platformio -t upload
 ```
 
-實機燒錄、旋轉、LCD、LED 與蜂鳴器結果請填寫在 `docs/hardware-test-record.md`；Web 模擬通過不等於 ESP32 實機通過。
+實機燒錄、旋轉、LCD、LED 與蜂鳴器結果請填寫在 `docs/hardware-test-record.md`；前端展示通過不等於 ESP32 實機通過。
 
 ## 專案結構
 
 ```text
-truck/showcase.html        主要 3D 展示 + 圖表 + Section 10 硬體操作台
+truck/showcase.html        主要 3D 展示 + 圖表 + Section 10 操作台 + 10b 互動紀錄
 truck/models/              GLB / OBJ / MTL 模型
 web/                       Vite + Three.js 實驗性 3D 簡報
 web/src/main.js            3D hero、互動狀態、簡報模式
@@ -174,9 +182,9 @@ docs/                      規格、驗證、實作與硬體測試紀錄
 
 ## 限制與下一步
 
-- `showcase.html` 的 Section 10 與 `web/` 都是純前端 demo，不寫入 API 或 SQL。
+- `showcase.html` 的 Section 10／10b 與 `web/` 都是純前端 demo，不寫入 API 或 SQL；10b 多數圖表使用示範資料（今日即時狀態同步 Section 10）。
 - FastAPI／SQL 後端已具備模擬、裝置與統計 API，但尚未與前端做即時雙向同步。
 - Wokwi 是外部硬體展示連結，不嵌入主要操作頁，也不會自動同步 Web 狀態。
 - 3D showcase 需要 HTTP server 與 CDN；`web/` 需以 Vite 啟動。
-- FastAPI／SQL 正式部署、ESP32 正式上報與 worker response 分布統計仍待驗證。
+- FastAPI／SQL 正式部署、ESP32 正式上報與 worker response 分布統計的實際資料仍待驗證；`GET /api/stats/responses` 已提供。
 - 詳細規格請見 [`docs/state-and-hardware-spec.md`](docs/state-and-hardware-spec.md)、[`docs/verification-matrix.md`](docs/verification-matrix.md)、[`docs/implementation-log.md`](docs/implementation-log.md) 與 [`docs/hardware-test-record.md`](docs/hardware-test-record.md)。

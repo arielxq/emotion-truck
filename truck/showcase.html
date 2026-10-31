@@ -803,6 +803,188 @@
   .joystick-anatomy .cross-dir { padding: 7px 8px; font-size: .75em; }
   .joystick-anatomy .cross-center { width: 80px; height: 80px; font-size: .8em; }
 
+  /* ===== 10b. 互動紀錄：Chart.js 統計 ===== */
+  #simulation-stats { scroll-margin-top: 80px; }
+  .sim-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 18px;
+  }
+  .sim-meta-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px 26px;
+    box-shadow: var(--shadow-subtle);
+    min-width: 0;
+  }
+  .sim-meta-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .sim-meta-head h3 {
+    margin: 0;
+    color: var(--primary);
+    font-size: 1.08em;
+    letter-spacing: -0.015em;
+  }
+  .sim-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(140, 91, 62, 0.22);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font: 700 0.66em/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.12em;
+  }
+  .sim-tag--moss {
+    border-color: rgba(85, 89, 52, 0.22);
+    background: rgba(85, 89, 52, 0.1);
+    color: var(--moss);
+  }
+  .sim-meta-card p {
+    margin: 0 0 12px;
+    color: var(--text-soft);
+    font-size: 0.88em;
+    line-height: 1.7;
+  }
+  .sim-guide summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9em;
+    list-style-position: inside;
+  }
+  .sim-guide summary:hover { color: var(--accent-hover); }
+  .sim-guide ol {
+    margin: 12px 0 0;
+    padding-left: 20px;
+    color: var(--text-soft);
+    font-size: 0.86em;
+    line-height: 1.8;
+  }
+  .sim-guide li + li { margin-top: 4px; }
+  .sim-api-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 10px;
+  }
+  .sim-api-list code {
+    display: block;
+    min-width: 0;
+    padding: 5px 7px;
+    border-radius: 6px;
+    background: var(--code-bg);
+    color: var(--primary);
+    font: 500 0.7em/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow-wrap: anywhere;
+  }
+  .sim-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .sim-chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    min-height: 310px;
+    box-shadow: var(--shadow-subtle);
+    min-width: 0;
+  }
+  .sim-chart-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .sim-chart-head h3 {
+    margin: 0;
+    color: var(--primary);
+    font-size: 1em;
+    letter-spacing: -0.01em;
+  }
+  .sim-chart-head span {
+    color: var(--text-muted);
+    font: 700 0.64em/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.1em;
+  }
+  .sim-chart-wrap {
+    position: relative;
+    height: 220px;
+    min-width: 0;
+  }
+  .sim-chart-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    margin: 0;
+    padding: 16px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 0.82em;
+    text-align: center;
+    line-height: 1.7;
+  }
+  .sim-state-card {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+    padding: 22px 26px;
+    border-radius: var(--radius-md);
+    background: var(--moss);
+    color: #fff;
+  }
+  .sim-state-card > div { min-width: 0; }
+  .sim-state-card span {
+    display: block;
+    color: rgba(255, 255, 255, 0.68);
+    font: 700 0.66em/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.12em;
+  }
+  .sim-state-card strong {
+    display: block;
+    margin-top: 5px;
+    font: 700 1.05em/1.35 ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow-wrap: anywhere;
+  }
+  .sim-state-card small {
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.62em;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+  .sim-notice {
+    margin: 14px 0 0;
+    color: var(--text-muted);
+    font-size: 0.78em;
+    line-height: 1.7;
+  }
+  @media (max-width: 900px) {
+    .sim-meta-grid,
+    .sim-chart-grid { grid-template-columns: 1fr; }
+    .sim-state-card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 520px) {
+    .sim-meta-card { padding: 20px 18px; }
+    .sim-chart-card { padding: 20px 18px; min-height: 280px; }
+    .sim-chart-wrap { height: 200px; }
+    .sim-api-list { grid-template-columns: 1fr; }
+    .sim-state-card { grid-template-columns: 1fr; padding: 20px 18px; }
+  }
+
   /* ===== 10. 硬體操作台：LCD1602 + 搖桿 + LED + 蜂鳴器 ===== */
   .hw-console {
     background: var(--bg-alt);
@@ -1452,6 +1634,10 @@
 .modal-close:hover { background: var(--primary); color: #fff; }
 
   /* ===== 響應式佈局 (Mobile < 860px) ===== */
+  @media (max-width: 1000px) {
+    .nav-links { gap: 14px; }
+    .nav-links a { font-size: 0.84em; }
+  }
   @media (max-width: 860px) {
     .hero-wrapper {
       grid-template-columns: 1fr;
@@ -1498,6 +1684,7 @@
       <li><a href="#features">核心特性</a></li>
       <li><a href="#why">設計理念</a></li>
       <li><a href="#architecture">狀態與架構</a></li>
+      <li><a href="#simulation-stats">互動紀錄</a></li>
       <li><a href="#hardware">硬體與音效</a></li>
       <li><a href="#wokwi">Wokwi 硬體</a></li>
     </ul>
@@ -2457,6 +2644,86 @@
   </div>
 </section>
 
+<!-- ===== 10b. 互動紀錄（Simulation Data） ===== -->
+<section id="simulation-stats">
+  <div class="container">
+    <div class="section-label">Simulation Data</div>
+    <h2 class="section-title">把操作變成<span class="highlight">可讀的紀錄</span>。</h2>
+    <p class="section-desc">
+      Section 10 的操作會同步到今日狀態；其餘圖表目前使用示範資料。FastAPI／SQL 與下列端點已預留，尚未由此頁即時呼叫。
+    </p>
+
+    <div class="sim-meta-grid">
+      <article class="sim-meta-card">
+        <div class="sim-meta-head">
+          <span class="sim-tag">DEMO DATA</span>
+          <h3>操作說明</h3>
+        </div>
+        <details class="sim-guide">
+          <summary>展開 7 個操作步驟</summary>
+          <ol>
+            <li>在 IDLE 用上／左／右選擇情緒；同方向完成 3 次後按 SW 增加一袋，換方向重新計數。</li>
+            <li>按「垃圾車前來」，APPROACHING 3 秒後進入 ARRIVED（實機約 10 秒）。</li>
+            <li>在 ARRIVED 按「旋轉一圈」三次，累積 1080° 後進入 THROW_READY。</li>
+            <li>按 SW 丟出，觀察 THROWING 與三種工作人員回應。</li>
+            <li>CAREFUL／THANKS 收走全部；RECYCLE 隨機保留 1～原有 bags（0 包維持 0）。</li>
+            <li>每日上限 2 次；reset day 保留 bags，重設才歸零。</li>
+            <li>音效預設關閉；Fur Elise 接近／離開各約 10 秒。</li>
+          </ol>
+        </details>
+      </article>
+
+      <article class="sim-meta-card">
+        <div class="sim-meta-head">
+          <span class="sim-tag sim-tag--moss">API 預留</span>
+          <h3>資料接口</h3>
+        </div>
+        <p>後端已具備 FastAPI／SQL 與下列端點；showcase 目前只展示前端示範資料，尚未即時串接。</p>
+        <div class="sim-api-list" aria-label="預留 API 端點">
+          <code>POST /api/sim/state</code>
+          <code>POST /api/sim/emotion</code>
+          <code>POST /api/sim/collection</code>
+          <code>GET /api/device/status</code>
+          <code>GET /api/stats/emotion</code>
+          <code>GET /api/stats/weekly</code>
+          <code>GET /api/stats/summary</code>
+          <code>GET /api/stats/responses</code>
+        </div>
+      </article>
+    </div>
+
+    <div class="sim-chart-grid">
+      <article class="sim-chart-card">
+        <div class="sim-chart-head"><h3>情緒分布</h3><span>DEMO</span></div>
+        <div class="sim-chart-wrap"><canvas id="sim-emotion-chart" aria-label="情緒分布示範圖表"></canvas></div>
+      </article>
+      <article class="sim-chart-card">
+        <div class="sim-chart-head"><h3>本週每日清運</h3><span>DEMO</span></div>
+        <div class="sim-chart-wrap"><canvas id="sim-weekly-chart" aria-label="本週每日清運示範圖表"></canvas></div>
+      </article>
+      <article class="sim-chart-card">
+        <div class="sim-chart-head"><h3>工作人員回應</h3><span>DEMO</span></div>
+        <div class="sim-chart-wrap"><canvas id="sim-response-chart" aria-label="工作人員回應示範圖表"></canvas></div>
+      </article>
+      <article class="sim-chart-card">
+        <div class="sim-chart-head"><h3>今日即時狀態</h3><span>SECTION 10</span></div>
+        <div class="sim-chart-wrap"><canvas id="sim-status-chart" aria-label="今日即時狀態圖表"></canvas></div>
+      </article>
+    </div>
+
+    <div class="sim-state-card" aria-live="polite">
+      <div><span>目前狀態</span><strong id="sim-live-state">IDLE</strong></div>
+      <div><span>累積袋數</span><strong id="sim-live-bags">0 / 5</strong></div>
+      <div><span>今日清運</span><strong id="sim-live-daily">0 / 2</strong></div>
+      <div><span>下次清運</span><strong>14:35 <small>示範</small></strong></div>
+    </div>
+    <p class="sim-notice">
+      除「今日即時狀態」外，圖表為示範資料；後端已提供 <code>GET /api/stats/responses</code> 等工作人員回應統計，但 showcase 目前不即時呼叫。
+      Section 10 的狀態與 bags 會即時反映在「今日即時狀態」與上方狀態卡。
+    </p>
+  </div>
+</section>
+
 <!-- ===== 11. 單色 LED 硬體與節奏 & 12. 音樂播放時序 ===== -->
 <section class="bg-alt" id="hardware">
   <div class="container">
@@ -2520,14 +2787,14 @@
       <div class="visual-block" style="margin-top:32px;">
         <h3 style="margin-top:0; color:var(--primary);">系統架構圖</h3>
         <p style="color:var(--text-soft); font-size:0.92em;">
-          ESP32 與 Web 模擬器透過 FastAPI 與 SQL 串接；API 不可用時降級為 demo fallback；Wokwi 作為外部硬體展示。
+          ESP32 與 Web Showcase（Section 10/10b）共用狀態規格；FastAPI 與 SQL 為預留架構，showcase 目前以 demo 資料展示；Wokwi 作為外部硬體展示。
         </p>
         <div class="diagram-nav-wrapper">
         <div class="diagram-scroll-hint">&#8592; 左右滑動查看系統架構 &#8594;</div>
         <div class="diagram-container" id="architecture-container" data-min="850" style="margin:24px 0; overflow-x:auto; width:100%;">
           <svg viewBox="0 0 1080 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-arch-title emotion-arch-desc">
         <title id="emotion-arch-title">情緒垃圾車系統架構</title>
-        <desc id="emotion-arch-desc">ESP32 硬體與 Web 模擬器透過 FastAPI 與 SQL 串接；API 不可用時降級為 demo fallback，Wokwi 作為硬體模擬展示。</desc>
+        <desc id="emotion-arch-desc">ESP32 硬體與 Web Showcase（Section 10/10b）共用狀態規格；FastAPI 與 SQL 為預留架構，showcase 目前以 demo 資料展示，Wokwi 作為硬體模擬展示。</desc>
         <defs>
           <marker id="arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
           <marker id="arch-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
@@ -2553,12 +2820,12 @@
         <rect x="258" y="204" width="56" height="12" rx="2" fill="#f2e6d8"/>
         <text x="286" y="214" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">硬體模擬</text>
 
-        <!-- ESP32 → Web 模擬器 -->
+        <!-- ESP32 → Web Showcase -->
         <line x1="175" y1="252" x2="175" y2="300" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
         <rect x="150" y="262" width="52" height="12" rx="2" fill="#f2e6d8"/>
         <text x="176" y="272" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">狀態同步</text>
 
-        <!-- Web 模擬器 → FastAPI -->
+        <!-- Web Showcase → FastAPI -->
         <line x1="250" y1="336" x2="640" y2="336" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
         <rect x="398" y="322" width="96" height="12" rx="2" fill="#f2e6d8"/>
         <text x="446" y="332" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.04em">POST /api/sim/*</text>
@@ -2573,7 +2840,7 @@
         <rect x="792" y="226" width="60" height="12" rx="2" fill="#f2e6d8"/>
         <text x="822" y="236" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">API 不可用</text>
 
-        <!-- SQL → Web 模擬器 (return) -->
+        <!-- SQL → Web Showcase (return) -->
         <path d="M 715,372 V 400 H 175 V 372" fill="none" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
         <rect x="386" y="388" width="96" height="12" rx="2" fill="#f2e6d8"/>
         <text x="434" y="398" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.04em">GET /api/stats/*</text>
@@ -2593,12 +2860,12 @@
         <text x="395" y="220" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Wokwi</text>
         <text x="395" y="236" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">硬體模擬展示</text>
 
-        <!-- Web 模擬器 -->
+        <!-- Web Showcase -->
         <rect x="100" y="300" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
         <rect x="108" y="308" width="40" height="12" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
         <text x="128" y="317" fill="#593e2e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
-        <text x="175" y="340" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Web 模擬器</text>
-        <text x="175" y="356" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Game Boy 風格</text>
+        <text x="175" y="340" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Web Showcase</text>
+        <text x="175" y="356" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Section 10 / 10b</text>
 
         <!-- FastAPI -->
         <rect x="640" y="180" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
@@ -2640,7 +2907,7 @@
         <line x1="680" y1="509" x2="698" y2="509" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
         <text x="706" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">回傳 / 降級</text>
 
-        <text x="60" y="542" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">API 正常時以 FastAPI + SQL 為單一資料來源；不可用時前端降級為本機 demo，不阻塞互動。</text>
+        <text x="60" y="542" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">FastAPI + SQL 為預留架構；showcase 以本機 demo 展示，不阻塞互動。</text>
       </svg>
       </div>
         <div class="diagram-nav">
@@ -3966,6 +4233,157 @@ animate();
   tickClock();
   setInterval(tickClock, 1000);
   render();
+})();
+</script>
+
+<!-- ===== 10b. 互動紀錄：Chart.js 統計（示範資料） ===== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var charts = {};
+  var ink = '#593e2e';
+  var soft = '#63554b';
+  var line = '#e6ded3';
+  var font = { family: "-apple-system, BlinkMacSystemFont, 'Noto Sans TC', sans-serif" };
+
+  function updateLiveState() {
+    var stateEl = document.getElementById('hw-state');
+    var bagsEl = document.getElementById('hw-bags');
+    var dailyEl = document.getElementById('hw-daily');
+    var state = stateEl ? stateEl.textContent.trim() : 'IDLE';
+    var bagsText = bagsEl ? bagsEl.textContent.trim() : '0/5';
+    var dailyText = dailyEl ? dailyEl.textContent.trim() : '0/2';
+    var bags = parseInt(bagsText, 10);
+    if (isNaN(bags)) bags = 0;
+
+    var liveState = document.getElementById('sim-live-state');
+    var liveBags = document.getElementById('sim-live-bags');
+    var liveDaily = document.getElementById('sim-live-daily');
+    if (liveState) liveState.textContent = state;
+    if (liveBags) liveBags.textContent = bags + ' / 5';
+    if (liveDaily) liveDaily.textContent = dailyText.replace('/', ' / ');
+
+    if (charts.status) {
+      charts.status.data.datasets[0].data = [bags, Math.max(0, 5 - bags)];
+      charts.status.update();
+    }
+  }
+
+  function observeConsole() {
+    updateLiveState();
+    var ids = ['hw-state', 'hw-bags', 'hw-daily'];
+    if (window.MutationObserver) {
+      var observer = new MutationObserver(updateLiveState);
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) observer.observe(el, { childList: true, characterData: true, subtree: true });
+      });
+    } else {
+      setInterval(updateLiveState, 500);
+    }
+  }
+
+  if (typeof Chart === 'undefined') {
+    document.querySelectorAll('.sim-chart-wrap').forEach(function (wrap) {
+      wrap.innerHTML = '<p class="sim-chart-fallback">Chart.js 未載入，圖表暫時無法顯示；Section 10 的操作仍可正常使用。</p>';
+    });
+    observeConsole();
+    return;
+  }
+
+  var base = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: ink,
+          font: font,
+          boxWidth: 10,
+          boxHeight: 10
+        }
+      }
+    }
+  };
+
+  function makeChart(id, config) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    return new Chart(el.getContext('2d'), config);
+  }
+
+  charts.emotion = makeChart('sim-emotion-chart', {
+    type: 'doughnut',
+    data: {
+      labels: ['ㄍㄢˋ 憤怒', 'ㄎㄠˋ 不爽', 'ㄘㄠˋ 煩躁'],
+      datasets: [{
+        data: [45, 30, 25],
+        backgroundColor: ['#8c5b3e', '#bf9b7a', '#555934'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: Object.assign({}, base, { cutout: '58%' })
+  });
+
+  charts.weekly = makeChart('sim-weekly-chart', {
+    type: 'bar',
+    data: {
+      labels: ['週一', '週二', '週三', '週四', '週五', '週六', '週日'],
+      datasets: [{
+        label: '清運次數',
+        data: [2, 3, 1, 4, 2, 1, 1],
+        backgroundColor: '#8c5b3e',
+        borderRadius: 4,
+        maxBarThickness: 34
+      }]
+    },
+    options: Object.assign({}, base, {
+      scales: {
+        x: { ticks: { color: soft, font: font }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { color: soft, stepSize: 1, precision: 0 }, grid: { color: line } }
+      }
+    })
+  });
+
+  charts.response = makeChart('sim-response-chart', {
+    type: 'bar',
+    data: {
+      labels: ['小心', '謝謝', '回收'],
+      datasets: [{
+        label: '回應次數',
+        data: [50, 25, 25],
+        backgroundColor: ['#555934', '#bf9b7a', '#8c5b3e'],
+        borderRadius: 4,
+        maxBarThickness: 26
+      }]
+    },
+    options: Object.assign({}, base, {
+      indexAxis: 'y',
+      scales: {
+        x: { beginAtZero: true, ticks: { color: soft, stepSize: 10 }, grid: { color: line } },
+        y: { ticks: { color: soft, font: font }, grid: { display: false } }
+      }
+    })
+  });
+
+  charts.status = makeChart('sim-status-chart', {
+    type: 'doughnut',
+    data: {
+      labels: ['已使用', '剩餘'],
+      datasets: [{
+        data: [0, 5],
+        backgroundColor: ['#8c5b3e', '#e6ded3'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: Object.assign({}, base, { cutout: '65%' })
+  });
+
+  observeConsole();
 })();
 </script>
 

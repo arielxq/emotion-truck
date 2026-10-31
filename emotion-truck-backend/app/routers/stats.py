@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.db import execute_query
+from app.services.stats_service import get_response_stats
 
 router = APIRouter(prefix="/api/stats", tags=["stats"])
 
@@ -41,3 +42,9 @@ async def get_emotion_stats(source: str = "HARDWARE"):
         ORDER BY count DESC
     """
     return execute_query(sql, {"source": source})
+
+
+@router.get("/responses")
+async def get_responses(source: str = "HARDWARE"):
+    """工作人員回應分布（支援 HARDWARE / SIMULATION / ALL）"""
+    return get_response_stats(source)

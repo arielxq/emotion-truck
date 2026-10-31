@@ -62,7 +62,7 @@
     <div class="diagram-container">
       <svg viewBox="0 0 1080 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="emotion-arch-title emotion-arch-desc">
         <title id="emotion-arch-title">情緒垃圾車系統架構</title>
-        <desc id="emotion-arch-desc">ESP32 硬體與 Web 模擬器透過 FastAPI 與 SQL 串接；API 不可用時降級為 demo fallback，Wokwi 作為硬體模擬展示。</desc>
+        <desc id="emotion-arch-desc">ESP32 硬體與 Web Showcase（Section 10/10b）共用狀態規格；FastAPI 與 SQL 為預留架構，showcase 目前以 demo 資料展示，Wokwi 作為硬體模擬展示。</desc>
         <defs>
           <marker id="arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#63554b"/></marker>
           <marker id="arch-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8c5b3e"/></marker>
@@ -88,12 +88,12 @@
         <rect x="258" y="204" width="56" height="12" rx="2" fill="#f2e6d8"/>
         <text x="286" y="214" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">硬體模擬</text>
 
-        <!-- ESP32 → Web 模擬器 -->
+        <!-- ESP32 → Web Showcase -->
         <line x1="175" y1="252" x2="175" y2="300" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
         <rect x="150" y="262" width="52" height="12" rx="2" fill="#f2e6d8"/>
         <text x="176" y="272" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">狀態同步</text>
 
-        <!-- Web 模擬器 → FastAPI -->
+        <!-- Web Showcase → FastAPI -->
         <line x1="250" y1="336" x2="640" y2="336" stroke="#63554b" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
         <rect x="398" y="322" width="96" height="12" rx="2" fill="#f2e6d8"/>
         <text x="446" y="332" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.04em">POST /api/sim/*</text>
@@ -108,7 +108,7 @@
         <rect x="792" y="226" width="60" height="12" rx="2" fill="#f2e6d8"/>
         <text x="822" y="236" fill="#8c5b3e" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">API 不可用</text>
 
-        <!-- SQL → Web 模擬器 (return) -->
+        <!-- SQL → Web Showcase (return) -->
         <path d="M 715,372 V 400 H 175 V 372" fill="none" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
         <rect x="386" y="388" width="96" height="12" rx="2" fill="#f2e6d8"/>
         <text x="434" y="398" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.04em">GET /api/stats/*</text>
@@ -128,12 +128,12 @@
         <text x="395" y="220" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Wokwi</text>
         <text x="395" y="236" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">硬體模擬展示</text>
 
-        <!-- Web 模擬器 -->
+        <!-- Web Showcase -->
         <rect x="100" y="300" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
         <rect x="108" y="308" width="40" height="12" rx="2" fill="none" stroke="rgba(89,62,46,0.40)" stroke-width="0.8"/>
         <text x="128" y="317" fill="#593e2e" font-size="6.5" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
-        <text x="175" y="340" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Web 模擬器</text>
-        <text x="175" y="356" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Game Boy 風格</text>
+        <text x="175" y="340" fill="#593e2e" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">Web Showcase</text>
+        <text x="175" y="356" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Section 10 / 10b</text>
 
         <!-- FastAPI -->
         <rect x="640" y="180" width="150" height="72" rx="8" fill="#ffffff" stroke="#593e2e" stroke-width="1"/>
@@ -175,7 +175,7 @@
         <line x1="680" y1="509" x2="698" y2="509" stroke="#63554b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arch-arrow)"/>
         <text x="706" y="514" fill="#63554b" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">回傳 / 降級</text>
 
-        <text x="60" y="542" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">API 正常時以 FastAPI + SQL 為單一資料來源；不可用時前端降級為本機 demo，不阻塞互動。</text>
+        <text x="60" y="542" fill="#63554b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" font-style="italic">FastAPI + SQL 為預留架構；showcase 以本機 demo 展示，不阻塞互動。</text>
       </svg>
     </div>
   </div>

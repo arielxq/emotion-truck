@@ -1,6 +1,7 @@
 let currentSource = 'HARDWARE';
 let emotionChart = null;
 let weeklyChart = null;
+let responseChart = null;
 
 const EMOTION_LABELS = {
     'GAN': 'ㄍㄢˋ · 憤怒',
@@ -12,6 +13,18 @@ const EMOTION_COLORS = {
     'GAN': '#e74c3c',
     'KAO': '#e67e22',
     'CAO': '#f1c40f'
+};
+
+const RESPONSE_LABELS = {
+    'CAREFUL': '小心',
+    'THANKS': '謝謝',
+    'RECYCLE': '回收'
+};
+
+const RESPONSE_COLORS = {
+    'CAREFUL': '#555934',
+    'THANKS': '#bf9b7a',
+    'RECYCLE': '#8c5b3e'
 };
 
 async function fetchEmotionStats() {
@@ -67,6 +80,16 @@ async function fetchSummary() {
         returned,
         avg: count > 0 ? (sumBags / count).toFixed(2) : '0'
     };
+}
+
+async function fetchResponseStats() {
+    const data = await apiGet(`/api/stats/responses?source=${currentSource}`);
+    const totals = {};
+    data.forEach(row => {
+        const key = row.worker_prompt || 'UNKNOWN';
+        totals[key] = (totals[key] || 0) + row.count;
+    });
+    return totals;
 }
 
 function renderEmotionChart(totals) {
@@ -141,6 +164,49 @@ function renderWeeklyChart(totals) {
     });
 }
 
+function renderResponseChart(totals) {
+    const labels = Object.keys(totals).map(k => RESPONSE_LABELS[k] || k);
+    const values = Object.values(totals);
+    const colors = Object.keys(totals).map(k => RESPONSE_COLORS[k] || '#888');
+
+    if (responseChart) responseChart.destroy();
+
+    const ctx = document.getElementById('responseChart').getContext('2d');
+    responseChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: '回應次數',
+                data: values,
+                backgroundColor: colors,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    labels: { color: '#eee' }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { color: '#eee', stepSize: 1 },
+                    grid: { color: '#0f3460' }
+                },
+                y: {
+                    ticks: { color: '#eee' },
+                    grid: { color: '#0f3460' }
+                }
+            }
+        }
+    });
+}
+
 async function loadAll() {
     try {
         const emotions = await fetchEmotionStats();
@@ -148,6 +214,9 @@ async function loadAll() {
 
         const weekly = await fetchWeeklyStats();
         renderWeeklyChart(weekly);
+
+        const responses = await fetchResponseStats();
+        renderResponseChart(responses);
 
         const summary = await fetchSummary();
         document.getElementById('stat-total').textContent = summary.total;
